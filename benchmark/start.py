@@ -13,7 +13,7 @@ def get_engine_command(host):
 
 
 @cli.command()
-@click.option('--top_folder', help='folder to look for benchmarks')
+@click.option('--top_folder', help='folder to look for benchmarks', default='.')
 @click.option('--host', help='cluster you are running on')
 def start(host, top_folder):
     bundle = mds.discover(top_folder)

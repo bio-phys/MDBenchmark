@@ -69,7 +69,7 @@ def plot(df):
 
 
 @cli.command()
-@click.option('--top_folder', help='folder to look for benchmarks')
+@click.option('--top_folder', help='folder to look for benchmarks', default='.')
 @click.option('--plot', is_flag=True, help='plot performance')
 def analyze(top_folder, plot):
     bundle = mds.discover(top_folder)

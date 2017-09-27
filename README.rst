@@ -11,10 +11,10 @@ tell the script it runs on draco.
 
 .. code::
 
-    benchmark start --top_folder 5.1.4 --host draco
+    benchmark start --host draco
 
 Run a analysis script to produce a csv. Optional add --plot.
 
 .. code::
 
-    benchmark analyze --top_folder 5.1.4
+    benchmark analyze
