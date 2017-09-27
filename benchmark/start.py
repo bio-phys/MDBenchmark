@@ -7,9 +7,9 @@ import mdsynthesis as mds
 from .cli import cli
 
 
-def get_engine_command(host, jobname):
+def get_engine_command(host):
     if host == 'draco':
-        return 'sbatch {}'.format(jobname)
+        return 'sbatch'
 
 
 @cli.command()
@@ -20,4 +20,4 @@ def start(host, top_folder):
 
     for b in bundle:
         os.chdir(b.abspath)
-        subprocess.call(get_engine_command(host, 'bench.job'))
+        subprocess.call([get_engine_command(host), 'bench.job'])
