@@ -1,5 +1,4 @@
 import os
-import socket
 from glob import glob
 
 import click
@@ -13,6 +12,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from .cli import cli
+from .util import guess_host
 
 
 def analyze_run(sim):
@@ -28,7 +28,7 @@ def analyze_run(sim):
                 break
 
     return (sim.categories['version'], sim.categories['nodes'], ns_day,
-            sim.categories['gpu'], socket.gethostname())
+            sim.categories['gpu'], guess_host())
 
 
 def plot(df):

@@ -9,7 +9,7 @@ def get_possible_hosts():
 
 
 def guess_host():
-    hostname = socket.gethostbyname()
+    hostname = socket.gethostname()
     known_hosts = get_possible_hosts()
     for h in known_hosts:
         if h in hostname:
