@@ -33,11 +33,11 @@ def write_bench(top, tmpl, n, gpu, version, name):
 @click.option('--gpu', is_flag=True, help='run on gpu as well')
 @click.option('--version', help='gromacs module to use')
 @click.option('--top_folder')
-@click.option('--template', help='job template name')
+@click.option('--host', help='job template name')
 @click.option('--max_nodes', help='test up to n nodes', type=int)
-def generate(name, gpu, version, top_folder, template, max_nodes):
+def generate(name, gpu, version, top_folder, host, max_nodes):
     top = dtr.Tree(top_folder)
-    tmpl = ENV.get_template(template)
+    tmpl = ENV.get_template(host)
 
     for n in range(max_nodes):
         write_bench(top, tmpl, n + 1, gpu, version, name)
