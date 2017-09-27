@@ -9,7 +9,7 @@ from .util import normalize_host
 
 
 def get_engine_command(host):
-    if host == 'draco':
+    if host == 'draco' or host == 'hydra':
         return 'sbatch'
 
 
