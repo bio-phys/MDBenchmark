@@ -63,7 +63,7 @@ def plot(df):
     ax.set(
         xlim=(min_nodes - .5, max_nodes + .5),
         xticks=np.arange(min_nodes, max_nodes + 1),
-        title=socket.gethostname())
+        title=guess_host())
 
     fig.savefig('runtimes.pdf')
 
