@@ -16,6 +16,8 @@ def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
                     'nodes': n,
                     'host': host,
                     'name': name})
+    sim.universedef.topology = name + 'tpr'
+    sim.universedef.trajectory = name + 'xtc'
     # copy input files
     mdp = '{}.mdp'.format(name)
     tpr = '{}.tpr'.format(name)
