@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='benchmark',
-    version='0.1',
+    version='1.0',
     description='benchmark gromacs simulations',
     author='Max Linke',
     install_requires=[
@@ -14,10 +14,6 @@ setup(
         'seaborn',
         'pandas',
         'matplotlib'
-    ],
-    tests_require=[
-        'pytest',
-        'scipy'
     ],
     entry_points={'console_scripts':
                   ['benchmark=benchmark.cli:cli']},
