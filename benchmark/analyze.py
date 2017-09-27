@@ -75,7 +75,7 @@ def analyze(top_folder, plot):
     bundle = mds.discover(top_folder)
     df = pd.DataFrame(columns=['gromacs', 'nodes', 'ns/day', 'gpu', 'host'])
     for i, sim in enumerate(bundle):
-        df.loc[i] = analyze(sim)
+        df.loc[i] = analyze_run(sim)
     print(df)
     df.to_csv('runtimes.csv')
     if plot:
