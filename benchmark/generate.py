@@ -2,12 +2,12 @@ from shutil import copyfile
 
 import click
 import datreant.core as dtr
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 import mdsynthesis as mds
 
 from .cli import cli
 
-ENV = Environment(loader=FileSystemLoader('.'))
+ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
 
 
 def write_bench(top, tmpl, n, gpu, version, name):
@@ -16,7 +16,7 @@ def write_bench(top, tmpl, n, gpu, version, name):
         categories={'version': version,
                     'gpu': gpu,
                     'nodes': n})
-    # # copy input files
+    # copy input files
     # mdp = '{}.mdp'.format(name)
     # tpr = '{}.tpr'.format(name)
     # copyfile(tpr, sim[tpr].relpath)
@@ -34,11 +34,10 @@ def write_bench(top, tmpl, n, gpu, version, name):
 @click.option('--version', help='gromacs module to use')
 @click.option('--top_folder')
 @click.option('--template', help='job template name')
-@click.option('--max_nodes', help='test up to n nodes')
+@click.option('--max_nodes', help='test up to n nodes', type=int)
 def generate(name, gpu, version, top_folder, template, max_nodes):
     top = dtr.Tree(top_folder)
-    # tmpl = ENV.get_template(args.template)
-    tmpl = None
+    tmpl = ENV.get_template(template)
 
     for n in range(max_nodes):
         write_bench(top, tmpl, n + 1, gpu, version, name)
