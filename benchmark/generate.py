@@ -8,7 +8,7 @@ from .cli import cli
 from .util import ENV, normalize_host
 
 
-def write_bench(top, tmpl, n, gpu, version, name, host):
+def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
     sim = mds.Sim(
         top['{}/'.format(n)],
         categories={'version': version,
@@ -22,7 +22,7 @@ def write_bench(top, tmpl, n, gpu, version, name, host):
     copyfile(tpr, sim[tpr].relpath)
     copyfile(mdp, sim[mdp].relpath)
     # create bench job script
-    script = tmpl.render(name=name, gpu=gpu, version=version, n_nodes=n)
+    script = tmpl.render(name=name, gpu=gpu, version=version, n_nodes=n, maxh=maxh)
     with open(sim['bench.job'].relpath, 'w') as fh:
         fh.write(script)
 
@@ -33,7 +33,8 @@ def write_bench(top, tmpl, n, gpu, version, name, host):
 @click.option('--version', help='gromacs module to use', multiple=True)
 @click.option('--host', help='job template name', default=None)
 @click.option('--max_nodes', help='test up to n nodes', type=int)
-def generate(name, gpu, version,  host, max_nodes):
+@click.option('--maxh', help='runtime of tests in hours', type=float, default=.1)
+def generate(name, gpu, version,  host, max_nodes, maxh):
     host = normalize_host(host)
     tmpl = ENV.get_template(host)
 
@@ -44,4 +45,4 @@ def generate(name, gpu, version,  host, max_nodes):
         top = dtr.Tree(top_folder)
 
         for n in range(max_nodes):
-            write_bench(top, tmpl, n + 1, gpu, v, name, host)
+            write_bench(top, tmpl, n + 1, gpu, v, name, host, maxh)

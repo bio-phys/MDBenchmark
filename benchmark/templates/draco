@@ -29,4 +29,4 @@ module unload gromacs
 module load gromacs/{{ version }}
 
 # Run gromacs for 6 minutes
-srun gmx_mpi mdrun -v  -maxh .1 -deffnm {{ name }}
+srun gmx_mpi mdrun -v  -maxh {{ maxh }} -deffnm {{ name }}
