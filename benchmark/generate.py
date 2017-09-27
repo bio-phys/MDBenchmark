@@ -11,11 +11,13 @@ from .util import ENV, normalize_host
 def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
     sim = mds.Sim(
         top['{}/'.format(n)],
-        categories={'version': version,
-                    'gpu': gpu,
-                    'nodes': n,
-                    'host': host,
-                    'name': name})
+        categories={
+            'version': version,
+            'gpu': gpu,
+            'nodes': n,
+            'host': host,
+            'name': name
+        })
     sim.universedef.topology = name + '.tpr'
     sim.universedef.trajectory = name + '.xtc'
     # copy input files
@@ -24,7 +26,8 @@ def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
     copyfile(tpr, sim[tpr].relpath)
     copyfile(mdp, sim[mdp].relpath)
     # create bench job script
-    script = tmpl.render(name=name, gpu=gpu, version=version, n_nodes=n, maxh=maxh)
+    script = tmpl.render(
+        name=name, gpu=gpu, version=version, n_nodes=n, maxh=maxh)
     with open(sim['bench.job'].relpath, 'w') as fh:
         fh.write(script)
 
@@ -35,8 +38,9 @@ def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
 @click.option('--version', help='gromacs module to use', multiple=True)
 @click.option('--host', help='job template name', default=None)
 @click.option('--max_nodes', help='test up to n nodes', type=int)
-@click.option('--maxh', help='runtime of tests in hours', type=float, default=.1)
-def generate(name, gpu, version,  host, max_nodes, maxh):
+@click.option(
+    '--maxh', help='runtime of tests in hours', type=float, default=.1)
+def generate(name, gpu, version, host, max_nodes, maxh):
     host = normalize_host(host)
     tmpl = ENV.get_template(host)
 
