@@ -1,0 +1,32 @@
+#!/bin/bash -l
+# Standard output and error:
+#SBATCH -o ./{{ name }}.out.%j
+#SBATCH -e ./{{ name }}.err.%j
+# Initial working directory:
+#SBATCH -D ./
+# Job Name:
+#SBATCH -J {{ name }}
+#
+# Queue (Partition):
+{%- if gpu %}
+#SBATCH --partition=gpu
+#SBATCH --constraint='gpu'
+{%- else %}
+#SBATCH --partition=general
+{%- endif %}
+#
+# Number of nodes and MPI tasks per node:
+#SBATCH --nodes={{ n_nodes }}
+#SBATCH --ntasks-per-node=32
+#
+#SBATCH --mail-type=none
+#SBATCH --mail-user=malinke@biophys.mpg.de
+# Wall clock limit:
+#SBATCH --time=24:00:00
+
+# Load default gromacs
+module unload gromacs
+module load gromacs/{{ version }}
+
+# Run gromacs for 6 minutes
+srun gmx_mpi mdrun -v  -maxh .1 -deffnm {{ name }}
