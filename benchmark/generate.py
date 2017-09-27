@@ -29,10 +29,15 @@ def write_bench(top, tmpl, n, gpu, version, name):
 @click.option('--name', help='name of tpr/mdp file')
 @click.option('--gpu', is_flag=True, help='run on gpu as well')
 @click.option('--version', help='gromacs module to use')
-@click.option('--top_folder')
+@click.option('--top_folder', default=None)
 @click.option('--host', help='job template name', default=None)
 @click.option('--max_nodes', help='test up to n nodes', type=int)
 def generate(name, gpu, version, top_folder, host, max_nodes):
+    if top_folder is None:
+        top_folder = version
+        if gpu:
+            top_folder += '-gpu'
+
     top = dtr.Tree(top_folder)
 
     host = normalize_host(host)
