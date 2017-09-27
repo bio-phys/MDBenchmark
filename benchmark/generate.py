@@ -17,15 +17,15 @@ def write_bench(top, tmpl, n, gpu, version, name):
                     'gpu': gpu,
                     'nodes': n})
     # copy input files
-    # mdp = '{}.mdp'.format(name)
-    # tpr = '{}.tpr'.format(name)
-    # copyfile(tpr, sim[tpr].relpath)
-    # copyfile(mdp, sim[mdp].relpath)
-    # # create bench job script
-    # script = tmpl.render(
-    #     name=name, gpu=gpu, version=version, n_nodes=n)
-    # with open(sim['bench.slurm'].relpath, 'w') as fh:
-    #     fh.write(script)
+    mdp = '{}.mdp'.format(name)
+    tpr = '{}.tpr'.format(name)
+    copyfile(tpr, sim[tpr].relpath)
+    copyfile(mdp, sim[mdp].relpath)
+    # create bench job script
+    script = tmpl.render(
+        name=name, gpu=gpu, version=version, n_nodes=n)
+    with open(sim['bench.job'].relpath, 'w') as fh:
+        fh.write(script)
 
 
 @cli.command()
