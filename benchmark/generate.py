@@ -45,9 +45,9 @@ def generate(name, gpu, version, host, max_nodes, maxh):
     tmpl = ENV.get_template(host)
 
     for v in version:
-        top_folder = v
+        top_folder = '{}_{}'.format(host, v)
         if gpu:
-            top_folder += '-gpu'
+            top_folder += '_gpu'
         top = dtr.Tree(top_folder)
 
         for n in range(max_nodes):
