@@ -23,7 +23,7 @@ def get_engine_command():
 @cli.command()
 @click.option(
     '--top_folder', help='folder to look for benchmarks', default='.')
-def start(host, top_folder):
+def start(top_folder):
     """start benchmark simulations found in recursive search of top_folder"""
     bundle = mds.discover(top_folder)
     for b in bundle:
