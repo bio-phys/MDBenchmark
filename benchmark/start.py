@@ -9,7 +9,8 @@ from .cli import cli
 
 PATHS = os.environ['PATH'].split(':')
 BATCH_SYSTEMS = {'slurm': 'sbatch',
-                 'sge': 'qsub'}
+                 'sge': 'qsub',
+                 'Loadleveler': 'llsubmit'}
 
 
 def get_engine_command():
