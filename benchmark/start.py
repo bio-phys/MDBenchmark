@@ -1,25 +1,31 @@
 import os
 import subprocess
+from glob import glob
 
 import click
 import mdsynthesis as mds
 
 from .cli import cli
-from .util import normalize_host
+
+PATHS = os.environ['PATH'].split(':')
+BATCH_SYSTEMS = {'slurm': 'sbatch',
+                 'sge': 'qsub'}
 
 
-def get_engine_command(host):
-    if host == 'draco' or host == 'hydra':
-        return 'sbatch'
+def get_engine_command():
+    for p in PATHS:
+        for b in BATCH_SYSTEMS.values():
+            if glob(os.path.join(p, b)):
+                return b
+    raise RuntimeError("Didn't find a batch system")
 
 
 @cli.command()
 @click.option(
     '--top_folder', help='folder to look for benchmarks', default='.')
-@click.option('--host', help='cluster you are running on', default=None)
 def start(host, top_folder):
+    """start benchmark simulations found in recursive search of top_folder"""
     bundle = mds.discover(top_folder)
-    host = normalize_host(host)
     for b in bundle:
         os.chdir(b.abspath)
-        subprocess.call([get_engine_command(host), 'bench.job'])
+        subprocess.call([get_engine_command(), 'bench.job'])
