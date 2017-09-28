@@ -5,8 +5,7 @@ import datreant.core as dtr
 import mdsynthesis as mds
 
 from .cli import cli
-from .util import ENV, normalize_host
-
+from .util import ENV, get_possible_hosts, normalize_host
 
 def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
     sim = mds.Sim(
@@ -40,7 +39,13 @@ def write_bench(top, tmpl, n, gpu, version, name, host, maxh):
 @click.option('--max_nodes', help='test up to n nodes', type=int)
 @click.option(
     '--maxh', help='runtime of tests in hours', type=float, default=.1)
-def generate(name, gpu, version, host, max_nodes, maxh):
+@click.option('--list_hosts', help='show known hosts', is_flag=True)
+def generate(name, gpu, version, host, max_nodes, maxh, list_hosts):
+    if list_hosts:
+        print(get_possible_hosts())
+        return
+
+
     host = normalize_host(host)
     tmpl = ENV.get_template(host)
 
