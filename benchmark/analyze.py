@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from .cli import cli
-from .util import guess_host
 
 
 def analyze_run(sim):
@@ -28,7 +27,7 @@ def analyze_run(sim):
                 break
 
     return (sim.categories['version'], sim.categories['nodes'], ns_day,
-            sim.categories['gpu'], guess_host())
+            sim.categories['gpu'], sim.categories['host'])
 
 
 def plot(df):
@@ -63,13 +62,14 @@ def plot(df):
     ax.set(
         xlim=(min_nodes - .5, max_nodes + .5),
         xticks=np.arange(min_nodes, max_nodes + 1),
-        title=guess_host())
+        title=df['host'][0])
 
     fig.savefig('runtimes.pdf')
 
 
 @cli.command()
-@click.option('--top_folder', help='folder to look for benchmarks', default='.')
+@click.option(
+    '--top_folder', help='folder to look for benchmarks', default='.')
 @click.option('--plot', is_flag=True, help='plot performance')
 def analyze(top_folder, plot):
     bundle = mds.discover(top_folder)
