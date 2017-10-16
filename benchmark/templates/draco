@@ -12,18 +12,23 @@
 #SBATCH --partition=gpu
 #SBATCH --constraint='gpu'
 {%- else %}
+{%- if time is lessthan 30 or time is equalto 30 %}
+#SBATCH --partition=express
+{%- elif time is greaterthan 30 and time is lessthan 240 or time is equalto 240 %}
+#SBATCH --partition=short
+{%- else %}
 #SBATCH --partition=general
+{%- endif %}
 {%- endif %}
 #
 # Number of nodes and MPI tasks per node:
 #SBATCH --nodes={{ n_nodes }}
 #SBATCH --ntasks-per-node=32
 # Wall clock limit:
-#SBATCH --time=24:00:00
+#SBATCH --time={{ formatted_time }}
 
-# Load default gromacs
 module unload gromacs
 module load gromacs/{{ version }}
 
-# Run gromacs for 6 minutes
+# Run gromacs/{{ version }} for {{ time }} minutes
 srun gmx_mpi mdrun -v  -maxh {{ maxh }} -deffnm {{ name }}

@@ -11,11 +11,10 @@
 {%- endif %}
 # @ resources = ConsumableCpus(1)
 # @ network.MPI = sn_all,not_shared,us
-# @ wall_clock_limit = 02:00:00
+# @ wall_clock_limit = {{ formatted_time }}
 # @ queue
 
-# load the program
 module load gromacs/{{ version }}
 
-# run the program
+# run gromacs/{{ version }} for {{ time }} minutes
 poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}
