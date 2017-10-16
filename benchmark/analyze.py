@@ -2,16 +2,13 @@ import os
 from glob import glob
 
 import click
+import matplotlib.pyplot as plt
 import mdsynthesis as mds
 import numpy as np
 import pandas as pd
 
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 from .cli import cli
+from .util import calc_slope_intercept, lin_func
 
 
 def analyze_run(sim):
@@ -31,40 +28,59 @@ def analyze_run(sim):
 
 
 def plot_analysis(df):
-    gb = df.groupby('gpu')
-    fig, ax = plt.subplots()
+    f, ax = plt.subplots()
 
-    gpu = gb.get_group(True)
-    # adopt names for seaborn legend
-    gpu['gromacs'] = gpu['gromacs'].apply(lambda e: '{}-gpu'.format(e))
+    max_x = df['nodes'].max()
+    max_y = df['ns/day'].max()
 
-    sns.tsplot(
-        gpu,
-        time='nodes',
-        value='ns/day',
-        condition='gromacs',
-        unit='host',
-        ax=ax,
-        color=sns.color_palette('hls', 3),
-        marker='o')
-    sns.tsplot(
-        gb.get_group(False),
-        time='nodes',
-        value='ns/day',
-        condition='gromacs',
-        unit='host',
-        ax=ax,
-        marker='o')
+    x = np.arange(1, max_x + 1, 1)
 
-    max_nodes = df['nodes'].max()
-    min_nodes = df['nodes'].min()
+    cpu_data = df[(~df['gpu'])].sort_values('nodes').reset_index()
+    ax.plot(cpu_data['ns/day'], '.-', ms='10', color='C0', label='CPU')
+    slope, intercept = calc_slope_intercept(x[0], cpu_data['ns/day'][0], x[1],
+                                            cpu_data['ns/day'][1])
+    ax.plot(
+        x - 1,
+        lin_func(x, slope, intercept),
+        ls='dashed',
+        color='C0',
+        alpha=0.5)
 
-    ax.set(
-        xlim=(min_nodes - .5, max_nodes + .5),
-        xticks=np.arange(min_nodes, max_nodes + 1),
-        title=df['host'][0])
+    if df['gpu'].any():
+        gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
 
-    fig.savefig('runtimes.pdf')
+        ax.plot(gpu_data['ns/day'], '.-', ms='10', color='C1', label='GPU')
+        slope, intercept = calc_slope_intercept(x[0], gpu_data['ns/day'][0],
+                                                x[1], gpu_data['ns/day'][1])
+        ax.plot(
+            x - 1,
+            lin_func(x, slope, intercept),
+            ls='dashed',
+            color='C1',
+            alpha=0.5)
+
+    ax.set_xticks(x - 1)
+    ax.set_xticklabels(x)
+
+    axTicks = ax.get_xticks()
+
+    ax2 = ax.twiny()
+    ax2.set_xticks(axTicks)
+    ax2.set_xbound(ax.get_xbound())
+    ax2.set_xticklabels(x for x in axTicks * 24)
+
+    ax.set_xlabel('Number of nodes')
+    ax.set_ylabel('Performance [ns/day]')
+
+    ax.set_yticks(np.arange(0, max_y + max_y * 0.1, 15))
+    ax.set_ylim(ymax=max_y + max_y * 0.1)
+
+    ax2.set_xlabel('{}'.format('{}\n\nCores'.format(df['host'][0])))
+
+    ax.legend()
+
+    f.tight_layout()
+    f.savefig('runtimes.pdf', format='pdf')
 
 
 @cli.command()
@@ -74,9 +90,15 @@ def plot_analysis(df):
 def analyze(top_folder, plot):
     bundle = mds.discover(top_folder)
     df = pd.DataFrame(columns=['gromacs', 'nodes', 'ns/day', 'gpu', 'host'])
+
     for i, sim in enumerate(bundle):
         df.loc[i] = analyze_run(sim)
+
+    # Sort values by `nodes`
+    df = df.sort_values(['host', 'gromacs', 'gpu', 'nodes']).reset_index(
+        drop=True)
     print(df)
     df.to_csv('runtimes.csv')
+
     if plot:
         plot_analysis(df)

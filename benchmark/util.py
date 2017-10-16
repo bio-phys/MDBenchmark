@@ -1,4 +1,6 @@
 import socket
+
+import numpy as np
 from jinja2 import Environment, PackageLoader
 
 ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
@@ -25,3 +27,14 @@ def normalize_host(host):
             raise RuntimeError(
                 "Couldn't guess host. Please provide explicit host")
     return host
+
+
+def lin_func(x, m, b):
+    return m * x + b
+
+
+def calc_slope_intercept(x1, y1, x2, y2):
+    slope = (y2 - y1) / (x2 - x1)
+    intercept = y1 - (x1 * slope)
+
+    return np.hstack([slope, intercept])
