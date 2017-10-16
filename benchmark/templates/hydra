@@ -3,17 +3,13 @@
 # @ error = {{ name }}.err.$(jobid)
 # @ output = {{ name }}.out.$(jobid)
 # @ job_type = parallel
-# @ node_usage= not_shared
+# @ node_usage = not_shared
 # @ node = {{ n_nodes }}
-{%- if gpu %}
-# gpu means ivy bridge and more cores
 # @ tasks_per_node = 20
+{%- if gpu %}
 # @ requirements = (Feature=="gpu")
-{%- else %}
-# non gpu means more likey to run on sandy bridge
-# @ tasks_per_node = 16
 {%- endif %}
-# @ resources = ConsumableCpus(2)
+# @ resources = ConsumableCpus(1)
 # @ network.MPI = sn_all,not_shared,us
 # @ wall_clock_limit = 02:00:00
 # @ queue
@@ -22,4 +18,4 @@
 module load gromacs/{{ version }}
 
 # run the program
-poe gmx_mpi mdrun -deffnm {{ name }} -maxh  {{ maxh }}
+poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}

@@ -18,9 +18,6 @@
 # Number of nodes and MPI tasks per node:
 #SBATCH --nodes={{ n_nodes }}
 #SBATCH --ntasks-per-node=32
-#
-#SBATCH --mail-type=none
-#SBATCH --mail-user=malinke@biophys.mpg.de
 # Wall clock limit:
 #SBATCH --time=24:00:00
 
