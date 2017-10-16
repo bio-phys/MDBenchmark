@@ -30,7 +30,7 @@ def analyze_run(sim):
             sim.categories['gpu'], sim.categories['host'])
 
 
-def plot(df):
+def plot_analysis(df):
     gb = df.groupby('gpu')
     fig, ax = plt.subplots()
 
@@ -79,4 +79,4 @@ def analyze(top_folder, plot):
     print(df)
     df.to_csv('runtimes.csv')
     if plot:
-        plot(df)
+        plot_analysis(df)
