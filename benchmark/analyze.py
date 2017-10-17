@@ -107,4 +107,5 @@ def analyze(top_folder, plot):
     df.to_csv('runtimes.csv')
 
     if plot:
+        df = pd.DataFrame.from_csv('runtimes.csv')
         plot_analysis(df)
