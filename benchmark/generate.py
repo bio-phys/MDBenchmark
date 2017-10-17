@@ -8,17 +8,18 @@ from .cli import cli
 from .util import ENV, get_possible_hosts, normalize_host
 
 
-def write_bench(top, tmpl, n, gpu, version, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     if time > 1440:
         raise ValueError('Cannot create batch jobs running longer than 24h.')
 
     sim = mds.Sim(
-        top['{}/'.format(n)],
+        top['{}/'.format(nodes)],
         categories={
             'version': version,
             'gpu': gpu,
-            'nodes': n,
+            'nodes': nodes,
             'host': host,
+            'time': time,
             'name': name
         })
     sim.universedef.topology = name + '.tpr'
@@ -37,7 +38,7 @@ def write_bench(top, tmpl, n, gpu, version, name, host, time):
         name=name,
         gpu=gpu,
         version=version,
-        n_nodes=n,
+        n_nodes=nodes,
         time=time,
         formatted_time=formatted_time,
         maxh=maxh)
