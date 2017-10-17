@@ -2,10 +2,11 @@ import os
 from glob import glob
 
 import click
-import matplotlib.pyplot as plt
 import mdsynthesis as mds
 import numpy as np
 import pandas as pd
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 from .cli import cli
 from .util import calc_slope_intercept, lin_func
@@ -28,7 +29,12 @@ def analyze_run(sim):
 
 
 def plot_analysis(df):
-    f, ax = plt.subplots()
+    # We have to use the matplotlib object-oriented interface directly, because
+    # it expects a display to be attached to the system, which we don't on the
+    # clusters.
+    f = Figure()
+    FigureCanvas(f)
+    ax = f.add_subplot(111)
 
     max_x = df['nodes'].max()
     max_y = df['ns/day'].max()
