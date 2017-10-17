@@ -10,6 +10,13 @@ def get_possible_hosts():
     return ENV.list_templates()
 
 
+def print_possible_hosts():
+    all_hosts = get_possible_hosts()
+    click.echo('Available host templates:')
+    for h in all_hosts:
+        click.echo('{}'.format(h))
+
+
 def guess_host():
     hostname = socket.gethostname()
     known_hosts = get_possible_hosts()

@@ -7,7 +7,7 @@ import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
 from .cli import cli
-from .util import ENV, get_possible_hosts, normalize_host
+from .util import ENV, normalize_host, print_possible_hosts
 
 
 def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
@@ -83,7 +83,7 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
 @click.option('-l', '--list-hosts', help='show known hosts', is_flag=True)
 def generate(name, gpu, version, host, max_nodes, time, list_hosts):
     if list_hosts:
-        print(get_possible_hosts())
+        print_possible_hosts()
         return
 
     host = normalize_host(host)
