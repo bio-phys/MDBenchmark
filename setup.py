@@ -5,6 +5,7 @@ setup(
     version='1.0',
     description='benchmark gromacs simulations',
     author='Max Linke',
+    packages=['benchmark'],
     install_requires=[
         'numpy>=1.8', 'mdsynthesis', 'click', 'jinja2', 'pandas', 'matplotlib'
     ],
