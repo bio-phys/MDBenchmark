@@ -1,6 +1,6 @@
 import socket
 
-import numpy as np
+import click
 from jinja2 import Environment, PackageLoader
 
 ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
@@ -24,8 +24,9 @@ def normalize_host(host):
     if host is None:
         host = guess_host()
         if host is None:
-            raise RuntimeError(
-                "Couldn't guess host. Please provide explicit host")
+            raise click.BadParameter(
+                'Could not guess host. Please provide a value explicitly.',
+                param_hint='"-h" / "--host"')
     return host
 
 

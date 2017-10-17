@@ -8,9 +8,7 @@ import mdsynthesis as mds
 from .cli import cli
 
 PATHS = os.environ['PATH'].split(':')
-BATCH_SYSTEMS = {'slurm': 'sbatch',
-                 'sge': 'qsub',
-                 'Loadleveler': 'llsubmit'}
+BATCH_SYSTEMS = {'slurm': 'sbatch', 'sge': 'qsub', 'Loadleveler': 'llsubmit'}
 
 
 def get_engine_command():
@@ -18,7 +16,9 @@ def get_engine_command():
         for b in BATCH_SYSTEMS.values():
             if glob(os.path.join(p, b)):
                 return b
-    raise RuntimeError("Didn't find a batch system")
+    raise click.UsageError(
+        'Was not able to find a batch system. Are you trying to use this '
+        'package on a host with a queuing system?')
 
 
 @cli.command()
