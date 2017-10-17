@@ -99,11 +99,29 @@ def generate(name, gpu, version, host, max_nodes, time, list_hosts):
             'You did not specify which gromacs version to use for scaling.',
             param_hint='"-v" / "--version"')
 
+    # Provide some output for the user
+    number_of_benchmarks = click.style(
+        '{}'.format(len(version) * max_nodes), bold=True)
+    run_time_each = click.style('{} minutes'.format(time), bold=True)
+    click.echo('Will create a total of {} benchmark systems, running {} each.'.
+               format(number_of_benchmarks, run_time_each))
+
     for v in version:
         directory = '{}_{}'.format(host, v)
+        gpu_string = '.'
+
         if gpu:
             directory += '_gpu'
+            gpu_string = ' with GPUs.'
         top = dtr.Tree(directory)
+
+        # More user output
+        gromacs_version = click.style(
+            'gromacs/{}'.format(v), blink=True, bold=True)
+        click.echo('Creating benchmark system for {}{}'.format(
+            gromacs_version, gpu_string))
 
         for n in range(max_nodes):
             write_bench(top, tmpl, n + 1, gpu, v, name, host, time)
+
+    click.echo('Finished generating all benchmark systems.')
