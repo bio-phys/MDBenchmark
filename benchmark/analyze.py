@@ -24,6 +24,10 @@ def analyze_run(sim):
                 ns_day = float(line.split()[1])
                 break
 
+    # Backward compatibility to previously created benchmark systems
+    if 'time' not in sim.categories:
+        sim.categories['time'] = 0
+
     return (sim.categories['version'], sim.categories['nodes'], ns_day,
             sim.categories['time'], sim.categories['gpu'],
             sim.categories['host'])
