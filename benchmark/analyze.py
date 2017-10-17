@@ -25,7 +25,8 @@ def analyze_run(sim):
                 break
 
     return (sim.categories['version'], sim.categories['nodes'], ns_day,
-            sim.categories['gpu'], sim.categories['host'])
+            sim.categories['time'], sim.categories['gpu'],
+            sim.categories['host'])
 
 
 def plot_analysis(df):
@@ -95,14 +96,16 @@ def plot_analysis(df):
 @click.option('--plot', is_flag=True, help='plot performance')
 def analyze(top_folder, plot):
     bundle = mds.discover(top_folder)
-    df = pd.DataFrame(columns=['gromacs', 'nodes', 'ns/day', 'gpu', 'host'])
+    df = pd.DataFrame(columns=[
+        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
+    ])
 
     for i, sim in enumerate(bundle):
         df.loc[i] = analyze_run(sim)
 
     # Sort values by `nodes`
-    df = df.sort_values(['host', 'gromacs', 'gpu', 'nodes']).reset_index(
-        drop=True)
+    df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
+                         'nodes']).reset_index(drop=True)
     print(df)
     df.to_csv('runtimes.csv')
 

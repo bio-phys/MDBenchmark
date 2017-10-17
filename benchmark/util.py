@@ -1,6 +1,7 @@
 import socket
 
 import click
+import numpy as np
 from jinja2 import Environment, PackageLoader
 
 ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
