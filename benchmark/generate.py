@@ -19,7 +19,8 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
             'nodes': nodes,
             'host': host,
             'time': time,
-            'name': name
+            'name': name,
+            'started': False
         })
     sim.universedef.topology = name + '.tpr'
     # sim.universedef.trajectory = name + '.xtc'
@@ -117,6 +118,12 @@ def generate(name, gpu, version, host, max_nodes, time, list_hosts):
             directory += '_gpu'
             gpu_string = ' with GPUs.'
         top = dtr.Tree(directory)
+
+        # More user output
+        gromacs_version = click.style(
+            'gromacs/{}'.format(v), blink=True, bold=True)
+        click.echo('Creating benchmark system for {}{}'.format(
+            gromacs_version, gpu_string))
 
         # More user output
         gromacs_version = click.style(

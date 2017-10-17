@@ -1,10 +1,14 @@
+import os
 import socket
+from glob import glob
 
 import click
 import numpy as np
 from jinja2 import Environment, PackageLoader
 
 ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
+OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
+                     '*.po[1-9]*', '*.o[1-9]*', '*.out')
 
 
 def get_possible_hosts():
@@ -47,3 +51,12 @@ def calc_slope_intercept(x1, y1, x2, y2):
     intercept = y1 - (x1 * slope)
 
     return np.hstack([slope, intercept])
+
+
+def cleanup_before_restart(sim):
+    files_found = []
+    for t in OUTPUT_FILE_TYPES:
+        files_found.extend(glob(os.path.join(sim.path.__str__(), t)))
+
+    for f in files_found:
+        os.remove(f)
