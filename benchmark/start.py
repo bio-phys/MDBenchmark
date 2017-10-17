@@ -23,10 +23,10 @@ def get_engine_command():
 
 @cli.command()
 @click.option(
-    '--top_folder', help='folder to look for benchmarks', default='.')
-def start(top_folder):
+    '-d', '--directory', help='directory to search benchmarks in', default='.')
+def start(directory):
     """start benchmark simulations found in recursive search of top_folder"""
-    bundle = mds.discover(top_folder)
+    bundle = mds.discover(directory)
     for b in bundle:
         os.chdir(b.abspath)
         subprocess.call([get_engine_command(), 'bench.job'])

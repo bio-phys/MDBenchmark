@@ -100,10 +100,10 @@ def generate(name, gpu, version, host, max_nodes, time, list_hosts):
             param_hint='"-v" / "--version"')
 
     for v in version:
-        top_folder = '{}_{}'.format(host, v)
+        directory = '{}_{}'.format(host, v)
         if gpu:
-            top_folder += '_gpu'
-        top = dtr.Tree(top_folder)
+            directory += '_gpu'
+        top = dtr.Tree(directory)
 
         for n in range(max_nodes):
             write_bench(top, tmpl, n + 1, gpu, v, name, host, time)

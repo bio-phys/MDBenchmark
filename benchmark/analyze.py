@@ -92,10 +92,10 @@ def plot_analysis(df):
 
 @cli.command()
 @click.option(
-    '--top_folder', help='folder to look for benchmarks', default='.')
-@click.option('--plot', is_flag=True, help='plot performance')
-def analyze(top_folder, plot):
-    bundle = mds.discover(top_folder)
+    '-d', '--directory', help='directory to search benchmarks in', default='.')
+@click.option('-p', '--plot', is_flag=True, help='create plot of benchmarks')
+def analyze(directory, plot):
+    bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
         'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
     ])
