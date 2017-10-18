@@ -43,6 +43,12 @@ def plot_analysis(df):
 
     max_x = df['nodes'].max()
     max_y = df['ns/day'].max()
+    if not max_y:
+        max_y = 50
+
+    y_tick_steps = 10
+    if max_y > 100:
+        y_tick_steps = 20
 
     x = np.arange(1, max_x + 1, 1)
 
@@ -78,13 +84,13 @@ def plot_analysis(df):
     ax2 = ax.twiny()
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
-    ax2.set_xticklabels(x for x in axTicks * 24)
+    ax2.set_xticklabels(x for x in (axTicks + 1) * 24)
 
     ax.set_xlabel('Number of nodes')
     ax.set_ylabel('Performance [ns/day]')
 
-    ax.set_yticks(np.arange(0, max_y + max_y * 0.1, 15))
-    ax.set_ylim(ymax=max_y + max_y * 0.1)
+    ax.set_yticks(np.arange(0, (max_y + (max_y * 0.5)), y_tick_steps))
+    ax.set_ylim(ymin=0, ymax=(max_y + (max_y * 0.2)))
 
     ax2.set_xlabel('{}'.format('{}\n\nCores'.format(df['host'][0])))
 
