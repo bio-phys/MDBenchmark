@@ -30,5 +30,5 @@
 module unload gromacs
 module load gromacs/{{ version }}
 
-# Run gromacs/{{ version }} for {{ time }} minutes
+# Run gromacs/{{ version }} for {{ time - 5 }} minutes
 srun gmx_mpi mdrun -v  -maxh {{ maxh }} -deffnm {{ name }}

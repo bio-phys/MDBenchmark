@@ -38,8 +38,11 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     copyfile(tpr, sim[tpr].relpath)
     copyfile(mdp, sim[mdp].relpath)
 
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time, 60))
     maxh = time / 60.
+    # Add some time buffer to the requested time. Otherwise the queuing system
+    # kills the jobs before GROMACS can finish
+    time += 5
+    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time, 60))
 
     # create bench job script
     script = tmpl.render(
