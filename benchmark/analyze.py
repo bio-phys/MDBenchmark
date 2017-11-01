@@ -120,5 +120,5 @@ def analyze(directory, plot):
     df.to_csv('runtimes.csv')
 
     if plot:
-        df = pd.DataFrame.from_csv('runtimes.csv')
+        df = pd.read_csv('runtimes.csv')
         plot_analysis(df)
