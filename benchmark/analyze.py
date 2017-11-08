@@ -1,4 +1,5 @@
 import os
+import sys
 from glob import glob
 
 import click
@@ -52,18 +53,19 @@ def plot_analysis(df):
 
     x = np.arange(1, max_x + 1, 1)
 
-    cpu_data = df[(~df['gpu'])].sort_values('nodes').reset_index()
-    ax.plot(cpu_data['ns/day'], '.-', ms='10', color='C0', label='CPU')
-    slope, intercept = calc_slope_intercept(x[0], cpu_data['ns/day'][0], x[1],
-                                            cpu_data['ns/day'][1])
-    ax.plot(
-        x - 1,
-        lin_func(x, slope, intercept),
-        ls='dashed',
-        color='C0',
-        alpha=0.5)
+    if not df[~df['gpu']].empty:
+        cpu_data = df[(~df['gpu'])].sort_values('nodes').reset_index()
+        ax.plot(cpu_data['ns/day'], '.-', ms='10', color='C0', label='CPU')
+        slope, intercept = calc_slope_intercept(x[0], cpu_data['ns/day'][0],
+                                                x[1], cpu_data['ns/day'][1])
+        ax.plot(
+            x - 1,
+            lin_func(x, slope, intercept),
+            ls='dashed',
+            color='C0',
+            alpha=0.5)
 
-    if df['gpu'].any():
+    if not df['gpu'].empty:
         gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
 
         ax.plot(gpu_data['ns/day'], '.-', ms='10', color='C1', label='GPU')
@@ -121,4 +123,21 @@ def analyze(directory, plot):
 
     if plot:
         df = pd.read_csv('runtimes.csv')
+
+        # We only support plotting of benchmark systems from equal hosts / with
+        # equal settings
+        uniqueness = df.apply(lambda x: x.nunique())
+        if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
+            click.echo(
+                '{} Cannot plot benchmarks for more than one GROMACS version'
+                ' and/or host.'.format(
+                    click.style('ERROR', fg='red', bold=True)))
+            sys.exit(0)
+
+        # Fail if we have no values at all. This should be some edge case when
+        # a user fumbles around with the datreant categories
+        if df['gpu'].empty and df[~df['gpu']].empty:
+            click.echo('There is no data to plot.')
+            sys.exit(0)
+
         plot_analysis(df)

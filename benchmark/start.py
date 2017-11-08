@@ -52,9 +52,10 @@ def start(directory, force_restart):
     except KeyError:
         bundles_not_yet_started = None
 
-    if not bundles_not_yet_started and not restart:
-        click.echo(
-            'All benchmark systems were already run. You can force a restart.')
+    if not bundles_not_yet_started and not force_restart:
+        click.echo('{} All benchmark systems were already run. '
+                   'You can force a restart.'.format(
+                       click.style('WARNING', fg='yellow', bold=True)))
         sys.exit(0)
 
     # Start all benchmark simulations if a restart was requested. Otherwise
