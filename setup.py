@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='benchmark',
-    version='2.1.1',
+    version='2.2.0',
     description='benchmark gromacs simulations',
     author='Max Linke, Michael Gecht',
     packages=['benchmark'],
