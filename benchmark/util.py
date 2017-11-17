@@ -4,13 +4,26 @@ from glob import glob
 
 import click
 import numpy as np
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, FileSystemLoader, ChoiceLoader
+import xdg
 
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
-ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
 OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
                      '*.po[1-9]*', '*.o[1-9]*', '*.out')
+# Order where to look for host templates: HOME -> etc -> package
+# home
+_loaders = [FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'benchmark')), ]
+# allow custom folder for templates. Useful for environment modules
+_benchmark_env = os.getenv("BENCHMARK_TEMPLATES")
+if _benchmark_env is not None:
+    _loaders.append(FileSystemLoader(_benchmark_env))
+# global
+_loaders.extend([FileSystemLoader(os.path.join(d, 'benchmark'))
+                 for d in xdg.XDG_CONFIG_DIRS])
+# from package
+_loaders.append(PackageLoader('benchmark', 'templates'))
+ENV = Environment(loader=ChoiceLoader(_loaders))
 
 
 def get_possible_hosts():
