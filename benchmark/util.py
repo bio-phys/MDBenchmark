@@ -6,6 +6,8 @@ import click
 import numpy as np
 from jinja2 import Environment, PackageLoader
 
+from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
+
 ENV = Environment(loader=PackageLoader('benchmark', 'templates'))
 OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
                      '*.po[1-9]*', '*.o[1-9]*', '*.out')
@@ -60,3 +62,10 @@ def cleanup_before_restart(sim):
 
     for f in files_found:
         os.remove(f)
+
+
+def guess_ncores():
+    """guess number of physical cpu cores. For this we inspect /proc/cpuinfo"""
+    nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq('physical id'))
+    ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq('core id'))
+    return ncores * nsocket
