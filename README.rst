@@ -83,8 +83,8 @@ Here is an example template from for HYDRA.
     module purge
     module load {{ version }}
 
-    # run {{ version }} for {{ time - 5 }} minutes
-    poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}
+    # run {{ version }} for {{ time }} minutes
+    poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
 
 benchmark is exporting the following values to a template
 
@@ -92,9 +92,11 @@ benchmark is exporting the following values to a template
 - **gpu**: boolean if GPU's are requested
 - **version**: module to load
 - **n_nodes**: number of nodes to run on
-- **time**: queuing runtime in minutes
-- **maxh**: gromacs runtime in hour fractions
+- **time**: program run-time in minutes
 - **formatted_time**: queuing runtime in human readable format
+
+To ensure correct termination of jobs ``formatted_time`` is 5 minutes longer
+then ``time``.
 
 benchmark is looking for user templates in the `xdg`_ config folders defined by
 ``XDG_CONFIG_HOME`` and ``XDG_CONFIG_DIRS`` which by default are

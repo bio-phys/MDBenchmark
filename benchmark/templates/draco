@@ -30,5 +30,5 @@
 module purge
 module load {{ version }}
 
-# Run {{ version }} for {{ time - 5 }} minutes
-srun gmx_mpi mdrun -v  -maxh {{ maxh }} -deffnm {{ name }}
+# Run {{ version }} for {{ time  }} minutes
+srun gmx_mpi mdrun -v  -maxh {{ time / 60 }} -deffnm {{ name }}

@@ -1,3 +1,4 @@
+#!/bin/bash -l
 # @ shell=/bin/bash
 #
 # @ error = {{ name }}.err.$(jobid)
@@ -17,5 +18,5 @@
 module purge
 module load {{ version }}
 
-# run {{ version }} for {{ time - 5 }} minutes
-poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}
+# run {{ version }} for {{ time }} minutes
+poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
