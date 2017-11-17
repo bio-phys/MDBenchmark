@@ -10,7 +10,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from .cli import cli
-from .util import calc_slope_intercept, lin_func
+from .util import calc_slope_intercept, lin_func, guess_ncores
 
 
 def analyze_run(sim):
@@ -34,7 +34,7 @@ def analyze_run(sim):
             sim.categories['host'])
 
 
-def plot_analysis(df):
+def plot_analysis(df, ncores):
     # We have to use the matplotlib object-oriented interface directly, because
     # it expects a display to be attached to the system, which we don't on the
     # clusters.
@@ -86,7 +86,7 @@ def plot_analysis(df):
     ax2 = ax.twiny()
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
-    ax2.set_xticklabels(x for x in (axTicks + 1) * 24)
+    ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
 
     ax.set_xlabel('Number of nodes')
     ax.set_ylabel('Performance [ns/day]')
@@ -106,7 +106,14 @@ def plot_analysis(df):
 @click.option(
     '-d', '--directory', help='directory to search benchmarks in', default='.')
 @click.option('-p', '--plot', is_flag=True, help='create plot of benchmarks')
-def analyze(directory, plot):
+@click.option(
+    '--ncores',
+    type=int,
+    default=None,
+    help=
+    'Number of cores per node. If not given we try to guess this number based on the current host'
+)
+def analyze(directory, plot, ncores):
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
         'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
@@ -140,4 +147,7 @@ def analyze(directory, plot):
             click.echo('There is no data to plot.')
             sys.exit(0)
 
-        plot_analysis(df)
+        if ncores is None:
+            ncores = guess_ncores()
+
+        plot_analysis(df, ncores)
