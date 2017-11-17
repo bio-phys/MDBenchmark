@@ -50,6 +50,57 @@ produce a ``CSV`` output file or a plot for direct usage (via ``--plot`` option)
 
     benchmark analyze
 
+Defining Host Templates
+=======================
+
+It is possible to define your own host templates in addition to the ones shipped
+with the package. A template file should have the same filename as ``hostname``
+returns to be detected automatically. You can also specify the exact template
+you want to use with ``--host``.
+
+Here is an example template from for HYDRA.
+
+.. code::
+
+    # @ shell=/bin/bash
+    #
+    # @ error = {{ name }}.err.$(jobid)
+    # @ output = {{ name }}.out.$(jobid)
+    # @ job_type = parallel
+    # @ node_usage = not_shared
+    # @ node = {{ n_nodes }}
+    # @ tasks_per_node = 20
+    {%- if gpu %}
+    # @ requirements = (Feature=="gpu")
+    {%- endif %}
+    # @ resources = ConsumableCpus(1)
+    # @ network.MPI = sn_all,not_shared,us
+    # @ wall_clock_limit = {{ formatted_time }}
+    # @ queue
+
+    module load gromacs/{{ version }}
+
+    # run gromacs/{{ version }} for {{ time - 5 }} minutes
+    poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}
+
+benchmark is exporting the following values to a template
+
+- **name**: name of benchmark
+- **gpu**: boolean if GPU's are requested
+- **version**: gromacs module to load
+- **n_nodes**: number of nodes to run on
+- **time**: queuing runtime in minutes
+- **maxh**: gromacs runtime in hour fractions
+- **formatted_time**: queuing runtime in human readable format
+
+benchmark is looking for user templates in the `xdg`_ config folders defined by
+``XDG_CONFIG_HOME`` and ``XDG_CONFIG_DIRS`` which by default are
+``$HOME/.config/benchmark`` and ``/etc/xdg/benchmark`` respectively. If the
+variable ``BENCHMARK_TEMPLATES`` is set we will also look in that directory.
+
+benchmark will first look in ``XDG_CONFIG_HOME`` and ``XDG_CONFIG_DIRS`` for a
+suitable template file. This means it is possible to overwrite system-wide
+installed templates or templates shipped with the package.
 
 Notes
 =====
@@ -59,3 +110,4 @@ each benchmark run. You can also use `mdsynthesis`_ in a python process later to
 analyze the benchmarks and check your simulations.
 
 .. _mdsynthesis: https://mdsynthesis.readthedocs.io/en/master/
+.. _xdg: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
