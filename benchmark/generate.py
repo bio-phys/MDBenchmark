@@ -71,10 +71,15 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
 @click.option('-v', '--version', help='gromacs module to use', multiple=True)
 @click.option('-h', '--host', help='job template name', default=None)
 @click.option(
-    '-m',
     '--max-nodes',
     help='test up to n nodes',
     default=5,
+    show_default=True,
+    type=int)
+@click.option(
+    '--min-nodes',
+    help='test up to n nodes',
+    default=1,
     show_default=True,
     type=int)
 @click.option(
@@ -85,7 +90,7 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     show_default=True,
     type=click.IntRange(1, 1440))
 @click.option('-l', '--list-hosts', help='show known hosts', is_flag=True)
-def generate(name, gpu, version, host, max_nodes, time, list_hosts):
+def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
     if list_hosts:
         print_possible_hosts()
         return
@@ -124,7 +129,7 @@ def generate(name, gpu, version, host, max_nodes, time, list_hosts):
         click.echo('Creating benchmark system for {}{}'.format(
             gromacs_version, gpu_string))
 
-        for n in range(max_nodes):
-            write_bench(top, tmpl, n + 1, gpu, v, name, host, time)
+        for n in range(min_nodes, max_nodes + 1):
+            write_bench(top, tmpl, n, gpu, v, name, host, time)
 
     click.echo('Finished generating all benchmark systems.')
