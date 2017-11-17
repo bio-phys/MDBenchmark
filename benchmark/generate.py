@@ -152,3 +152,4 @@ def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
             write_bench(top, tmpl, n, gpu, v, name, host, time)
 
     click.echo('Finished generating all benchmark systems.')
+    click.echo('Now run `benchmark start` to submit jobs.')
