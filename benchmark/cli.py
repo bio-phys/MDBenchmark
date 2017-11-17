@@ -20,7 +20,18 @@
 import click
 
 
-@click.group()
+class AliasedGroup(click.Group):
+    aliases = {'submit': 'start'}
+
+    def get_command(self, ctx, cmd_name):
+        rv = click.Group.get_command(self, ctx, cmd_name)
+        if rv is not None:
+            return rv
+        if cmd_name in self.aliases:
+            return click.Group.get_command(self, ctx, self.aliases[cmd_name])
+        ctx.fail('Sub commond unkown: {}'.format(cmd_name))
+
+@click.command(cls=AliasedGroup)
 @click.version_option()
 def cli():
     """Generate and run benchmark jobs for GROMACS simulations"""
