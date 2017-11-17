@@ -95,3 +95,7 @@ def start(directory, force_restart):
         b.categories['started'] = True
         os.chdir(b.abspath)
         subprocess.call([engine_cmd, 'bench.job'])
+
+    click.echo(
+        'Submitted all benchmarks. Once they are finish run `benchmark analyze` '
+        'to get the benchmark results')
