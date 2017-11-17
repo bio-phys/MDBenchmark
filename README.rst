@@ -10,13 +10,15 @@ Installation
 
 The package is currently under development. Refer to the `installation wiki page <https://gitlab.mpcdf.mpg.de/MPIBP-Hummer/benchmark/wikis/installation>`_ for instructions.  
 
+.. code::
+    python setup.py install --user
 
 Usage
 =====
 
 If you followed the installation instructions, you first need to load the anaconda module and then activate your virtual environment (``source activate benchmark``). Afterwards the ``benchmark`` command should be available to you globally.
 
-Generate 10 benchmarks for our system with the GROMACS module ``5.1.4-plumed2.3``.
+Generate 10 benchmarks for our system with the GROMACS module ``gromacs/5.1.4-plumed2.3``.
 
 .. code::
 
@@ -78,16 +80,17 @@ Here is an example template from for HYDRA.
     # @ wall_clock_limit = {{ formatted_time }}
     # @ queue
 
-    module load gromacs/{{ version }}
+    module purge
+    module load {{ version }}
 
-    # run gromacs/{{ version }} for {{ time - 5 }} minutes
+    # run {{ version }} for {{ time - 5 }} minutes
     poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}
 
 benchmark is exporting the following values to a template
 
 - **name**: name of benchmark
 - **gpu**: boolean if GPU's are requested
-- **version**: gromacs module to load
+- **version**: module to load
 - **n_nodes**: number of nodes to run on
 - **time**: queuing runtime in minutes
 - **maxh**: gromacs runtime in hour fractions

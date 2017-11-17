@@ -14,7 +14,8 @@
 # @ wall_clock_limit = {{ formatted_time }}
 # @ queue
 
-module load gromacs/{{ version }}
+module purge
+module load {{ version }}
 
-# run gromacs/{{ version }} for {{ time - 5 }} minutes
+# run {{ version }} for {{ time - 5 }} minutes
 poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ maxh }}

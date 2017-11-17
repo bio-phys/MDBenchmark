@@ -144,7 +144,7 @@ def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
         top = dtr.Tree(directory)
 
         # More user output
-        gromacs_version = click.style('gromacs/{}'.format(v), bold=True)
+        gromacs_version = click.style('{}'.format(v), bold=True)
         click.echo('Creating benchmark system for {}{}'.format(
             gromacs_version, gpu_string))
 
