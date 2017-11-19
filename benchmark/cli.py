@@ -32,7 +32,7 @@ class AliasedGroup(click.Group):
         ctx.fail('Sub commond unkown: {}'.format(cmd_name))
 
 @click.command(cls=AliasedGroup)
-@click.version_option()
+@click.module_option()
 def cli():
     """Generate and run benchmark jobs for GROMACS simulations"""
     pass

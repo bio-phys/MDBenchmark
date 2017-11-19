@@ -22,22 +22,22 @@ Generate 10 benchmarks for our system with the GROMACS module ``gromacs/5.1.4-pl
 
 .. code::
 
-    benchmark generate --name protein --version 5.1.4-plumed2.3 --max-nodes 10
+    benchmark generate --name protein --module 5.1.4-plumed2.3 --max-nodes 10
 
-The naming of the GROMACS version assumes that you refer to the GROMACS module
+The naming of the GROMACS module assumes that you refer to the GROMACS module
 you are using. On our clusters this is always ``gromacs/VERSION``.
 
 To run benchmarks on GPUs add the ``--gpu`` flag:
 
 .. code::
 
-    benchmark generate --name protein --version 5.1.4-plumed2.3 --max-nodes 10 --gpu
+    benchmark generate --name protein --module 5.1.4-plumed2.3 --max-nodes 10 --gpu
 
 You can also create benchmarks for different versions off GROMACS:
 
 .. code::
 
-    benchmark generate --name protein --version 5.1.4-plumed2.3 --version 2016.4-plumed2.3 --max-nodes 10 --gpu
+    benchmark generate --name protein --module 5.1.4-plumed2.3 --module 2016.4-plumed2.3 --max-nodes 10 --gpu
 
 After you generated all the benchmarks, you can start them at once:
 
@@ -81,16 +81,16 @@ Here is an example template from for HYDRA.
     # @ queue
 
     module purge
-    module load {{ version }}
+    module load {{ module }}
 
-    # run {{ version }} for {{ time }} minutes
+    # run {{ module }} for {{ time }} minutes
     poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
 
 benchmark is exporting the following values to a template
 
 - **name**: name of benchmark
 - **gpu**: boolean if GPU's are requested
-- **version**: module to load
+- **module**: module to load
 - **n_nodes**: number of nodes to run on
 - **time**: program run-time in minutes
 - **formatted_time**: queuing runtime in human readable format

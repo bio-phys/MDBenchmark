@@ -29,11 +29,11 @@ from .cli import cli
 from .util import ENV, normalize_host, print_possible_hosts
 
 
-def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     sim = mds.Sim(
         top['{}/'.format(nodes)],
         categories={
-            'version': version,
+            'module': module,
             'gpu': gpu,
             'nodes': nodes,
             'host': host,
@@ -66,7 +66,7 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     script = tmpl.render(
         name=name,
         gpu=gpu,
-        version=version,
+        module=module,
         n_nodes=nodes,
         time=time,
         formatted_time=formatted_time)
@@ -84,7 +84,7 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     show_default=True)
 @click.option(
     '-g', '--gpu', is_flag=True, help='run on gpu as well', show_default=True)
-@click.option('-v', '--version', help='gromacs module to use', multiple=True)
+@click.option('-m', '--module', help='gromacs module to use', multiple=True)
 @click.option('-h', '--host', help='job template name', default=None)
 @click.option(
     '--max-nodes',
@@ -106,7 +106,7 @@ def write_bench(top, tmpl, nodes, gpu, version, name, host, time):
     show_default=True,
     type=click.IntRange(1, 1440))
 @click.option('-l', '--list-hosts', help='show known hosts', is_flag=True)
-def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
+def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
     if list_hosts:
         print_possible_hosts()
         return
@@ -119,20 +119,20 @@ def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
             'Could not find template for host \'{}\'.'.format(host),
             param_hint='"-h" / "--host"')
 
-    if not version:
+    if not module:
         raise click.BadParameter(
-            'You did not specify which gromacs version to use for scaling.',
-            param_hint='"-v" / "--version"')
+            'You did not specify which gromacs module to use for scaling.',
+            param_hint='"-m" / "--module"')
 
     # Provide some output for the user
     number_of_benchmarks = click.style(
-        '{}'.format(len(version) * max_nodes), bold=True)
+        '{}'.format(len(module) * max_nodes), bold=True)
     run_time_each = click.style('{} minutes'.format(time), bold=True)
     click.echo('Will create a total of {} benchmark systems, running {} each.'.
                format(number_of_benchmarks, run_time_each))
 
-    for v in version:
-        directory = '{}_{}'.format(host, v)
+    for m in module:
+        directory = '{}_{}'.format(host, m)
         gpu_string = '.'
 
         if gpu:
@@ -141,12 +141,12 @@ def generate(name, gpu, version, host, max_nodes, min_nodes, time, list_hosts):
         top = dtr.Tree(directory)
 
         # More user output
-        gromacs_version = click.style('{}'.format(v), bold=True)
+        gromacs_module = click.style('{}'.format(m), bold=True)
         click.echo('Creating benchmark system for {}{}'.format(
-            gromacs_version, gpu_string))
+            gromacs_module, gpu_string))
 
         for n in range(min_nodes, max_nodes + 1):
-            write_bench(top, tmpl, n, gpu, v, name, host, time)
+            write_bench(top, tmpl, n, gpu, m, name, host, time)
 
     click.echo('Finished generating all benchmark systems.')
     click.echo('Now run `benchmark start` to submit jobs.')

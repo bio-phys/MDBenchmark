@@ -48,7 +48,13 @@ def analyze_run(sim):
     if 'time' not in sim.categories:
         sim.categories['time'] = 0
 
-    return (sim.categories['version'], sim.categories['nodes'], ns_day,
+    # backward compatibility
+    if 'module' in sim.categories:
+        module = sim.categories['module']
+    else:
+        module = sim.categories['version']
+
+    return (module, sim.categories['nodes'], ns_day,
             sim.categories['time'], sim.categories['gpu'],
             sim.categories['host'])
 
@@ -155,7 +161,7 @@ def analyze(directory, plot, ncores):
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
             click.echo(
-                '{} Cannot plot benchmarks for more than one GROMACS version'
+                '{} Cannot plot benchmarks for more than one GROMACS module'
                 ' and/or host.'.format(
                     click.style('ERROR', fg='red', bold=True)))
             sys.exit(0)
