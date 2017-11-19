@@ -85,7 +85,7 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 @click.option(
     '-g', '--gpu', is_flag=True, help='run on gpu as well', show_default=True)
 @click.option('-m', '--module', help='gromacs module to use', multiple=True)
-@click.option('-h', '--host', help='job template name', default=None)
+@click.option('--host', help='job template name', default=None)
 @click.option(
     '--max-nodes',
     help='test up to n nodes',
@@ -99,13 +99,12 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     show_default=True,
     type=int)
 @click.option(
-    '-t',
     '--time',
     help='run time for benchmark in minutes',
     default=15,
     show_default=True,
     type=click.IntRange(1, 1440))
-@click.option('-l', '--list-hosts', help='show known hosts', is_flag=True)
+@click.option('--list-hosts', help='show known hosts', is_flag=True)
 def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
     if list_hosts:
         print_possible_hosts()
@@ -117,7 +116,7 @@ def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
     except TemplateNotFound:
         raise click.BadParameter(
             'Could not find template for host \'{}\'.'.format(host),
-            param_hint='"-h" / "--host"')
+            param_hint='"--host"')
 
     if not module:
         raise click.BadParameter(
