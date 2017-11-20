@@ -129,14 +129,15 @@ def plot_analysis(df, ncores):
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search benchmarks in', default='.')
+    '-d', '--directory', help='directory to search benchmarks in', default='.', show_default=True)
 @click.option('-p', '--plot', is_flag=True, help='create plot of benchmarks')
 @click.option(
     '--ncores',
     type=int,
-    default=None,
+    default=guess_ncores(),
     help=
-    'Number of cores per node. If not given we try to guess this number based on the current host'
+    'Number of cores per node. If not given we try to guess this number based on the current host',
+    show_default=True
 )
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
@@ -172,8 +173,5 @@ def analyze(directory, plot, ncores):
         if df['gpu'].empty and df[~df['gpu']].empty:
             click.echo('There is no data to plot.')
             sys.exit(0)
-
-        if ncores is None:
-            ncores = guess_ncores()
 
         plot_analysis(df, ncores)

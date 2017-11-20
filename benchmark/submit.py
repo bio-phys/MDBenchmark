@@ -44,7 +44,7 @@ def get_engine_command():
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search benchmarks in', default='.')
+    '-d', '--directory', help='directory to search benchmarks in', default='.', show_default=True)
 @click.option(
     '-f',
     '--force',
