@@ -81,13 +81,13 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 @click.option('--host', help='job template name', default=None)
 @click.option(
     '--max-nodes',
-    help='test up to n nodes',
+    help='test up to `n` nodes',
     default=5,
     show_default=True,
     type=int)
 @click.option(
     '--min-nodes',
-    help='test up to n nodes',
+    help='test starting from `n` nodes',
     default=1,
     show_default=True,
     type=int)
