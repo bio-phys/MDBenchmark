@@ -99,6 +99,8 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     type=click.IntRange(1, 1440))
 @click.option('--list-hosts', help='show known hosts', is_flag=True)
 def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
+    """Generate benchmark queuing jobs.
+    """
     if list_hosts:
         print_possible_hosts()
         return

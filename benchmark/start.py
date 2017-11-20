@@ -52,11 +52,14 @@ def get_engine_command():
     help='force restart of all benchmark systems',
     is_flag=True)
 def start(directory, force_restart):
-    """Start benchmark simulations found in recursive search of `top_folder`.
+    """Start benchmark simulations.
 
-    This method checks whether benchmark folders were generated beforehand,
-    exits otherwise.
-    Only runs benchmarks that were not already started. Can be overwritten.
+    Benchmarks are searched for recursively starting from `--directory`.
+
+    Checks whether benchmark folders were generated beforehand, exits
+    otherwise. Only runs benchmarks that were not already started. Can be
+    overwritten with (--force).
+
     """
     bundle = mds.discover(directory)
 

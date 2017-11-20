@@ -139,6 +139,7 @@ def plot_analysis(df, ncores):
     'Number of cores per node. If not given we try to guess this number based on the current host'
 )
 def analyze(directory, plot, ncores):
+    """analyze finished benchmark."""
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
         'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
