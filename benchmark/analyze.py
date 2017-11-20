@@ -35,7 +35,8 @@ from .util import calc_slope_intercept, lin_func, guess_ncores
 def analyze_run(sim):
     ns_day = 0
 
-    output_files = glob(os.path.join(sim.relpath, '*log*'))
+    # search all output files and ignore GROMACS backup files
+    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
     if output_files:
         with open(output_files[0]) as fh:
             err = fh.readlines()
