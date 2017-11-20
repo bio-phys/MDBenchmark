@@ -21,7 +21,7 @@ import click
 
 
 class AliasedGroup(click.Group):
-    aliases = {'submit': 'start'}
+    aliases = {'start': 'submit'}
 
     def get_command(self, ctx, cmd_name):
         rv = click.Group.get_command(self, ctx, cmd_name)

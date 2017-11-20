@@ -17,4 +17,4 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with benchmark.  If not, see <http://www.gnu.org/licenses/>.import os
-from . import analyze, generate, start
+from . import analyze, generate, submit

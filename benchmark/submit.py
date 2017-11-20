@@ -51,7 +51,7 @@ def get_engine_command():
     'force_restart',
     help='force restart of all benchmark systems',
     is_flag=True)
-def start(directory, force_restart):
+def submit(directory, force_restart):
     """Start benchmark simulations.
 
     Benchmarks are searched for recursively starting from `--directory`.
