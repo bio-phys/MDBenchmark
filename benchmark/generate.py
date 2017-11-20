@@ -41,22 +41,15 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
             'name': name,
             'started': False
         })
-    sim.universedef.topology = name + '.tpr'
-    # sim.universedef.trajectory = name + '.xtc'
 
     # copy input files
-    mdp = '{}.mdp'.format(name)
     tpr = '{}.tpr'.format(name)
 
-    if not os.path.exists(mdp):
-        raise click.FileError(
-            mdp, hint='File does not exist or is not readable.')
     if not os.path.exists(tpr):
         raise click.FileError(
             tpr, hint='File does not exist or is not readable.')
 
     copyfile(tpr, sim[tpr].relpath)
-    copyfile(mdp, sim[mdp].relpath)
 
     # Add some time buffer to the requested time. Otherwise the queuing system
     # kills the jobs before GROMACS can finish
@@ -79,7 +72,7 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 @click.option(
     '-n',
     '--name',
-    help='name of tpr/mdp file',
+    help='name of tpr file',
     default='md',
     show_default=True)
 @click.option(
