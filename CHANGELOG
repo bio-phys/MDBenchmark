@@ -1,0 +1,20 @@
+# -*- tab-width: 2; indent-tabs-mode: nil; coding: utf-8 -*-
+======================
+ benchmark CHANGELOG
+======================
+
+The rules for this file:
+  * entries are sorted newest-first.
+  * summarize sets of changes - don't reproduce every git log comment here.
+  * don't ever delete anything.
+  * keep the format consistent (79 char width, M/D/Y date format) and do not
+    use tabs but use spaces for formatting
+  * accompany each entry with github issue/PR number (Issue #xyz)
+  * release numbers follow "Semantic Versioning" http://semver.org
+
+------------------------------------------------------------------------------
+mm/dd/17 Max Linke, Michael Gecht
+
+	* 3.0.0
+
+	Initial release outside of lab
