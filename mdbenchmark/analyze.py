@@ -1,22 +1,22 @@
 # -*- Mode: python; tab-width: 4; indent-tabs-mode:nil; coding:utf-8 -*-
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
-# Benchmark
+# MDBenchmark
 # Copyright (c) 2017 Max Linke & Michael Gecht and contributors
 # (see the file AUTHORS for the full list of names)
 #
-# benchmark is free software: you can redistribute it and/or modify
+# MDBenchmark is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# benchmark is distributed in the hope that it will be useful,
+# MDBenchmark is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with benchmark.  If not, see <http://www.gnu.org/licenses/>.import os
+# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.import os
 import os
 import sys
 from glob import glob
@@ -45,7 +45,7 @@ def analyze_run(sim):
                 ns_day = float(line.split()[1])
                 break
 
-    # Backward compatibility to previously created benchmark systems
+    # Backward compatibility to previously created mdbenchmark systems
     if 'time' not in sim.categories:
         sim.categories['time'] = 0
 
@@ -131,7 +131,7 @@ def plot_analysis(df, ncores):
 @cli.command()
 @click.option(
     '-d', '--directory', help='directory to search benchmarks in', default='.', show_default=True)
-@click.option('-p', '--plot', is_flag=True, help='create plot of benchmarks')
+@click.option('-p', '--plot', is_flag=True, help='create plot of mdbenchmarks')
 @click.option(
     '--ncores',
     type=int,
@@ -159,7 +159,7 @@ def analyze(directory, plot, ncores):
     if plot:
         df = pd.read_csv('runtimes.csv')
 
-        # We only support plotting of benchmark systems from equal hosts / with
+        # We only support plotting of mdbenchmark systems from equal hosts / with
         # equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
