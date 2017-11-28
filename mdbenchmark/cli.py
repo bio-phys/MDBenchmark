@@ -17,19 +17,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.import os
-from setuptools import setup
+import click
 
-setup(
-    name='mdbenchmark',
-    version='3.0.0',
-    description='mdbenchmark gromacs simulations',
-    author='Max Linke, Michael Gecht',
-    license='GPL 3',
-    packages=['mdbenchmark'],
-    package_data={'mdbenchmark': ['templates/*']},
-    install_requires=[
-        'numpy>=1.8', 'mdsynthesis', 'click', 'jinja2', 'pandas', 'matplotlib',
-        'python-Levenshtein', 'xdg',
-    ],
-    entry_points={'console_scripts': ['mdbenchmark=mdbenchmark.cli:cli']},
-    zip_safe=False)
+
+class AliasedGroup(click.Group):
+    aliases = {'start': 'submit'}
+
+    def get_command(self, ctx, cmd_name):
+        rv = click.Group.get_command(self, ctx, cmd_name)
+        if rv is not None:
+            return rv
+        if cmd_name in self.aliases:
+            return click.Group.get_command(self, ctx, self.aliases[cmd_name])
+        ctx.fail('Sub commond unkown: {}'.format(cmd_name))
+
+@click.command(cls=AliasedGroup)
+@click.version_option()
+def cli():
+    """Generate and run mdbenchmark jobs for GROMACS simulations"""
+    pass

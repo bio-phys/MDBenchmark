@@ -27,8 +27,8 @@
 # Wall clock limit:
 #SBATCH --time={{ formatted_time }}
 
-module unload gromacs
-module load gromacs/{{ version }}
+module purge
+module load {{ module }}
 
-# Run gromacs/{{ version }} for {{ time - 5 }} minutes
-srun gmx_mpi mdrun -v  -maxh {{ maxh }} -deffnm {{ name }}
+# Run {{ module }} for {{ time  }} minutes
+srun gmx_mpi mdrun -v  -maxh {{ time / 60 }} -deffnm {{ name }}

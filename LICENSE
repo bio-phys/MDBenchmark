@@ -1,5 +1,5 @@
 ==========================================================================
-Licenses of components of Benchmark
+Licenses of components of MDBenchmark
 ==========================================================================
 
                     GNU GENERAL PUBLIC LICENSE
@@ -679,7 +679,7 @@ Public License instead of this License.  But first, please read
 
 ==========================================================================
 
-cadishi.py (benchmark/ext/cadishi) is released under the MIT license:
+cadishi.py (mdbenchmark/ext/cadishi) is released under the MIT license:
 
 --------------------------------------------------------------------------
 

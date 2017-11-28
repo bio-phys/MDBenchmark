@@ -1,22 +1,22 @@
 # -*- Mode: python; tab-width: 4; indent-tabs-mode:nil; coding:utf-8 -*-
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
-# Benchmark
+# MDBenchmark
 # Copyright (c) 2017 Max Linke & Michael Gecht and contributors
 # (see the file AUTHORS for the full list of names)
 #
-# benchmark is free software: you can redistribute it and/or modify
+# MDBenchmark is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# benchmark is distributed in the hope that it will be useful,
+# MDBenchmark is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with benchmark.  If not, see <http://www.gnu.org/licenses/>.import os
+# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.import os
 import os
 import socket
 from glob import glob
@@ -32,16 +32,16 @@ OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
                      '*.po[1-9]*', '*.o[1-9]*', '*.out')
 # Order where to look for host templates: HOME -> etc -> package
 # home
-_loaders = [FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'benchmark')), ]
+_loaders = [FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'MDBenchmark')), ]
 # allow custom folder for templates. Useful for environment modules
-_benchmark_env = os.getenv("BENCHMARK_TEMPLATES")
-if _benchmark_env is not None:
-    _loaders.append(FileSystemLoader(_benchmark_env))
+_mdbenchmark_env = os.getenv("MDBENCHMARK_TEMPLATES")
+if _mdbenchmark_env is not None:
+    _loaders.append(FileSystemLoader(_mdbenchmark_env))
 # global
-_loaders.extend([FileSystemLoader(os.path.join(d, 'benchmark'))
+_loaders.extend([FileSystemLoader(os.path.join(d, 'MDBenchmark'))
                  for d in xdg.XDG_CONFIG_DIRS])
 # from package
-_loaders.append(PackageLoader('benchmark', 'templates'))
+_loaders.append(PackageLoader('mdbenchmark', 'templates'))
 ENV = Environment(loader=ChoiceLoader(_loaders))
 
 

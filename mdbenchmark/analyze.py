@@ -1,22 +1,22 @@
 # -*- Mode: python; tab-width: 4; indent-tabs-mode:nil; coding:utf-8 -*-
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
-# Benchmark
+# MDBenchmark
 # Copyright (c) 2017 Max Linke & Michael Gecht and contributors
 # (see the file AUTHORS for the full list of names)
 #
-# benchmark is free software: you can redistribute it and/or modify
+# MDBenchmark is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# benchmark is distributed in the hope that it will be useful,
+# MDBenchmark is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with benchmark.  If not, see <http://www.gnu.org/licenses/>.import os
+# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.import os
 import os
 import sys
 from glob import glob
@@ -35,7 +35,8 @@ from .util import calc_slope_intercept, lin_func, guess_ncores
 def analyze_run(sim):
     ns_day = 0
 
-    output_files = glob(os.path.join(sim.relpath, '*log*'))
+    # search all output files and ignore GROMACS backup files
+    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
     if output_files:
         with open(output_files[0]) as fh:
             err = fh.readlines()
@@ -44,11 +45,17 @@ def analyze_run(sim):
                 ns_day = float(line.split()[1])
                 break
 
-    # Backward compatibility to previously created benchmark systems
+    # Backward compatibility to previously created mdbenchmark systems
     if 'time' not in sim.categories:
         sim.categories['time'] = 0
 
-    return (sim.categories['version'], sim.categories['nodes'], ns_day,
+    # backward compatibility
+    if 'module' in sim.categories:
+        module = sim.categories['module']
+    else:
+        module = sim.categories['version']
+
+    return (module, sim.categories['nodes'], ns_day,
             sim.categories['time'], sim.categories['gpu'],
             sim.categories['host'])
 
@@ -123,16 +130,18 @@ def plot_analysis(df, ncores):
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search benchmarks in', default='.')
-@click.option('-p', '--plot', is_flag=True, help='create plot of benchmarks')
+    '-d', '--directory', help='directory to search benchmarks in', default='.', show_default=True)
+@click.option('-p', '--plot', is_flag=True, help='create plot of mdbenchmarks')
 @click.option(
     '--ncores',
     type=int,
-    default=None,
+    default=guess_ncores(),
     help=
-    'Number of cores per node. If not given we try to guess this number based on the current host'
+    'Number of cores per node. If not given we try to guess this number based on the current host',
+    show_default=True
 )
 def analyze(directory, plot, ncores):
+    """analyze finished benchmark."""
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
         'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
@@ -150,12 +159,12 @@ def analyze(directory, plot, ncores):
     if plot:
         df = pd.read_csv('runtimes.csv')
 
-        # We only support plotting of benchmark systems from equal hosts / with
+        # We only support plotting of mdbenchmark systems from equal hosts / with
         # equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
             click.echo(
-                '{} Cannot plot benchmarks for more than one GROMACS version'
+                '{} Cannot plot benchmarks for more than one GROMACS module'
                 ' and/or host.'.format(
                     click.style('ERROR', fg='red', bold=True)))
             sys.exit(0)
@@ -165,8 +174,5 @@ def analyze(directory, plot, ncores):
         if df['gpu'].empty and df[~df['gpu']].empty:
             click.echo('There is no data to plot.')
             sys.exit(0)
-
-        if ncores is None:
-            ncores = guess_ncores()
 
         plot_analysis(df, ncores)
