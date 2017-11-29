@@ -26,7 +26,7 @@ import click
 import mdsynthesis as mds
 
 from .cli import cli
-from .util import cleanup_before_restart
+from .utils import cleanup_before_restart
 
 PATHS = os.environ['PATH'].split(':')
 BATCH_SYSTEMS = {'slurm': 'sbatch', 'sge': 'qsub', 'Loadleveler': 'llsubmit'}
