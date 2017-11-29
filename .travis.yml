@@ -1,0 +1,20 @@
+language: python
+cache: pip
+sudo: false
+
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+
+branches:
+  only:
+    - master
+
+install:
+  - pip install --upgrade numpy cython
+  - pip install -e .
+
+
+script:
+  - true

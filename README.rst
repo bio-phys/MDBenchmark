@@ -2,6 +2,9 @@
   MDBenchmark GROMACS simulations
 ===================================
 
+.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=master
+   :target: https://travis-ci.org/bio-phys/MDBenchmark
+
 Quickly generate, start and analyze MDBenchmarks for GROMACS simulations.
 
 
