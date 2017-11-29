@@ -15,3 +15,6 @@ install:
   - pip install --upgrade numpy cython
   - pip install -e .
 
+
+script:
+  - true
