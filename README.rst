@@ -14,6 +14,7 @@ Installation
 The package is currently under development.
 
 .. code::
+
     python setup.py install --user
 
 Usage
@@ -113,12 +114,4 @@ MDBenchmark will first search in ``XDG_CONFIG_HOME`` and ``XDG_CONFIG_DIRS`` for
 suitable template file. This means it is possible to overwrite system-wide
 installed templates or templates shipped with the package.
 
-Notes
-=====
-
-The MDBenchmark tool uses `mdsynthesis`_ to generate the folder sub structure for
-each MDBenchmark run. You can also use `mdsynthesis`_ in a python process later to
-analyze the MDBenchmarks and check your simulations.
-
-.. _mdsynthesis: https://mdsynthesis.readthedocs.io/en/master/
 .. _xdg: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
