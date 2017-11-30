@@ -44,7 +44,11 @@ def get_engine_command():
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search mdbenchmarks in', default='.', show_default=True)
+    '-d',
+    '--directory',
+    help='directory to search mdbenchmarks in',
+    default='.',
+    show_default=True)
 @click.option(
     '-f',
     '--force',
@@ -99,6 +103,5 @@ def submit(directory, force_restart):
         os.chdir(b.abspath)
         subprocess.call([engine_cmd, 'bench.job'])
 
-    click.echo(
-        'Submitted all benchmarks. Once they are finish run `mdbenchmark analyze` '
-        'to get the benchmark results')
+    click.echo('Submitted all benchmarks. Once they are finish run '
+               '`mdbenchmark analyze` to get the benchmark results')
