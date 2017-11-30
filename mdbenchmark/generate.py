@@ -26,7 +26,7 @@ import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
 from .cli import cli
-from .util import ENV, normalize_host, print_possible_hosts
+from .utils import ENV, normalize_host, print_possible_hosts
 
 
 def write_bench(top, tmpl, nodes, gpu, module, name, host, time):

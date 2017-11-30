@@ -1,4 +1,11 @@
 *egg-info
 *.pyc
+.coverage
+.cache/
+.eggs/
 build/
 dist/
+
+# Ignore local Pipfile
+Pipfile
+Pipfile.lock

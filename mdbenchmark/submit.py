@@ -26,7 +26,7 @@ import click
 import mdsynthesis as mds
 
 from .cli import cli
-from .util import cleanup_before_restart
+from .utils import cleanup_before_restart
 
 PATHS = os.environ['PATH'].split(':')
 BATCH_SYSTEMS = {'slurm': 'sbatch', 'sge': 'qsub', 'Loadleveler': 'llsubmit'}
@@ -44,7 +44,11 @@ def get_engine_command():
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search mdbenchmarks in', default='.', show_default=True)
+    '-d',
+    '--directory',
+    help='directory to search mdbenchmarks in',
+    default='.',
+    show_default=True)
 @click.option(
     '-f',
     '--force',
@@ -99,6 +103,5 @@ def submit(directory, force_restart):
         os.chdir(b.abspath)
         subprocess.call([engine_cmd, 'bench.job'])
 
-    click.echo(
-        'Submitted all benchmarks. Once they are finish run `mdbenchmark analyze` '
-        'to get the benchmark results')
+    click.echo('Submitted all benchmarks. Once they are finish run '
+               '`mdbenchmark analyze` to get the benchmark results')

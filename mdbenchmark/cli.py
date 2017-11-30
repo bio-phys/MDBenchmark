@@ -31,6 +31,7 @@ class AliasedGroup(click.Group):
             return click.Group.get_command(self, ctx, self.aliases[cmd_name])
         ctx.fail('Sub commond unkown: {}'.format(cmd_name))
 
+
 @click.command(cls=AliasedGroup)
 @click.version_option()
 def cli():
