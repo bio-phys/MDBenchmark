@@ -139,8 +139,8 @@ def plot_analysis(df, ncores):
     '--ncores',
     type=int,
     default=guess_ncores(),
-    help=
-    'Number of cores per node. If not given we try to guess this number based on the current host',
+    help='Number of cores per node. If not given we try to guess this number '
+    'based on the current host',
     show_default=True)
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
@@ -161,8 +161,8 @@ def analyze(directory, plot, ncores):
     if plot:
         df = pd.read_csv('runtimes.csv')
 
-        # We only support plotting of mdbenchmark systems from equal hosts / with
-        # equal settings
+        # We only support plotting of mdbenchmark systems from equal hosts /
+        # with equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
             click.echo(

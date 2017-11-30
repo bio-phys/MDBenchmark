@@ -6,6 +6,7 @@ import numpy as np
 from mdbenchmark.utils import (calc_slope_intercept, cleanup_before_restart,
                                get_possible_hosts, guess_host, lin_func,
                                normalize_host, print_possible_hosts)
+from numpy.testing import assert_array_equal
 
 import pytest
 
@@ -61,7 +62,7 @@ def test_lin_func():
     """Test `lin_func()`."""
     m, x, b = [5, 3, 2]
 
-    np.testing.assert_array_almost_equal(lin_func(m, x, b), (m * x) + b)
+    assert_array_equal(lin_func(m, x, b), (m * x) + b)
 
 
 def test_calc_slope_intercept():
@@ -73,8 +74,7 @@ def test_calc_slope_intercept():
 
     slope_intercept = calc_slope_intercept(x1, y1, x2, y2)
 
-    np.testing.assert_array_almost_equal(slope_intercept,
-                                         np.hstack([slope, intercept]))
+    assert_array_equal(slope_intercept, np.hstack([slope, intercept]))
 
 
 def test_cleanup_before_restart(tmpdir):

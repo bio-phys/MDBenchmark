@@ -38,6 +38,5 @@ setup(
         'xdg<2',
     ],
     entry_points={'console_scripts': ['mdbenchmark=mdbenchmark.cli:cli']},
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'mock', 'pytest-cov'],
+    tests_require=['pytest'],
     zip_safe=False)
