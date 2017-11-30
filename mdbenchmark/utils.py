@@ -23,8 +23,8 @@ from glob import glob
 
 import click
 import numpy as np
-from jinja2 import Environment, PackageLoader, FileSystemLoader, ChoiceLoader
 import xdg
+from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
@@ -32,14 +32,18 @@ OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
                      '*.po[1-9]*', '*.o[1-9]*', '*.out')
 # Order where to look for host templates: HOME -> etc -> package
 # home
-_loaders = [FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'MDBenchmark')), ]
+_loaders = [
+    FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'MDBenchmark')),
+]
 # allow custom folder for templates. Useful for environment modules
 _mdbenchmark_env = os.getenv("MDBENCHMARK_TEMPLATES")
 if _mdbenchmark_env is not None:
     _loaders.append(FileSystemLoader(_mdbenchmark_env))
 # global
-_loaders.extend([FileSystemLoader(os.path.join(d, 'MDBenchmark'))
-                 for d in xdg.XDG_CONFIG_DIRS])
+_loaders.extend([
+    FileSystemLoader(os.path.join(d, 'MDBenchmark'))
+    for d in xdg.XDG_CONFIG_DIRS
+])
 # from package
 _loaders.append(PackageLoader('mdbenchmark', 'templates'))
 ENV = Environment(loader=ChoiceLoader(_loaders))
@@ -90,7 +94,11 @@ def calc_slope_intercept(x1, y1, x2, y2):
 def cleanup_before_restart(sim):
     files_found = []
     for t in OUTPUT_FILE_TYPES:
-        files_found.extend(glob(os.path.join(sim.path.__str__(), t)))
+        try:
+            p = sim.path.__str__()
+        except AttributeError:
+            p = str(sim)
+        files_found.extend(glob(os.path.join(p, t)))
 
     for f in files_found:
         os.remove(f)

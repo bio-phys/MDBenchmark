@@ -18,3 +18,6 @@ mm/dd/17 Max Linke, Michael Gecht
 	* 3.0.0
 
 	Initial release outside of lab
+
+
+  Add unit tests to utility functions (PR #3)

@@ -13,8 +13,11 @@ branches:
 
 install:
   - pip install --upgrade numpy cython
+  - pip install --upgrade pytest pytest-cov pytest-pep8 codecov
   - pip install -e .
 
-
 script:
-  - true
+  - pytest --cov mdbenchmark -v --pep8 mdbenchmark
+
+after_success:
+  - codecov

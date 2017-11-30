@@ -28,8 +28,15 @@ setup(
     packages=['mdbenchmark'],
     package_data={'mdbenchmark': ['templates/*']},
     install_requires=[
-        'numpy>=1.8', 'mdsynthesis', 'click', 'jinja2', 'pandas', 'matplotlib',
-        'python-Levenshtein', 'xdg<2',
+        'numpy>=1.8',
+        'mdsynthesis',
+        'click',
+        'jinja2',
+        'pandas',
+        'matplotlib',
+        'python-Levenshtein',
+        'xdg<2',
     ],
     entry_points={'console_scripts': ['mdbenchmark=mdbenchmark.cli:cli']},
+    tests_require=['pytest'],
     zip_safe=False)

@@ -29,7 +29,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from .cli import cli
-from .util import calc_slope_intercept, lin_func, guess_ncores
+from .utils import calc_slope_intercept, guess_ncores, lin_func
 
 
 def analyze_run(sim):
@@ -55,9 +55,8 @@ def analyze_run(sim):
     else:
         module = sim.categories['version']
 
-    return (module, sim.categories['nodes'], ns_day,
-            sim.categories['time'], sim.categories['gpu'],
-            sim.categories['host'])
+    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
+            sim.categories['gpu'], sim.categories['host'])
 
 
 def plot_analysis(df, ncores):
@@ -130,16 +129,19 @@ def plot_analysis(df, ncores):
 
 @cli.command()
 @click.option(
-    '-d', '--directory', help='directory to search benchmarks in', default='.', show_default=True)
+    '-d',
+    '--directory',
+    help='directory to search benchmarks in',
+    default='.',
+    show_default=True)
 @click.option('-p', '--plot', is_flag=True, help='create plot of mdbenchmarks')
 @click.option(
     '--ncores',
     type=int,
     default=guess_ncores(),
-    help=
-    'Number of cores per node. If not given we try to guess this number based on the current host',
-    show_default=True
-)
+    help='Number of cores per node. If not given we try to guess this number '
+    'based on the current host',
+    show_default=True)
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
     bundle = mds.discover(directory)
@@ -159,8 +161,8 @@ def analyze(directory, plot, ncores):
     if plot:
         df = pd.read_csv('runtimes.csv')
 
-        # We only support plotting of mdbenchmark systems from equal hosts / with
-        # equal settings
+        # We only support plotting of mdbenchmark systems from equal hosts /
+        # with equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
             click.echo(
