@@ -18,10 +18,18 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 from setuptools import setup
+import re
 
+# modified from https://stackoverflow.com/a/41110107/2207958
+def get_property(prop, project):
+    with open(project + '/__init__.py') as fh:
+        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), fh.read())
+    return result.group(1)
+
+project_name = 'mdbenchmark'
 setup(
-    name='mdbenchmark',
-    version='3.0.0',
+    name=project_name,
+    version=get_property('__version__', project_name),
     description='mdbenchmark gromacs simulations',
     author='Max Linke, Michael Gecht',
     license='GPL 3',
