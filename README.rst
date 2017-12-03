@@ -7,17 +7,26 @@
 .. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/bio-phys/MDBenchmark
 
-Quickly generate, start and analyze benchmarks for GROMACS simulations.
+Quickly generate, start and analyze benchmarks for GROMACS simulations. Below is
+an example of the scaling plots you can generate quickly with MDBenchmark.
+
+.. image:: runtimes.png
 
 
 Installation
 ============
 
-The package is currently under development.
+You can install MDBenchmark via pip:
 
 .. code::
 
-    python setup.py install --user
+    pip install mdbenchmark
+
+If you are using conda:
+
+.. code::
+
+    conda install -c conda-forge mdbenchmark
 
 Usage
 =====
