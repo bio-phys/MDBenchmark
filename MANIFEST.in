@@ -1,3 +1,5 @@
-README.rst
-LICENSE
-runtimes.png
+include README.rst
+include LICENSE
+include runtimes.png
+include AUTHORS
+include CHANGELOG.rst
