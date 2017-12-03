@@ -17,8 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from setuptools import setup
+from setuptools import setup, find_packages
+import os
 import re
+import io
+
 
 # modified from https://stackoverflow.com/a/41110107/2207958
 def get_property(prop, project):
@@ -26,14 +29,35 @@ def get_property(prop, project):
         result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), fh.read())
     return result.group(1)
 
+
+# Import the README and use it as the long-description.
+here = os.path.abspath(os.path.dirname(__file__))
+with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = '\n' + f.read()
+
+CLASSIFIERS = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: GNU General Public License (GPL)',
+    'Operating System :: POSIX',
+    'Operating System :: MacOS :: MacOS X',
+    'Programming Language :: Python',
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
+    'Topic :: Scientific/Engineering :: Chemistry',
+]
+
 project_name = 'mdbenchmark'
 setup(
     name=project_name,
     version=get_property('__version__', project_name),
     description='mdbenchmark gromacs simulations',
+    long_description=long_description,
+    classifiers=CLASSIFIERS,
     author='Max Linke, Michael Gecht',
-    license='GPL 3',
-    packages=['mdbenchmark'],
+    url='https://github.com/bio-phys/MDBenchmark',
+    license='GPLv3',
+    packages=find_packages(),
     package_data={'mdbenchmark': ['templates/*']},
     install_requires=[
         'numpy>=1.8',
