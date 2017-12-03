@@ -1,0 +1,6 @@
+[tool.towncrier]
+package = "mdbenchmark"
+filename = "CHANGELOG.rst"
+directory = "changelog/"
+title_format = "MDBenchmark {version} ({project_date})"
+
