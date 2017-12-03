@@ -9,6 +9,15 @@ to update this file automatically for each release.
 
 .. towncrier release notes start
 
+MDBenchmark 1.0.1 (2017-12-03)
+==============================
+
+Misc
+----
+
+- fixup MANIFEST.in (#9)
+
+
 MDBenchmark 1.0.0 (2017-12-03)
 ==============================
 
