@@ -1,8 +1,9 @@
-**Expected behaviour**
+**Expected behavior**
 
 
-**Actual behaviour**
+**Actual behavior**
 
 
-**Currently version of MDAnalysis:**
+**Currently version of MDBenchmark:**
+
 (run `mdbenchmark --version"`)
