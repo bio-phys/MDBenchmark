@@ -28,6 +28,7 @@
 #SBATCH --time={{ formatted_time }}
 
 module purge
+module load impi
 module load {{ module }}
 
 # Run {{ module }} for {{ time  }} minutes
