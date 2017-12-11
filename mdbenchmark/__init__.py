@@ -19,4 +19,4 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 from . import analyze, generate, submit
 
-__version__ = '1.0.1'
+__version__ = '1.1.0-dev'
