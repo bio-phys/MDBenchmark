@@ -20,6 +20,9 @@
 import os
 import socket
 from glob import glob
+import sys
+import multiprocessing as mp
+import warnings
 
 import click
 import numpy as np
@@ -106,6 +109,19 @@ def cleanup_before_restart(sim):
 
 def guess_ncores():
     """guess number of physical cpu cores. For this we inspect /proc/cpuinfo"""
-    nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq('physical id'))
-    ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq('core id'))
-    return ncores * nsocket
+    total_cores = None
+    if sys.platform.startswith('linux'):
+        nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq('physical id'))
+        ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq('core id'))
+        total_cores = ncores * nsocket
+    elif sys.platform == 'darwin':
+        # assumes we have a INTEL with hyper-threading. As of 2017 this is true
+        # for all official apple models supported.
+        total_cores = mp.cpu_count() // 2
+    if total_cores is None:
+        warnings.warn(
+            UserWarning,
+            "Couldn't guess number of physical cores. Assuming there is only 1 core."
+        )
+        total_cores = 1
+    return total_cores
