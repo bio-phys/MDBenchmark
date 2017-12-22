@@ -30,33 +30,7 @@ from matplotlib.figure import Figure
 
 from .cli import cli
 from .utils import calc_slope_intercept, guess_ncores, lin_func
-
-
-def analyze_run(sim):
-    ns_day = 0
-
-    # search all output files and ignore GROMACS backup files
-    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
-    if output_files:
-        with open(output_files[0]) as fh:
-            err = fh.readlines()
-        for line in err:
-            if 'Performance' in line:
-                ns_day = float(line.split()[1])
-                break
-
-    # Backward compatibility to previously created mdbenchmark systems
-    if 'time' not in sim.categories:
-        sim.categories['time'] = 0
-
-    # backward compatibility
-    if 'module' in sim.categories:
-        module = sim.categories['module']
-    else:
-        module = sim.categories['version']
-
-    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'])
+from .mdengines.gromacs import analyze_run
 
 
 def plot_analysis(df, ncores):
