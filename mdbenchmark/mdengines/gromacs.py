@@ -36,7 +36,6 @@ def parse_ns_day(fh):
     float
         nanoseconds per day
     """
-
     if isinstance(fh, string_types):
         with open(fh) as f:
             lines = f.readlines()
@@ -51,6 +50,34 @@ def parse_ns_day(fh):
     return 0
 
 
+def parse_ncores(fh):
+    """parse number of cores from a GROMACS log file
+
+    Parameters
+    ----------
+    fh : str / filehandle
+        filename or string of log file to read
+
+    Returns
+    -------
+    float
+        number of cores job was run on
+    """
+    if isinstance(fh, string_types):
+        with open(fh) as f:
+            lines = f.readlines()
+    else:
+        lines = fh.readlines()
+        fh.seek(0)
+
+    for line in lines:
+        if 'Running on' in line:
+            return int(line.split()[6])
+
+    warnings.warn(UserWarning, "No CPU data found.")
+    return 0
+
+
 def analyze_run(sim):
     """
     Analyze Performance data of a GROMACS simulation
@@ -62,6 +89,7 @@ def analyze_run(sim):
     if output_files:
         with open(output_files[0]) as fh:
             ns_day = parse_ns_day(fh)
+            ncores = parse_ncores(fh)
 
     # Backward compatibility to previously created mdbenchmark systems
     if 'time' not in sim.categories:
@@ -74,4 +102,4 @@ def analyze_run(sim):
         module = sim.categories['version']
 
     return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'])
+            sim.categories['gpu'], sim.categories['host'], ncores)
