@@ -112,15 +112,15 @@ def plot_analysis(df, ncores):
 @click.option(
     '--ncores',
     type=int,
-    default=guess_ncores(),
-    help='Number of cores per node. If not given we try to guess this number '
+    default=None,
+    help='Number of cores per node. If not given we try parsing it from simulation log'
     'based on the current host',
     show_default=True)
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
-        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
+        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
     for i, sim in enumerate(bundle):
