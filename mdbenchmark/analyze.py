@@ -64,8 +64,8 @@ def plot_analysis(df, ncores):
             color='C0',
             alpha=0.5)
 
-    if not df['gpu'].empty:
-        gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
+    gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
+    if not gpu_data.empty:
 
         ax.plot(gpu_data['ns/day'], '.-', ms='10', color='C1', label='GPU')
         slope, intercept = calc_slope_intercept(x[0], gpu_data['ns/day'][0],
@@ -85,7 +85,11 @@ def plot_analysis(df, ncores):
     ax2 = ax.twiny()
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
-    ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
+    if ncores is not None:
+        click.echo("Ncores overwritten from CLI. Ignoring values from simulation logs for plot.")
+        ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
+    else:
+        ax2.set_xticklabels(cpu_data['ncores'])
 
     ax.set_xlabel('Number of nodes')
     ax.set_ylabel('Performance [ns/day]')
