@@ -1,0 +1,1 @@
+read number of cores from simulation log
