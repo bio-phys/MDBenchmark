@@ -30,33 +30,7 @@ from matplotlib.figure import Figure
 
 from .cli import cli
 from .utils import calc_slope_intercept, guess_ncores, lin_func
-
-
-def analyze_run(sim):
-    ns_day = 0
-
-    # search all output files and ignore GROMACS backup files
-    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
-    if output_files:
-        with open(output_files[0]) as fh:
-            err = fh.readlines()
-        for line in err:
-            if 'Performance' in line:
-                ns_day = float(line.split()[1])
-                break
-
-    # Backward compatibility to previously created mdbenchmark systems
-    if 'time' not in sim.categories:
-        sim.categories['time'] = 0
-
-    # backward compatibility
-    if 'module' in sim.categories:
-        module = sim.categories['module']
-    else:
-        module = sim.categories['version']
-
-    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'])
+from .mdengines.gromacs import analyze_run
 
 
 def plot_analysis(df, ncores):
@@ -90,8 +64,8 @@ def plot_analysis(df, ncores):
             color='C0',
             alpha=0.5)
 
-    if not df['gpu'].empty:
-        gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
+    gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
+    if not gpu_data.empty:
 
         ax.plot(gpu_data['ns/day'], '.-', ms='10', color='C1', label='GPU')
         slope, intercept = calc_slope_intercept(x[0], gpu_data['ns/day'][0],
@@ -111,7 +85,11 @@ def plot_analysis(df, ncores):
     ax2 = ax.twiny()
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
-    ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
+    if ncores is not None:
+        click.echo("Ncores overwritten from CLI. Ignoring values from simulation logs for plot.")
+        ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
+    else:
+        ax2.set_xticklabels(cpu_data['ncores'])
 
     ax.set_xlabel('Number of nodes')
     ax.set_ylabel('Performance [ns/day]')
@@ -138,15 +116,15 @@ def plot_analysis(df, ncores):
 @click.option(
     '--ncores',
     type=int,
-    default=guess_ncores(),
-    help='Number of cores per node. If not given we try to guess this number '
+    default=None,
+    help='Number of cores per node. If not given we try parsing it from simulation log'
     'based on the current host',
     show_default=True)
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
-        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host'
+        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
     for i, sim in enumerate(bundle):
