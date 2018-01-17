@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark import cli
 from mdbenchmark.testing import data
@@ -30,10 +32,28 @@ def test_analyze(cli_runner, tmpdir, data):
             '--directory={}'.format(data['analyze-files']),
         ])
         assert result.exit_code == 0
-        assert result.output == """          gromacs nodes   ns/day run time [min]    gpu   host
-0  gromacs/2016.3     1   98.147             15  False  draco
-1  gromacs/2016.3     2  178.044             15  False  draco
-2  gromacs/2016.3     3  226.108             15  False  draco
-3  gromacs/2016.3     4  246.973             15  False  draco
-4  gromacs/2016.3     5  254.266             15  False  draco
+        assert result.output == """          gromacs nodes   ns/day run time [min]    gpu   host ncores
+0  gromacs/2016.3     1   98.147             15  False  draco     32
+1  gromacs/2016.3     2  178.044             15  False  draco     64
+2  gromacs/2016.3     3  226.108             15  False  draco     96
+3  gromacs/2016.3     4  246.973             15  False  draco    128
+4  gromacs/2016.3     5  254.266             15  False  draco    160
 """
+
+def test_analyze_plot(cli_runner, tmpdir, data):
+    with tmpdir.as_cwd():
+
+        result = cli_runner.invoke(cli.cli, [
+            'analyze',
+            '--directory={}'.format(data['analyze-files'],
+            '--plot'),
+        ])
+        assert result.exit_code == 0
+        assert result.output == """          gromacs nodes   ns/day run time [min]    gpu   host ncores
+0  gromacs/2016.3     1   98.147             15  False  draco     32
+1  gromacs/2016.3     2  178.044             15  False  draco     64
+2  gromacs/2016.3     3  226.108             15  False  draco     96
+3  gromacs/2016.3     4  246.973             15  False  draco    128
+4  gromacs/2016.3     5  254.266             15  False  draco    160
+"""
+        os.path.isfile("runtimes.pdf")

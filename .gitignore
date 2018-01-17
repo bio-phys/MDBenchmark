@@ -5,6 +5,7 @@
 .eggs/
 build/
 dist/
+*.proxy
 
 # Ignore local Pipfile
 Pipfile
