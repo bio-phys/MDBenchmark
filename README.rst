@@ -39,22 +39,19 @@ Generate 10 benchmarks for our system with the GROMACS module ``gromacs/5.1.4-pl
 
 .. code::
 
-    mdbenchmark generate --name protein --module 5.1.4-plumed2.3 --max-nodes 10
-
-The naming of the GROMACS module assumes that you refer to the GROMACS module
-you are using. On our clusters this is always ``gromacs/VERSION``.
+    mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --max-nodes 10
 
 To run benchmarks on GPUs add the ``--gpu`` flag:
 
 .. code::
 
-    mdbenchmark generate --name protein --module 5.1.4-plumed2.3 --max-nodes 10 --gpu
+    mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --max-nodes 10 --gpu
 
 You can also create benchmarks for different versions off GROMACS:
 
 .. code::
 
-    mdbenchmark generate --name protein --module 5.1.4-plumed2.3 --module 2016.4-plumed2.3 --max-nodes 10 --gpu
+    mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --module gromacs/2016.4-plumed2.3 --max-nodes 10 --gpu
 
 After you generated all the benchmarks, you can start them at once:
 
