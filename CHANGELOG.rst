@@ -9,6 +9,28 @@ to update this file automatically for each release.
 
 .. towncrier release notes start
 
+MDBenchmark 1.1.0 (2018-01-19)
+==============================
+
+Features
+--------
+
+- enable to run on osx (#10)
+- read number of cores from simulation log (#19)
+
+
+Bugfixes
+--------
+
+- ensure mpi environment is loaded on draco after a purge (#17)
+
+
+Improved Documentation
+----------------------
+
+- fix readme usage docs for the module argument (#20)
+
+
 MDBenchmark 1.0.1 (2017-12-03)
 ==============================
 
