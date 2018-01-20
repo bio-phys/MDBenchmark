@@ -8,9 +8,14 @@ Install in develop mode to notice changes immediately.
 
    python setup.py develop
 
-==================
-  Doing a Release
-==================
+=================
+ Doing a Release
+=================
+
+Update version
+--------------
+
+Change version info in `mdbenchmark/__init__.py`
 
 Updating CHANGELOG
 ------------------
@@ -22,6 +27,7 @@ Install and run towncrier in the project directory.
    towncrier
 
 If towncrier doesn't delete item in the *changelog* folder remove them by hand.
+
 
 Generate dist files
 -------------------

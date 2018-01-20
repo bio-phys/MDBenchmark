@@ -8,6 +8,12 @@ MDBenchmark uses `towncrier <https://github.com/hawkowl/towncrier>`_
 to update this file automatically for each release.
 
 .. towncrier release notes start
+MDBenchmark 1.1.1 (2018-01-20)
+==============================
+
+Misc
+----
+- show benchmark png on pypi
 
 MDBenchmark 1.1.0 (2018-01-19)
 ==============================

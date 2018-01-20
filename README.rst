@@ -10,7 +10,7 @@
 Quickly generate, start and analyze benchmarks for GROMACS simulations. Below is
 an example of the scaling plots you can generate quickly with MDBenchmark.
 
-.. image:: runtimes.png
+.. image:: https://github.com/bio-phys/MDBenchmark/blob/master/runtimes.png
 
 
 Installation
