@@ -18,8 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import warnings
 from glob import glob
-import numpy as np
+from shutil import copyfile
+
+import click
+import datreant.core as dtr
+import mdsynthesis as mds
+from jinja2.exceptions import TemplateNotFound
+from six import string_types
 
 
 def parse_ns_day(fh):
@@ -95,3 +102,50 @@ def analyze_run(sim):
 
     return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
             sim.categories['gpu'], sim.categories['host'], ncores)
+
+
+def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
+    sim = mds.Sim(
+        top['{}/'.format(nodes)],
+        categories={
+            'module': module,
+            'gpu': gpu,
+            'nodes': nodes,
+            'host': host,
+            'time': time,
+            'name': name,
+            'started': False
+        })
+
+    # copy input files
+    tpr = '{}.tpr'.format(name)
+
+    if not os.path.exists(tpr):
+        raise click.FileError(
+            tpr, hint='File does not exist or is not readable.')
+
+    copyfile(tpr, sim[tpr].relpath)
+    # Add some time buffer to the requested time. Otherwise the queuing system
+    # kills the jobs before GROMACS can finish
+    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
+    formatted_module = "gromacs"
+    script = tmpl.render(
+        name=name,
+        gpu=gpu,
+        module=module,
+        formatted_module=formatted_module,
+        n_nodes=nodes,
+        time=time,
+        formatted_time=formatted_time)
+
+    with open(sim['bench.job'].relpath, 'w') as fh:
+        fh.write(script)
+
+
+def formatted_md_engine_name(modulename):
+    if 'gromacs' in modulename:
+        return "gromacs"
+    elif 'namd' in modulename:
+        return "namd"
+    else:
+        raise RuntimeError("No Module Detected! did you specify the module?")
