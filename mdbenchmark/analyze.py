@@ -30,8 +30,9 @@ import numpy as np
 import pandas as pd
 
 from .cli import cli
-from .mdengines.gromacs import analyze_run
-from .utils import calc_slope_intercept, guess_ncores, lin_func
+from .utils import calc_slope_intercept, guess_ncores, lin_func, detect_md_engine, formatted_md_engine_name
+import mdengines.gromacs
+import mdengines.namd
 
 
 def plot_analysis(df, ncores):
@@ -131,15 +132,37 @@ def plot_analysis(df, ncores):
     help='Number of cores per node. If not given it will be parsed from the '
     'benchmarks log file.',
     show_default=True)
-def analyze(directory, plot, ncores):
+@click.option('-e', '--modules', help='MD program files to analyze in directory',
+    default='',
+    show_default=True,
+    multiple=True)
+def analyze(directory, plot, ncores, engine):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
+
+    #### TODO TODO TODO
+    #### THIS HAS TO BE FIXED!
+    ####
+    for module in
+    engine = formatted_md_engine_name(module)
+
     df = pd.DataFrame(columns=[
-        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
+        engine, 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
+
     for i, sim in enumerate(bundle):
-        df.loc[i] = analyze_run(sim)
+### necessary for mixing modules of different engines in a parent directory
+        if 'module' in sim.categories:
+                module = sim.categories['module']
+        else:
+                module = sim.categories['version']
+
+        if engine in module:
+            md_engine = detect_md_engine(module)
+            df.loc[i] = md_engine.analyze_run(sim)
+        else:
+            print("skipping a directory")
 
     if df.isnull().values.any():
         click.echo(
@@ -149,7 +172,7 @@ def analyze(directory, plot, ncores):
                 click.style('WARNING', fg='yellow', bold=True)))
 
     # Sort values by `nodes`
-    df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
+    df = df.sort_values(['host', engine, 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
 
     if df.empty:
