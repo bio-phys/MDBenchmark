@@ -19,4 +19,8 @@ module purge
 module load {{ module }}
 
 # run {{ module }} for {{ time }} minutes
+{%- if formatted_module is gromacs %}
 poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
+{%- elif formatted_module is namd %}
+namd {{ name }}
+{%- endif %}
