@@ -42,8 +42,12 @@ def plot_analysis(df, ncores):
     FigureCanvas(f)
     ax = f.add_subplot(111)
 
+    # Remove NaN values. These are missing ncores/performance data.
+    df = df.dropna()
+
     max_x = df['nodes'].max()
     max_y = df['ns/day'].max()
+
     if not max_y:
         max_y = 50
 
@@ -143,7 +147,10 @@ def analyze(directory, plot, ncores):
     # Sort values by `nodes`
     df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
-    print(df)
+
+    # Reformat NaN values nicely into question marks.
+    df_to_print = df.replace(np.nan, '?')
+    print(df_to_print)
     df.to_csv('runtimes.csv')
 
     if plot:
