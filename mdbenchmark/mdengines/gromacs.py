@@ -22,6 +22,8 @@ from glob import glob
 
 from six import string_types
 
+import numpy as np
+
 
 def parse_ns_day(fh):
     """parse nanoseconds per day from a GROMACS log file
