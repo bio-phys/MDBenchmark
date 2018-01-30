@@ -19,8 +19,8 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from glob import glob
+
 from six import string_types
-import warnings
 
 
 def parse_ns_day(fh):
@@ -33,8 +33,8 @@ def parse_ns_day(fh):
 
     Returns
     -------
-    float
-        nanoseconds per day
+    float / np.nan
+        nanoseconds per day or NaN
     """
     if isinstance(fh, string_types):
         with open(fh) as f:
@@ -46,8 +46,8 @@ def parse_ns_day(fh):
     for line in lines:
         if 'Performance' in line:
             return float(line.split()[1])
-    warnings.warn(UserWarning, "No Performance data found.")
-    return 0
+
+    return np.nan
 
 
 def parse_ncores(fh):
@@ -60,8 +60,8 @@ def parse_ncores(fh):
 
     Returns
     -------
-    float
-        number of cores job was run on
+    int / np.nan
+        number of cores job was run on or NaN
     """
     if isinstance(fh, string_types):
         with open(fh) as f:
@@ -74,15 +74,17 @@ def parse_ncores(fh):
         if 'Running on' in line:
             return int(line.split()[6])
 
-    warnings.warn(UserWarning, "No CPU data found.")
-    return 0
+    return np.nan
 
 
 def analyze_run(sim):
     """
-    Analyze Performance data of a GROMACS simulation
+    Analyze Performance data of a GROMACS simulation.
     """
-    ns_day = 0
+    # Set defaults if we are unable to find the information in the log file or
+    # the log file does not exist (yet).
+    ns_day = np.nan
+    ncores = np.nan
 
     # search all output files and ignore GROMACS backup files
     output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
