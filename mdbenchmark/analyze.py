@@ -148,6 +148,11 @@ def analyze(directory, plot, ncores):
     df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
 
+    if df.empty:
+        click.echo('{} There is no data for the given path.'.format(
+            click.style('ERROR', fg='red', bold=True)))
+        sys.exit(1)
+
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
     print(df_to_print)
