@@ -35,7 +35,12 @@ from .utils import ENV, detect_md_engine, normalize_host, print_possible_hosts
 
 
 @cli.command()
-@click.option('-n', '--name', help='Name of .tpr file.', show_default=True)
+@click.option(
+    '-n',
+    '--name',
+    help='Name of the input file (.csv).',
+    default='',
+    show_default=True)
 @click.option(
     '-g',
     '--gpu',
