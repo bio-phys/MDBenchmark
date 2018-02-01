@@ -23,14 +23,15 @@ from glob import glob
 
 import click
 import mdsynthesis as mds
-import numpy as np
-import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+import numpy as np
+import pandas as pd
+
 from .cli import cli
-from .utils import calc_slope_intercept, guess_ncores, lin_func
 from .mdengines.gromacs import analyze_run
+from .utils import calc_slope_intercept, guess_ncores, lin_func
 
 
 def plot_analysis(df, ncores):
@@ -41,8 +42,12 @@ def plot_analysis(df, ncores):
     FigureCanvas(f)
     ax = f.add_subplot(111)
 
+    # Remove NaN values. These are missing ncores/performance data.
+    df = df.dropna()
+
     max_x = df['nodes'].max()
     max_y = df['ns/day'].max()
+
     if not max_y:
         max_y = 50
 
@@ -86,7 +91,9 @@ def plot_analysis(df, ncores):
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
     if ncores is not None:
-        click.echo("Ncores overwritten from CLI. Ignoring values from simulation logs for plot.")
+        click.echo(
+            "Ncores overwritten from CLI. Ignoring values from simulation logs for plot."
+        )
         ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
     else:
         ax2.set_xticklabels(cpu_data['ncores'])
@@ -117,8 +124,8 @@ def plot_analysis(df, ncores):
     '--ncores',
     type=int,
     default=None,
-    help='Number of cores per node. If not given we try parsing it from simulation log'
-    'based on the current host',
+    help='Number of cores per node. If not given we try parsing it from '
+    'simulation log based on the current host',
     show_default=True)
 def analyze(directory, plot, ncores):
     """analyze finished benchmark."""
@@ -130,10 +137,25 @@ def analyze(directory, plot, ncores):
     for i, sim in enumerate(bundle):
         df.loc[i] = analyze_run(sim)
 
+    if df.isnull().values.any():
+        click.echo(
+            '{}\tWe were not able to gather informations for all systems.\n\t'
+            'Systems marked with question marks have either crashed or\n\t'
+            'were not started yet.'.format(
+                click.style('WARNING', fg='yellow', bold=True)))
+
     # Sort values by `nodes`
     df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
-    print(df)
+
+    if df.empty:
+        click.echo('{} There is no data for the given path.'.format(
+            click.style('ERROR', fg='red', bold=True)))
+        sys.exit(1)
+
+    # Reformat NaN values nicely into question marks.
+    df_to_print = df.replace(np.nan, '?')
+    print(df_to_print)
     df.to_csv('runtimes.csv')
 
     if plot:

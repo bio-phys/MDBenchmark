@@ -8,6 +8,17 @@ MDBenchmark uses `towncrier <https://github.com/hawkowl/towncrier>`_
 to update this file automatically for each release.
 
 .. towncrier release notes start
+
+MDBenchmark 1.1.2 (2018-02-01)
+==============================
+
+Bugfixes
+--------
+
+- fixed crash during analyze, if some simulations have not started/finished yet
+  (#26)
+
+
 MDBenchmark 1.1.1 (2018-01-20)
 ==============================
 
