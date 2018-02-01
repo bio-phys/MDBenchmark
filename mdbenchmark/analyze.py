@@ -132,11 +132,20 @@ def plot_analysis(df, ncores):
     help='Number of cores per node. If not given it will be parsed from the '
     'benchmarks log file.',
     show_default=True)
-@click.option('-e', '--modules', help='MD program files to analyze in directory',
+@click.option('-e',
+    '--modules',
+    help='MD program files to analyze in directory',
     default='',
     show_default=True,
     multiple=True)
-def analyze(directory, plot, ncores, engine):
+@click.option(
+    '-o',
+    '-output_name',
+    help="Name of the output .csv file.",
+    default="runtime.csv",
+    show_default=True
+)
+def analyze(directory, plot, ncores, engine, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
 
@@ -147,7 +156,7 @@ def analyze(directory, plot, ncores, engine):
     engine = formatted_md_engine_name(module)
 
     df = pd.DataFrame(columns=[
-        engine, 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
+        'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
 
@@ -172,7 +181,7 @@ def analyze(directory, plot, ncores, engine):
                 click.style('WARNING', fg='yellow', bold=True)))
 
     # Sort values by `nodes`
-    df = df.sort_values(['host', engine, 'run time [min]', 'gpu',
+    df = df.sort_values(['host', 'module', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
 
     if df.empty:
@@ -183,10 +192,10 @@ def analyze(directory, plot, ncores, engine):
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
     print(df_to_print)
-    df.to_csv('runtimes.csv')
+    df.to_csv(output_name)
 
     if plot:
-        df = pd.read_csv('runtimes.csv')
+        df = pd.read_csv(output_name)
 
         # We only support plotting of mdbenchmark systems from equal hosts /
         # with equal settings
