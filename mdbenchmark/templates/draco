@@ -35,5 +35,5 @@ module load {{ module }}
 {%- if formatted_module == "gromacs" %}
 srun gmx_mpi mdrun -v  -maxh {{ time / 60 }} -deffnm {{ name }}
 {%- elif formatted_module == "namd" %}
-namd {{ name }}
+namd2 {{ name }}
 {%- endif %}
