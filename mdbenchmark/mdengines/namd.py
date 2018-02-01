@@ -151,7 +151,7 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     # kills the jobs before GROMACS can finish
     formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
     # engine switch to pick the right submission statement in the templates
-    formatted_module = "namd
+    formatted_module = "namd"
     # create bench job script
     script = tmpl.render(
         name=namd,
@@ -176,7 +176,7 @@ def formatted_md_engine_name(modulename):
 def analyze_namd_file(fh):
     """ Check for parameter files in the namd config file and copy them here
     """
-
+    
     return 1
 
 def parse_namd_file():
