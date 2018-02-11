@@ -1,11 +1,10 @@
 Fixes #
 
-Changes made in this Pull Request:
- - 
+Changes made in this pull request:
+ -
 
 
 PR Checklist
 ------------
- - [ ] CHANGELOG updated (added [news fragment](https://github.com/hawkowl/towncrier#news-fragments) into changelog directory)?
+ - [ ] Added changelog fragment in  `./changelog/` ([more information](https://github.com/bio-phys/MDBenchmark/blob/master/DEVELOPER.rst#using-towncrier))?
  - [ ] Issue raised/referenced?
-

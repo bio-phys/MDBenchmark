@@ -4,6 +4,6 @@
 **Actual behavior**
 
 
-**Currently version of MDBenchmark:**
+**Your version of MDBenchmark:**
 
-(run `mdbenchmark --version"`)
+(run `mdbenchmark --version` on your machine)
