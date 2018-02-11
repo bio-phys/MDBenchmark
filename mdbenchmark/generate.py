@@ -42,9 +42,12 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
             'started': False
         })
 
-    # copy input files
-    tpr = '{}.tpr'.format(name)
+    fn, ext = os.path.splitext(name)
 
+    if not ext:
+        ext = '.tpr'
+
+    tpr = fn + ext
     if not os.path.exists(tpr):
         raise click.FileError(
             tpr, hint='File does not exist or is not readable.')
@@ -70,11 +73,7 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 
 @cli.command()
 @click.option(
-    '-n',
-    '--name',
-    help='name of tpr file',
-    default='md',
-    show_default=True)
+    '-n', '--name', help='name of tpr file', default='md', show_default=True)
 @click.option(
     '-g', '--gpu', is_flag=True, help='run on gpu as well', show_default=True)
 @click.option('-m', '--module', help='gromacs module to use', multiple=True)

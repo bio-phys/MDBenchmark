@@ -20,19 +20,23 @@
 import os
 
 import pytest
-
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark import cli
+from mdbenchmark.ext.click_test import cli_runner
 
 
-def test_generate(cli_runner, tmpdir):
+@pytest.mark.parametrize('tpr_file', ('protein.tpr', 'protein'))
+def test_generate(cli_runner, tmpdir, tpr_file):
+    """Run an integration test on the generate function.
+
+    Make sure that we accept both `protein` and `protein.tpr` as input files.
+    """
     with tmpdir.as_cwd():
         with open('protein.tpr', 'w') as fh:
             fh.write('This is a dummy tpr ;)')
 
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=draco',
-            '--max-nodes=4', '--gpu', '--name=protein'
+            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
         ])
         assert result.exit_code == 0
         assert os.path.exists('draco_gromacs')
