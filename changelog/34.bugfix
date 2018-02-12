@@ -1,0 +1,1 @@
+Pin numpy to >=1.8,<1.14. This removes the FutureWarning thrown by h5py.

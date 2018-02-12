@@ -17,16 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from setuptools import setup, find_packages
+import io
 import os
 import re
-import io
+
+from setuptools import find_packages, setup
 
 
 # modified from https://stackoverflow.com/a/41110107/2207958
 def get_property(prop, project):
     with open(project + '/__init__.py') as fh:
-        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), fh.read())
+        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
+                           fh.read())
     return result.group(1)
 
 
@@ -60,7 +62,7 @@ setup(
     packages=find_packages(),
     package_data={'mdbenchmark': ['templates/*']},
     install_requires=[
-        'numpy>=1.8',
+        'numpy>=1.8,<1.14',
         'mdsynthesis',
         'click',
         'jinja2',
