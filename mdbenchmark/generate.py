@@ -125,8 +125,9 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
     number_of_mdbenchmarks = click.style(
         '{}'.format(len(module) * max_nodes), bold=True)
     run_time_each = click.style('{} minutes'.format(time), bold=True)
-    click.echo('Will create a total of {} benchmark systems, running {} each.'.
-               format(number_of_mdbenchmarks, run_time_each))
+    click.echo(
+        'Creating a total of {} benchmarks, with a run time of {} each.'.
+        format(number_of_mdbenchmarks, run_time_each))
 
     for m in module:
         directory = '{}_{}'.format(host, m)
@@ -145,5 +146,6 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         for n in range(min_nodes, max_nodes + 1):
             write_bench(top, tmpl, n, gpu, m, name, host, time)
 
-    click.echo('Finished generating all benchmark systems.')
-    click.echo('Now run `mdbenchmark start` to submit jobs.')
+    click.echo('Finished generating all benchmarks.')
+    click.echo('You can now submit the jobs with {}.'.format(
+        click.style('mdbenchmark submit', bold=True)))

@@ -178,7 +178,8 @@ def analyze(directory, plot, ncores):
         # Fail if we have no values at all. This should be some edge case when
         # a user fumbles around with the datreant categories
         if df['gpu'].empty and df[~df['gpu']].empty:
-            click.echo('There is no data to plot.')
+            click.echo('{} There is no data to plot.'.format(
+                click.style('ERROR', fg='red', bold=True)))
             sys.exit(0)
 
         plot_analysis(df, ncores)
