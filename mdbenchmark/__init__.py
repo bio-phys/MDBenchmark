@@ -17,6 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from . import analyze, generate, submit
+import warnings
 
-__version__ = '1.1.1'
+# Get rid of the h5py FutureWarning
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        message='.*Conversion of the second.*',
+        action='ignore',
+        category=FutureWarning,
+        module='h5py')
+
+    from . import analyze, generate, submit
+
+    __version__ = '1.1.1'
