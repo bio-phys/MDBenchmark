@@ -73,33 +73,37 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 
 @cli.command()
 @click.option(
-    '-n', '--name', help='name of tpr file', default='md', show_default=True)
+    '-n', '--name', help='Name of .tpr file.', default='md', show_default=True)
 @click.option(
-    '-g', '--gpu', is_flag=True, help='run on gpu as well', show_default=True)
-@click.option('-m', '--module', help='gromacs module to use', multiple=True)
-@click.option('--host', help='job template name', default=None)
-@click.option(
-    '--max-nodes',
-    help='test up to `n` nodes',
-    default=5,
-    show_default=True,
-    type=int)
+    '-g',
+    '--gpu',
+    is_flag=True,
+    help='Use GPUs for benchmark.',
+    show_default=True)
+@click.option('-m', '--module', help='GROMACS module to use.', multiple=True)
+@click.option('--host', help='Name of the job template.', default=None)
 @click.option(
     '--min-nodes',
-    help='test starting from `n` nodes',
+    help='Minimal number of nodes to request.',
     default=1,
     show_default=True,
     type=int)
 @click.option(
+    '--max-nodes',
+    help='Maximal number of nodes to request.',
+    default=5,
+    show_default=True,
+    type=int)
+@click.option(
     '--time',
-    help='run time for benchmark in minutes',
+    help='Run time for benchmark in minutes.',
     default=15,
     show_default=True,
     type=click.IntRange(1, 1440))
-@click.option('--list-hosts', help='show known hosts', is_flag=True)
-def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
-    """Generate benchmark queuing jobs.
-    """
+@click.option(
+    '--list-hosts', help='Show available job templates.', is_flag=True)
+def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
+    """Generate benchmarks."""
     if list_hosts:
         print_possible_hosts()
         return
