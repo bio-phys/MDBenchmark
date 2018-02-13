@@ -1,0 +1,1 @@
+Suppress FutureWarning caused by ``h5py``.
