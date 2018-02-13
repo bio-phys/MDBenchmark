@@ -78,7 +78,7 @@ def normalize_host(host):
         if host is None:
             raise click.BadParameter(
                 'Could not guess host. Please provide a value explicitly.',
-                param_hint='"-h" / "--host"')
+                param_hint='"--host"')
     return host
 
 
