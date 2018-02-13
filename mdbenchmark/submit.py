@@ -46,24 +46,24 @@ def get_engine_command():
 @click.option(
     '-d',
     '--directory',
-    help='directory to search mdbenchmarks in',
+    help='Path in which to look for benchmarks.',
     default='.',
     show_default=True)
 @click.option(
     '-f',
     '--force',
     'force_restart',
-    help='force restart of all mdbenchmark systems',
+    help='Resubmit all benchmarks and delete all previous results.',
     is_flag=True)
 def submit(directory, force_restart):
-    """Start benchmark simulations.
+    """Submit benchmarks to queuing system.
 
-    benchmarks are searched for recursively starting from `--directory`.
+    benchmarks are searched recursively starting from the directory specified
+    in `--directory`.
 
-    Checks whether benchmark folders were generated beforehand, exits
-    otherwise. Only runs benchmarks that were not already started. Can be
-    overwritten with (--force).
-
+    Checks whether benchmark folders were already generated, exits otherwise.
+    Only runs benchmarks that were not already started. Can be overwritten with
+    `--force`.
     """
     bundle = mds.discover(directory)
 
