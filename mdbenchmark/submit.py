@@ -37,9 +37,11 @@ def get_engine_command():
         for b in BATCH_SYSTEMS.values():
             if glob(os.path.join(p, b)):
                 return b
-    raise click.UsageError(
-        'Was not able to find a batch system. Are you trying to use this '
-        'package on a host with a queuing system?')
+    click.echo(
+        '{} Was not able to find a batch system. Are you trying to use this '
+        'package on a host with a queuing system?'.format(
+            click.style('ERROR', fg='red', bold=True)))
+    sys.exit(0)
 
 
 @cli.command()
@@ -69,7 +71,8 @@ def submit(directory, force_restart):
 
     # Exit if no bundles were found in the current directory.
     if not bundle:
-        click.echo('No mdbenchmark systems found to run. Exiting.')
+        click.echo('{} No benchmarks found.'
+                   .format(click.style('ERROR', fg='red', bold=True)))
         sys.exit(0)
 
     grouped_bundles = bundle.categories.groupby('started')
@@ -79,9 +82,10 @@ def submit(directory, force_restart):
         bundles_not_yet_started = None
 
     if not bundles_not_yet_started and not force_restart:
-        click.echo('{} All mdbenchmark systems were already run. '
-                   'You can force a restart.'.format(
-                       click.style('WARNING', fg='yellow', bold=True)))
+        click.echo('{} All generated benchmarks were already started once. '
+                   'You can force a restart with {}.'.format(
+                       click.style('ERROR', fg='red', bold=True),
+                       click.style('--force', bold=True)))
         sys.exit(0)
 
     # Start all mdbenchmark simulations if a restart was requested. Otherwise
@@ -91,7 +95,7 @@ def submit(directory, force_restart):
         bundles_to_start = bundles_not_yet_started
 
     engine_cmd = get_engine_command()
-    click.echo('Will start a total of {} mdbenchmark systems.'.format(
+    click.echo('Submitting a total of {} benchmarks.'.format(
         click.style(str(len(bundles_to_start)), bold=True)))
 
     for b in bundles_to_start:
@@ -103,5 +107,6 @@ def submit(directory, force_restart):
         os.chdir(b.abspath)
         subprocess.call([engine_cmd, 'bench.job'])
 
-    click.echo('Submitted all benchmarks. Once they are finish run '
-               '`mdbenchmark analyze` to get the benchmark results')
+    click.echo(
+        'Submitted all benchmarks. Run {} once they are finished to get the results.'.
+        format(click.style('mdbenchmark analyze', bold=True)))
