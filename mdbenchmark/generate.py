@@ -29,7 +29,7 @@ from .cli import cli
 from .utils import ENV, normalize_host, print_possible_hosts
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
     sim = mds.Sim(
         top['{}/'.format(nodes)],
         categories={
@@ -41,16 +41,6 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
             'name': name,
             'started': False
         })
-
-    fn, ext = os.path.splitext(name)
-
-    if not ext:
-        ext = '.tpr'
-
-    tpr = fn + ext
-    if not os.path.exists(tpr):
-        raise click.FileError(
-            tpr, hint='File does not exist or is not readable.')
 
     copyfile(tpr, sim[tpr].relpath)
 
@@ -108,6 +98,17 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         print_possible_hosts()
         return
 
+    # Check that the .tpr file exists.
+    fn, ext = os.path.splitext(name)
+
+    if not ext:
+        ext = '.tpr'
+
+    tpr = fn + ext
+    if not os.path.exists(tpr):
+        raise click.FileError(
+            tpr, hint='File does not exist or is not readable.')
+
     host = normalize_host(host)
     try:
         tmpl = ENV.get_template(host)
@@ -144,7 +145,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             gromacs_module, gpu_string))
 
         for n in range(min_nodes, max_nodes + 1):
-            write_bench(top, tmpl, n, gpu, m, name, host, time)
+            write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
 
     click.echo('Finished generating all benchmarks.')
     click.echo('You can now submit the jobs with {}.'.format(
