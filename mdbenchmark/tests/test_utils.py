@@ -22,11 +22,11 @@ from glob import glob
 
 import click
 import numpy as np
-
-from numpy.testing import assert_equal
 import pytest
+from numpy.testing import assert_equal
 
-from mdbenchmark import utils
+from mdbenchmark import cli, utils
+from mdbenchmark.ext.click_test import cli_runner
 
 
 def test_get_possible_hosts():
@@ -120,3 +120,36 @@ def test_cleanup_before_restart(tmpdir):
 
     # Get rid of the `tmp` path and only compare the actual filenames
     assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]
+
+
+def test_guess_ncores(cli_runner, monkeypatch):
+    """Test that we can guess the correct number of cores on the supported
+    systems.
+    """
+
+    def dummy(arg):
+        return 'ABC'
+
+    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'linux')
+    monkeypatch.setattr(
+        'mdbenchmark.utils._cat_proc_cpuinfo_grep_query_sort_uniq', dummy)
+    assert utils.guess_ncores() == 9
+
+    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'darwin')
+    monkeypatch.setattr('mdbenchmark.utils.mp.cpu_count', lambda: 10)
+    assert utils.guess_ncores() == 5
+
+    @click.group()
+    def test_cli():
+        pass
+
+    @test_cli.command()
+    def test():
+        utils.guess_ncores()
+
+    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'starlord')
+    output = 'WARNING Could not guess number of physical cores. ' \
+             'Assuming there is only 1 core per node.\n'
+    result = cli_runner.invoke(test_cli, ['test'])
+    assert result.exit_code == 0
+    assert result.output == output

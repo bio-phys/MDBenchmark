@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import multiprocessing as mp
 import os
 import socket
-from glob import glob
 import sys
-import multiprocessing as mp
+from glob import glob
 
 import click
 import numpy as np
@@ -107,15 +107,17 @@ def cleanup_before_restart(sim):
 
 
 def guess_ncores():
-    """guess number of physical cpu cores. For this we inspect /proc/cpuinfo"""
+    """Guess the number of physical CPU cores.
+
+    We inspect `/proc/cpuinfo` to grab the actual number."""
     total_cores = None
     if sys.platform.startswith('linux'):
         nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq('physical id'))
         ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq('core id'))
         total_cores = ncores * nsocket
     elif sys.platform == 'darwin':
-        # assumes we have a INTEL with hyper-threading. As of 2017 this is true
-        # for all official apple models supported.
+        # assumes we have an INTEL CPU with hyper-threading. As of 2017 this is
+        # true for all officially supported Apple models.
         total_cores = mp.cpu_count() // 2
     if total_cores is None:
         click.echo('{} Could not guess number of physical cores. '
