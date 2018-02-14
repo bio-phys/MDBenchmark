@@ -17,6 +17,9 @@
 .. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
     :target: http://makeapullrequest.com
 
+.. image:: https://zenodo.org/badge/112506401.svg
+   :target: https://zenodo.org/badge/latestdoi/112506401
+
 ---------------
 
 **MDBenchmark** — quickly generate, start and analyze benchmarks for GROMACS simulations.
