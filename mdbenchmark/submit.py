@@ -41,7 +41,7 @@ def get_engine_command():
         '{} Was not able to find a batch system. Are you trying to use this '
         'package on a host with a queuing system?'.format(
             click.style('ERROR', fg='red', bold=True)))
-    sys.exit(0)
+    sys.exit(1)
 
 
 @cli.command()
@@ -73,7 +73,7 @@ def submit(directory, force_restart):
     if not bundle:
         click.echo('{} No benchmarks found.'
                    .format(click.style('ERROR', fg='red', bold=True)))
-        sys.exit(0)
+        sys.exit(1)
 
     grouped_bundles = bundle.categories.groupby('started')
     try:
@@ -86,7 +86,7 @@ def submit(directory, force_restart):
                    'You can force a restart with {}.'.format(
                        click.style('ERROR', fg='red', bold=True),
                        click.style('--force', bold=True)))
-        sys.exit(0)
+        sys.exit(1)
 
     # Start all mdbenchmark simulations if a restart was requested. Otherwise
     # only start the ones that were not run yet.
