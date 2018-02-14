@@ -84,3 +84,14 @@ def test_analyze_plot(cli_runner, tmpdir, data):
 4  gromacs/2016.3      5  254.266              15  False  draco     160
 """
         os.path.isfile("runtimes.pdf")
+
+
+def test_analyze_console_messages(cli_runner, tmpdir):
+    """Test that the CLI for analyze prints all error messages as expected."""
+    with tmpdir.as_cwd():
+        # Test error message if the TPR file does not exist
+        result = cli_runner.invoke(cli.cli,
+                                   ['analyze', '--directory=look_here/'])
+        output = "ERROR There is no data for the given path.\n"
+        assert result.exit_code == 1
+        assert result.output == output
