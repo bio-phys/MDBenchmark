@@ -1,1 +1,0 @@
-GROMACS .tpr files can now be referenced with and without the file extension.
