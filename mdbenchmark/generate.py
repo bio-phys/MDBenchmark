@@ -38,7 +38,7 @@ from .utils import ENV, detect_md_engine, normalize_host, print_possible_hosts
 @click.option(
     '-n',
     '--name',
-    help='Name of the input file (.csv).',
+    help='Name of input files. All files must have the same base name.',
     default='',
     show_default=True)
 @click.option(
@@ -125,9 +125,9 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         top = dtr.Tree(directory)
 
         # More user output
-        gromacs_module = click.style('{}'.format(m), bold=True)
-        click.echo('Creating benchmark system for {}{}'.format(
-            gromacs_module, gpu_string))
+        md_module = click.style('{}'.format(m), bold=True)
+        click.echo(
+            'Creating benchmark system for {}{}'.format(md_module, gpu_string))
 
         for n in range(min_nodes, max_nodes + 1):
             engine.write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
