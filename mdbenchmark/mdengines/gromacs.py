@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
+
 import os
 import warnings
 from glob import glob
@@ -128,24 +130,15 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     # Add some time buffer to the requested time. Otherwise the queuing system
     # kills the jobs before GROMACS can finish
     formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
-    formatted_module = "gromacs"
+    md_engine = "gromacs"
     script = tmpl.render(
         name=name,
         gpu=gpu,
         module=module,
-        formatted_module=formatted_module,
+        formatted_module=md_engine,
         n_nodes=nodes,
         time=time,
         formatted_time=formatted_time)
 
     with open(sim['bench.job'].relpath, 'w') as fh:
         fh.write(script)
-
-
-def formatted_md_engine_name(modulename):
-    if 'gromacs' in modulename:
-        return "gromacs"
-    elif 'namd' in modulename:
-        return "namd"
-    else:
-        raise RuntimeError("No Module Detected! did you specify the module?")
