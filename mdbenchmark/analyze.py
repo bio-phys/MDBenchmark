@@ -23,16 +23,17 @@ from glob import glob
 
 import click
 import mdsynthesis as mds
+import numpy as np
+import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import numpy as np
-import pandas as pd
-
-from .cli import cli
-from .utils import calc_slope_intercept, guess_ncores, lin_func, detect_md_engine, formatted_md_engine_name
 import mdengines.gromacs
 import mdengines.namd
+
+from .cli import cli
+from .utils import (calc_slope_intercept, detect_md_engine,
+                    formatted_md_engine_name, guess_ncores, lin_func)
 
 
 def plot_analysis(df, ncores):
@@ -132,7 +133,8 @@ def plot_analysis(df, ncores):
     help='Number of cores per node. If not given it will be parsed from the '
     'benchmarks log file.',
     show_default=True)
-@click.option('-e',
+@click.option(
+    '-e',
     '--modules',
     help='MD program files to analyze in directory',
     default='',
@@ -143,35 +145,27 @@ def plot_analysis(df, ncores):
     '-output_name',
     help="Name of the output .csv file.",
     default="runtime.csv",
-    show_default=True
-)
-def analyze(directory, plot, ncores, engine, output_name):
+    show_default=True)
+def analyze(directory, plot, ncores, modules, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
-
-    #### TODO TODO TODO
-    #### THIS HAS TO BE FIXED!
-    ####
-    for module in
-    engine = formatted_md_engine_name(module)
 
     df = pd.DataFrame(columns=[
         'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
-
     for i, sim in enumerate(bundle):
-### necessary for mixing modules of different engines in a parent directory
+        ### necessary for mixing modules of different engines in a parent directory
         if 'module' in sim.categories:
-                module = sim.categories['module']
+            module = sim.categories['module']
         else:
-                module = sim.categories['version']
+            module = sim.categories['version']
 
-        if engine in module:
-            md_engine = detect_md_engine(module)
-            df.loc[i] = md_engine.analyze_run(sim)
-        else:
-            print("skipping a directory")
+        #if modules in module:
+        md_engine = detect_md_engine(module)
+        df.loc[i] = md_engine.analyze_run(sim)
+        #else:
+        #    print("skipping a directory")
 
     if df.isnull().values.any():
         click.echo(
