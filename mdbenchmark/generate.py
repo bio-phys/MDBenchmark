@@ -40,8 +40,7 @@ from .utils import ENV, detect_md_engine, normalize_host, print_possible_hosts
     '--name',
     help='Name of input files. All files must have the same base name.',
     default='',
-    show_default=True,
-    multiple=True)
+    show_default=True)
 @click.option(
     '-g',
     '--gpu',
