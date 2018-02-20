@@ -15,6 +15,7 @@ MDBenchmark 1.2.0 (2018-02-19)
 Features
 --------
 
+- Added ``Makefile`` to the project. Updated default strings. (#36)
 - GROMACS .tpr files can now be referenced with and without the file extension. (#32)
 
 
@@ -23,6 +24,11 @@ Bugfixes
 
 - fixed crash during analyze, if some simulations have not started/finished yet (#26)
 - Suppress FutureWarning caused by ``h5py``. (#35)
+
+Improved Documentation
+----------------------
+
+- Update and add more unit tests. (#36)
 
 
 MDBenchmark 1.1.1 (2018-01-20)
