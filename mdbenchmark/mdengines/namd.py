@@ -26,6 +26,7 @@ import datreant.core as dtr
 import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 from shutil import copyfile
+import numpy as np
 
 def parse_ns_day(fh):
     """parse nanoseconds per day from a NAMD log file
@@ -40,18 +41,13 @@ def parse_ns_day(fh):
     float
         nanoseconds per day
     """
-    if isinstance(fh, string_types):
-        with open(fh) as f:
-            lines = f.readlines()
-    else:
-        lines = fh.readlines()
-        fh.seek(0)
+    lines = fh.readlines()
 
     for line in lines:
         if 'Benchmark time' in line:
             return 1 / float(line.split()[7])
-    warnings.warn(UserWarning, "No Performance data found.")
-    return 0
+
+    return np.nan
 
 
 def parse_ncores(fh):
@@ -67,32 +63,28 @@ def parse_ncores(fh):
     float
         number of cores job was run on
     """
-    if isinstance(fh, string_types):
-        with open(fh) as f:
-            lines = f.readlines()
-    else:
-        lines = fh.readlines()
-        fh.seek(0)
+    lines = fh.readlines()
 
     for line in lines:
         if 'Benchmark time' in line:
             return int(line.split()[3])
 
-    warnings.warn(UserWarning, "No CPU data found.")
-    return 0
+    return np.nan
 
 
 def analyze_run(sim):
     """
     Analyze Performance data of a NAMD simulation
     """
-    ns_day = 0
+    ns_day = np.nan
+    ncores = np.nan
 
     # search all output files and ignore GROMACS backup files
     output_files = glob(os.path.join(sim.relpath, '[!#]*out*'))
     if output_files:
         with open(output_files[0]) as fh:
             ns_day = parse_ns_day(fh)
+            fh.seek()
             ncores = parse_ncores(fh)
 
     # Backward compatibility to previously created mdbenchmark systems
