@@ -29,7 +29,7 @@ from .cli import cli
 from .utils import ENV, normalize_host, print_possible_hosts
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
     sim = mds.Sim(
         top['{}/'.format(nodes)],
         categories={
@@ -41,16 +41,6 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
             'name': name,
             'started': False
         })
-
-    fn, ext = os.path.splitext(name)
-
-    if not ext:
-        ext = '.tpr'
-
-    tpr = fn + ext
-    if not os.path.exists(tpr):
-        raise click.FileError(
-            tpr, hint='File does not exist or is not readable.')
 
     copyfile(tpr, sim[tpr].relpath)
 
@@ -73,36 +63,51 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
 
 @cli.command()
 @click.option(
-    '-n', '--name', help='name of tpr file', default='md', show_default=True)
+    '-n', '--name', help='Name of .tpr file.', default='md', show_default=True)
 @click.option(
-    '-g', '--gpu', is_flag=True, help='run on gpu as well', show_default=True)
-@click.option('-m', '--module', help='gromacs module to use', multiple=True)
-@click.option('--host', help='job template name', default=None)
-@click.option(
-    '--max-nodes',
-    help='test up to `n` nodes',
-    default=5,
-    show_default=True,
-    type=int)
+    '-g',
+    '--gpu',
+    is_flag=True,
+    help='Use GPUs for benchmark.',
+    show_default=True)
+@click.option('-m', '--module', help='GROMACS module to use.', multiple=True)
+@click.option('--host', help='Name of the job template.', default=None)
 @click.option(
     '--min-nodes',
-    help='test starting from `n` nodes',
+    help='Minimal number of nodes to request.',
     default=1,
     show_default=True,
     type=int)
 @click.option(
+    '--max-nodes',
+    help='Maximal number of nodes to request.',
+    default=5,
+    show_default=True,
+    type=int)
+@click.option(
     '--time',
-    help='run time for benchmark in minutes',
+    help='Run time for benchmark in minutes.',
     default=15,
     show_default=True,
     type=click.IntRange(1, 1440))
-@click.option('--list-hosts', help='show known hosts', is_flag=True)
-def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
-    """Generate benchmark queuing jobs.
-    """
+@click.option(
+    '--list-hosts', help='Show available job templates.', is_flag=True)
+def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
+    """Generate benchmarks."""
     if list_hosts:
         print_possible_hosts()
         return
+
+    # Check that the .tpr file exists.
+    fn, ext = os.path.splitext(name)
+
+    if not ext:
+        ext = '.tpr'
+
+    tpr = fn + ext
+    if not os.path.exists(tpr):
+        raise click.FileError(
+            tpr, hint='File does not exist or is not readable.')
 
     host = normalize_host(host)
     try:
@@ -121,8 +126,9 @@ def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
     number_of_mdbenchmarks = click.style(
         '{}'.format(len(module) * max_nodes), bold=True)
     run_time_each = click.style('{} minutes'.format(time), bold=True)
-    click.echo('Will create a total of {} benchmark systems, running {} each.'.
-               format(number_of_mdbenchmarks, run_time_each))
+    click.echo(
+        'Creating a total of {} benchmarks, with a run time of {} each.'.
+        format(number_of_mdbenchmarks, run_time_each))
 
     for m in module:
         directory = '{}_{}'.format(host, m)
@@ -139,7 +145,8 @@ def generate(name, gpu, module, host, max_nodes, min_nodes, time, list_hosts):
             gromacs_module, gpu_string))
 
         for n in range(min_nodes, max_nodes + 1):
-            write_bench(top, tmpl, n, gpu, m, name, host, time)
+            write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
 
-    click.echo('Finished generating all benchmark systems.')
-    click.echo('Now run `mdbenchmark start` to submit jobs.')
+    click.echo('Finished generating all benchmarks.')
+    click.echo('You can now submit the jobs with {}.'.format(
+        click.style('mdbenchmark submit', bold=True)))
