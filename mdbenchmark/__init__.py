@@ -29,4 +29,4 @@ with warnings.catch_warnings():
 
     from . import analyze, generate, submit
 
-    __version__ = '1.1.1'
+    __version__ = '1.2.0'
