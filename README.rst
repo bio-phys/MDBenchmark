@@ -5,6 +5,9 @@
 .. image:: https://img.shields.io/pypi/v/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
+.. image:: https://anaconda.org/conda-forge/mdbenchmark/badges/version.svg
+    :target: https://anaconda.org/conda-forge/mdbenchmark
+
 .. image:: https://img.shields.io/pypi/l/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
