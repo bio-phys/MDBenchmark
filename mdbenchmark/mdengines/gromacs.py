@@ -27,8 +27,8 @@ from shutil import copyfile
 import click
 import datreant.core as dtr
 import mdsynthesis as mds
+import numpy as np
 from jinja2.exceptions import TemplateNotFound
-from six import string_types
 
 
 def parse_ns_day(fh):
