@@ -116,19 +116,23 @@ def plot_analysis(df, ncores):
 @click.option(
     '-d',
     '--directory',
-    help='directory to search benchmarks in',
+    help='Path in which to look for benchmarks.',
     default='.',
     show_default=True)
-@click.option('-p', '--plot', is_flag=True, help='create plot of mdbenchmarks')
+@click.option(
+    '-p',
+    '--plot',
+    is_flag=True,
+    help='Generate a plot of finished benchmarks.')
 @click.option(
     '--ncores',
     type=int,
     default=None,
-    help='Number of cores per node. If not given we try parsing it from '
-    'simulation log based on the current host',
+    help='Number of cores per node. If not given it will be parsed from the '
+    'benchmarks log file.',
     show_default=True)
 def analyze(directory, plot, ncores):
-    """analyze finished benchmark."""
+    """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
     df = pd.DataFrame(columns=[
         'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
@@ -169,12 +173,13 @@ def analyze(directory, plot, ncores):
                 '{} Cannot plot benchmarks for more than one GROMACS module'
                 ' and/or host.'.format(
                     click.style('ERROR', fg='red', bold=True)))
-            sys.exit(0)
+            sys.exit(1)
 
         # Fail if we have no values at all. This should be some edge case when
         # a user fumbles around with the datreant categories
         if df['gpu'].empty and df[~df['gpu']].empty:
-            click.echo('There is no data to plot.')
-            sys.exit(0)
+            click.echo('{} There is no data to plot.'.format(
+                click.style('ERROR', fg='red', bold=True)))
+            sys.exit(1)
 
         plot_analysis(df, ncores)
