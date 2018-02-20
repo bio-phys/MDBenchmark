@@ -25,6 +25,8 @@ import datreant.core as dtr
 import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
+from mdbenchmark import console
+
 from .cli import cli
 from .utils import ENV, normalize_host, print_possible_hosts
 
@@ -123,12 +125,11 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             param_hint='"-m" / "--module"')
 
     # Provide some output for the user
-    number_of_mdbenchmarks = click.style(
-        '{}'.format(len(module) * max_nodes), bold=True)
-    run_time_each = click.style('{} minutes'.format(time), bold=True)
-    click.echo(
-        'Creating a total of {} benchmarks, with a run time of {} each.'.
-        format(number_of_mdbenchmarks, run_time_each))
+    number_of_mdbenchmarks = len(module) * max_nodes
+    run_time_each = '{} minutes'.format(time)
+    console.info(
+        'Creating a total of {} benchmarks, with a run time of {} each.',
+        number_of_mdbenchmarks, run_time_each)
 
     for m in module:
         directory = '{}_{}'.format(host, m)
@@ -140,13 +141,11 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         top = dtr.Tree(directory)
 
         # More user output
-        gromacs_module = click.style('{}'.format(m), bold=True)
-        click.echo('Creating benchmark system for {}{}'.format(
-            gromacs_module, gpu_string))
+        console.info('Creating benchmark system for {}', m + gpu_string)
 
         for n in range(min_nodes, max_nodes + 1):
             write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
 
-    click.echo('Finished generating all benchmarks.')
-    click.echo('You can now submit the jobs with {}.'.format(
-        click.style('mdbenchmark submit', bold=True)))
+    console.info(
+        'Finished generating all benchmarks.\nYou can now submit the jobs with {}.',
+        'mdbenchmark submit')

@@ -28,6 +28,8 @@ import numpy as np
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 
+from mdbenchmark import console
+
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
 OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
@@ -57,17 +59,17 @@ def get_possible_hosts():
 
 def print_possible_hosts():
     all_hosts = get_possible_hosts()
-    click.echo('Available host templates:')
-    for h in all_hosts:
-        click.echo('{}'.format(h))
+    console.info('Available host templates:')
+    for host in all_hosts:
+        console.info(host)
 
 
 def guess_host():
     hostname = socket.gethostname()
     known_hosts = get_possible_hosts()
-    for h in known_hosts:
-        if h in hostname:
-            return h
+    for host in known_hosts:
+        if host in hostname:
+            return host
 
     return None
 
@@ -102,8 +104,8 @@ def cleanup_before_restart(sim):
             p = str(sim)
         files_found.extend(glob(os.path.join(p, t)))
 
-    for f in files_found:
-        os.remove(f)
+    for fn in files_found:
+        os.remove(fn)
 
 
 def guess_ncores():
@@ -120,8 +122,7 @@ def guess_ncores():
         # true for all officially supported Apple models.
         total_cores = mp.cpu_count() // 2
     if total_cores is None:
-        click.echo('{} Could not guess number of physical cores. '
-                   'Assuming there is only 1 core per node.'.format(
-                       click.style('WARNING', fg='yellow', bold=True)))
+        console.warn('Could not guess number of physical cores. '
+                     'Assuming there is only 1 core per node.')
         total_cores = 1
     return total_cores
