@@ -30,7 +30,7 @@ def test_analyze(cli_runner, tmpdir, data):
 
         result = cli_runner.invoke(cli.cli, [
             'analyze',
-            '--directory={}'.format(data['analyze-files']),
+            '--directory={}'.format(data['analyze-files-gromacs']),
         ])
         assert result.exit_code == 0
         assert result.output == """          gromacs  nodes   ns/day  run time [min]    gpu   host  ncores
@@ -39,6 +39,17 @@ def test_analyze(cli_runner, tmpdir, data):
 2  gromacs/2016.3      3  226.108              15  False  draco      96
 3  gromacs/2016.3      4  246.973              15  False  draco     128
 4  gromacs/2016.3      5  254.266              15  False  draco     160
+"""
+    with tmpdir.as_cwd():
+        result = cli_runner.invoke(cli.cli, [
+            'analyze',
+            '--directory={}'.format(data['analyze-files-namd'])
+        ])
+        assert result.exit_code == 0
+        assert result.output == """
+  module nodes    ns/day run time [min]    gpu   host ncores
+0   namd     1  0.076328             15  False  draco      1
+1   namd     2  0.076328             15  False  draco      1
 """
 
 
