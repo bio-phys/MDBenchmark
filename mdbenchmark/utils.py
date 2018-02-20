@@ -135,17 +135,8 @@ def detect_md_engine(modulename):
         Any newly implemeted mdengines must be added here.
     """
     if 'gromacs' in modulename:
-        print(modulename)
         return mdengines.gromacs
     elif 'namd' in modulename:
         return mdengines.namd
-    else:
-        raise RuntimeError("No Module Detected! did you specify the module?")
-
-def formatted_md_engine_name(modulename):
-    if 'gromacs' in modulename:
-        return "gromacs"
-    elif 'namd' in modulename:
-        return "namd"
     else:
         raise RuntimeError("No Module Detected! did you specify the module?")
