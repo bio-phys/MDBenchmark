@@ -118,6 +118,12 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         #here we switch between the md engines like gromacs and namd
         #see the mdengines modules
         engine = detect_md_engine(m)
+        if engine == mdengines.namd:
+            click.secho('!!!ATTENTION!!!', bold=True)
+            click.echo("""This is an experimental NAMD support!
+All files must be in this directory.
+Parameter paths must be abslute in NAMD files!
+            """)
 
         if gpu:
             directory += '_gpu'
