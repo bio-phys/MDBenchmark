@@ -28,6 +28,8 @@ import numpy as np
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 
+from mdbenchmark.mdengines import gromacs, namd
+
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
 OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
@@ -125,3 +127,16 @@ def guess_ncores():
                        click.style('WARNING', fg='yellow', bold=True)))
         total_cores = 1
     return total_cores
+
+
+#detects the module names and returns the package
+def detect_md_engine(modulename):
+    """Detects the MD engine based on the available modules.
+        Any newly implemeted mdengines must be added here.
+    """
+    if 'gromacs' in modulename:
+        return gromacs
+    elif 'namd' in modulename:
+        return namd
+    else:
+        raise RuntimeError("No Module Detected! did you specify the module?")

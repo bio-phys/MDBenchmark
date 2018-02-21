@@ -29,7 +29,12 @@
 
 module purge
 module load impi
+module load cuda
 module load {{ module }}
 
 # Run {{ module }} for {{ time  }} minutes
+{%- if formatted_module == "gromacs" %}
 srun gmx_mpi mdrun -v  -maxh {{ time / 60 }} -deffnm {{ name }}
+{%- elif formatted_module == "namd" %}
+mpiexec -np {{24 * n_nodes}} namd2 {{ name }}
+{%- endif %}

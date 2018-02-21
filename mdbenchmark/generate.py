@@ -25,52 +25,32 @@ import datreant.core as dtr
 import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
+from mdbenchmark.mdengines import gromacs, namd
+
 from .cli import cli
-from .utils import ENV, normalize_host, print_possible_hosts
+from .utils import ENV, detect_md_engine, normalize_host, print_possible_hosts
 
-
-def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
-    sim = mds.Sim(
-        top['{}/'.format(nodes)],
-        categories={
-            'module': module,
-            'gpu': gpu,
-            'nodes': nodes,
-            'host': host,
-            'time': time,
-            'name': name,
-            'started': False
-        })
-
-    copyfile(tpr, sim[tpr].relpath)
-
-    # Add some time buffer to the requested time. Otherwise the queuing system
-    # kills the jobs before GROMACS can finish
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
-
-    # create bench job script
-    script = tmpl.render(
-        name=name,
-        gpu=gpu,
-        module=module,
-        n_nodes=nodes,
-        time=time,
-        formatted_time=formatted_time)
-
-    with open(sim['bench.job'].relpath, 'w') as fh:
-        fh.write(script)
+#import mdengines
 
 
 @cli.command()
 @click.option(
-    '-n', '--name', help='Name of .tpr file.', default='md', show_default=True)
+    '-n',
+    '--name',
+    help='Name of input files. All files must have the same base name.',
+    default='',
+    show_default=True)
 @click.option(
     '-g',
     '--gpu',
     is_flag=True,
     help='Use GPUs for benchmark.',
     show_default=True)
-@click.option('-m', '--module', help='GROMACS module to use.', multiple=True)
+@click.option(
+    '-m',
+    '--module',
+    help='Name of the MD engine module to use.',
+    multiple=True)
 @click.option('--host', help='Name of the job template.', default=None)
 @click.option(
     '--min-nodes',
@@ -121,6 +101,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         raise click.BadParameter(
             'You did not specify which gromacs module to use for scaling.',
             param_hint='"-m" / "--module"')
+    #detect the engine and use accordingly
 
     # Provide some output for the user
     number_of_mdbenchmarks = click.style(
@@ -133,6 +114,15 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
     for m in module:
         directory = '{}_{}'.format(host, m)
         gpu_string = '.'
+        #here we switch between the md engines like gromacs and namd
+        #see the mdengines modules
+        engine = detect_md_engine(m)
+        if engine == namd:
+            click.secho('!!!ATTENTION!!!', bold=True)
+            click.echo("""This is an experimental NAMD support!
+All files must be in this directory.
+Parameter paths must be abslute in NAMD files!
+            """)
 
         if gpu:
             directory += '_gpu'
@@ -140,12 +130,12 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         top = dtr.Tree(directory)
 
         # More user output
-        gromacs_module = click.style('{}'.format(m), bold=True)
-        click.echo('Creating benchmark system for {}{}'.format(
-            gromacs_module, gpu_string))
+        md_module = click.style('{}'.format(m), bold=True)
+        click.echo(
+            'Creating benchmark system for {}{}'.format(md_module, gpu_string))
 
         for n in range(min_nodes, max_nodes + 1):
-            write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
+            engine.write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
 
     click.echo('Finished generating all benchmarks.')
     click.echo('You can now submit the jobs with {}.'.format(

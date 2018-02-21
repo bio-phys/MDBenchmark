@@ -17,9 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
+
 import os
+import warnings
 from glob import glob
+from shutil import copyfile
+
+import click
+import datreant.core as dtr
+import mdsynthesis as mds
 import numpy as np
+from jinja2.exceptions import TemplateNotFound
 
 
 def parse_ns_day(fh):
@@ -95,3 +104,34 @@ def analyze_run(sim):
 
     return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
             sim.categories['gpu'], sim.categories['host'], ncores)
+
+
+def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
+    sim = mds.Sim(
+        top['{}/'.format(nodes)],
+        categories={
+            'module': module,
+            'gpu': gpu,
+            'nodes': nodes,
+            'host': host,
+            'time': time,
+            'name': name,
+            'started': False
+        })
+
+    copyfile(tpr, sim[tpr].relpath)
+    # Add some time buffer to the requested time. Otherwise the queuing system
+    # kills the jobs before GROMACS can finish
+    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
+    md_engine = "gromacs"
+    script = tmpl.render(
+        name=name,
+        gpu=gpu,
+        module=module,
+        formatted_module=md_engine,
+        n_nodes=nodes,
+        time=time,
+        formatted_time=formatted_time)
+
+    with open(sim['bench.job'].relpath, 'w') as fh:
+        fh.write(script)

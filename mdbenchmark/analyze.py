@@ -23,15 +23,16 @@ from glob import glob
 
 import click
 import mdsynthesis as mds
+import numpy as np
+import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import numpy as np
-import pandas as pd
+from mdbenchmark.mdengines import gromacs, namd
 
 from .cli import cli
-from .mdengines.gromacs import analyze_run
-from .utils import calc_slope_intercept, guess_ncores, lin_func
+from .utils import (calc_slope_intercept, detect_md_engine, guess_ncores,
+                    lin_func)
 
 
 def plot_analysis(df, ncores):
@@ -131,15 +132,39 @@ def plot_analysis(df, ncores):
     help='Number of cores per node. If not given it will be parsed from the '
     'benchmarks log file.',
     show_default=True)
-def analyze(directory, plot, ncores):
+@click.option(
+    '-e',
+    '--modules',
+    help='MD program files to analyze in directory',
+    default='',
+    show_default=True,
+    multiple=True)
+@click.option(
+    '-o',
+    '-output_name',
+    help="Name of the output .csv file.",
+    default="runtime.csv",
+    show_default=True)
+def analyze(directory, plot, ncores, modules, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
+
     df = pd.DataFrame(columns=[
-        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
+        'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
     for i, sim in enumerate(bundle):
-        df.loc[i] = analyze_run(sim)
+        ### necessary for mixing modules of different engines in a parent directory
+        if 'module' in sim.categories:
+            module = sim.categories['module']
+        else:
+            module = sim.categories['version']
+
+        #if modules in module:
+        md_engine = detect_md_engine(module)
+        df.loc[i] = md_engine.analyze_run(sim)
+        #else:
+        #    print("skipping a directory")
 
     if df.isnull().values.any():
         click.echo(
@@ -149,7 +174,7 @@ def analyze(directory, plot, ncores):
                 click.style('WARNING', fg='yellow', bold=True)))
 
     # Sort values by `nodes`
-    df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
+    df = df.sort_values(['host', 'module', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
 
     if df.empty:
@@ -160,10 +185,10 @@ def analyze(directory, plot, ncores):
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
     print(df_to_print)
-    df.to_csv('runtimes.csv')
+    df.to_csv(output_name)
 
     if plot:
-        df = pd.read_csv('runtimes.csv')
+        df = pd.read_csv(output_name)
 
         # We only support plotting of mdbenchmark systems from equal hosts /
         # with equal settings
