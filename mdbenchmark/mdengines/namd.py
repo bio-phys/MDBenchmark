@@ -18,15 +18,17 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
-from glob import glob
-from six import string_types
 import warnings
+from glob import glob
+from shutil import copyfile
+
 import click
 import datreant.core as dtr
 import mdsynthesis as mds
-from jinja2.exceptions import TemplateNotFound
-from shutil import copyfile
 import numpy as np
+from jinja2.exceptions import TemplateNotFound
+from six import string_types
+
 
 def parse_ns_day(fh):
     """parse nanoseconds per day from a NAMD log file
@@ -84,7 +86,7 @@ def analyze_run(sim):
     if output_files:
         with open(output_files[0]) as fh:
             ns_day = parse_ns_day(fh)
-            fh.seek()
+            fh.seek(0)
             ncores = parse_ncores(fh)
 
     # Backward compatibility to previously created mdbenchmark systems
@@ -101,7 +103,7 @@ def analyze_run(sim):
             sim.categories['gpu'], sim.categories['host'], ncores)
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
     ## TODO: do this centrally somewhere not here! needed in any file
     sim = mds.Sim(
         top['{}/'.format(nodes)],
@@ -127,7 +129,6 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
         if not os.path.exists(filename):
             raise click.FileError(
                 filename, hint='File does not exist or is not readable.')
-
 
     copyfile(namd, sim[namd].relpath)
     copyfile(psf, sim[psf].relpath)
@@ -157,6 +158,7 @@ def analyze_namd_file(fh):
     """
 
     return 1
+
 
 def parse_namd_file():
     """

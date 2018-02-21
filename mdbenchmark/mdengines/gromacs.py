@@ -106,7 +106,7 @@ def analyze_run(sim):
             sim.categories['gpu'], sim.categories['host'], ncores)
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
     sim = mds.Sim(
         top['{}/'.format(nodes)],
         categories={
@@ -118,13 +118,6 @@ def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
             'name': name,
             'started': False
         })
-
-    # copy input files
-    tpr = '{}.tpr'.format(name)
-
-    if not os.path.exists(tpr):
-        raise click.FileError(
-            tpr, hint='File does not exist or is not readable.')
 
     copyfile(tpr, sim[tpr].relpath)
     # Add some time buffer to the requested time. Otherwise the queuing system

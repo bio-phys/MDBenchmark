@@ -43,6 +43,7 @@ def test_generate(cli_runner, tmpdir, tpr_file):
             'generate', '--module=gromacs/2016', '--host=draco',
             '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
         ])
+        print(result)
         assert result.exit_code == 0
         assert result.output == output
         assert os.path.exists('draco_gromacs')
