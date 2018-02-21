@@ -28,12 +28,11 @@ import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import mdengines.gromacs
-import mdengines.namd
+from mdbenchmark.mdengines import gromacs, namd
 
 from .cli import cli
-from .utils import (calc_slope_intercept, detect_md_engine,
-                    formatted_md_engine_name, guess_ncores, lin_func)
+from .utils import (calc_slope_intercept, detect_md_engine, guess_ncores,
+                    lin_func)
 
 
 def plot_analysis(df, ncores):

@@ -25,8 +25,7 @@ import datreant.core as dtr
 import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
-import mdengines.gromacs
-import mdengines.namd
+from mdbenchmark.mdengines import gromacs, namd
 
 from .cli import cli
 from .utils import ENV, detect_md_engine, normalize_host, print_possible_hosts
@@ -118,7 +117,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         #here we switch between the md engines like gromacs and namd
         #see the mdengines modules
         engine = detect_md_engine(m)
-        if engine == mdengines.namd:
+        if engine == namd:
             click.secho('!!!ATTENTION!!!', bold=True)
             click.echo("""This is an experimental NAMD support!
 All files must be in this directory.
