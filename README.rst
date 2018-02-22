@@ -150,7 +150,7 @@ command ``hostname`` returns to be detected automatically. Otherwise you can
 point MDBenchmark to a specific template by providing its name via the
 ``--host`` option.
 
-Assuming you created a new host template in your home directory ``~/.config/MDBenchmark/my_custom_hostfile~~``::
+Assuming you created a new host template in your home directory ``~/.config/MDBenchmark/my_custom_hostfile``::
 
     $ mdbenchmark generate protein --host my_custom_hostfile --module gromacs/5.1.4-plumed2.3
 
