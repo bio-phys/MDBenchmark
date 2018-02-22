@@ -88,6 +88,17 @@ def test_generate_console_messages(cli_runner, tmpdir):
         with open('protein.tpr', 'w') as fh:
             fh.write('This is a dummy tpr!')
 
+        # Test that the minimal number of nodes must be bigger than the maximal number
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016', '--host=draco',
+            '--name=protein', '--min-nodes=6', '--max-nodes=4'
+        ])
+        output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for ' \
+                 '"--min-nodes": The minimal number of nodes needs to be smaller ' \
+                 'than the maximal number.\n'
+        assert result.exit_code == 2
+        assert result.output == output
+
         # Test error message if we pass an invalid template name
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=hercules',

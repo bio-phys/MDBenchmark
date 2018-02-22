@@ -111,6 +111,11 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         raise click.FileError(
             tpr, hint='File does not exist or is not readable.')
 
+    if min_nodes > max_nodes:
+        raise click.BadParameter(
+            'The minimal number of nodes needs to be smaller than the maximal number.',
+            param_hint='"--min-nodes"')
+
     host = normalize_host(host)
     try:
         tmpl = ENV.get_template(host)
