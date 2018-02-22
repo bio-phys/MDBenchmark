@@ -1,0 +1,1 @@
+Consolidated internal API to output messages to the console.
