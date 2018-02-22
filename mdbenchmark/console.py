@@ -35,6 +35,34 @@ def console_wrapper(message,
                     **kwargs):
     """Wrapper to consolidate all click.echo() calls.
 
+    Parameters
+    ----------
+    message : str
+        Message to print to the console.
+    prefix : str
+        String that prefixes the message.
+    filehandler : StringIO
+        Redirect the `click.echo` output to `filehandler`. Only used internally.
+    args
+        List of strings passed into `.format` to replace placeholders in `message`.
+    bold : bool
+        Passed to `click.style` to make placeholders bold.
+    fg : bool
+        Passed to `click.style` to change text color of placeholders.
+    bg : bool
+        Passed to `click.style` to change background color of placeholders.
+    underline : bool
+        Passed to `click.style` to underline text of placeholders.
+    blink : bool
+        Passed to `click.style` to make placeholders blink.
+    **kwargs
+        Keyword arguments passed into `.format` to replace named placeholders in `message`.
+
+    Raises
+    ------
+    ValueError
+        If the number of placeholders and arguments is not the same,
+        or if passed incorrect named arguments.
     """
     if args is None:
         args = []
