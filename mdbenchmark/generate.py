@@ -125,7 +125,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             param_hint='"-m" / "--module"')
 
     # Provide some output for the user
-    number_of_mdbenchmarks = len(module) * max_nodes
+    number_of_mdbenchmarks = (len(module) * (max_nodes + 1 - min_nodes))
     run_time_each = '{} minutes'.format(time)
     console.info(
         'Creating a total of {} benchmarks, with a run time of {} each.',
