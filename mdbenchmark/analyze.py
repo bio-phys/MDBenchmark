@@ -23,11 +23,12 @@ from glob import glob
 
 import click
 import mdsynthesis as mds
+import numpy as np
+import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-import numpy as np
-import pandas as pd
+from mdbenchmark import console
 
 from .cli import cli
 from .mdengines.gromacs import analyze_run
@@ -91,7 +92,7 @@ def plot_analysis(df, ncores):
     ax2.set_xticks(axTicks)
     ax2.set_xbound(ax.get_xbound())
     if ncores is not None:
-        click.echo(
+        console.info(
             "Ncores overwritten from CLI. Ignoring values from simulation logs for plot."
         )
         ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
@@ -142,20 +143,17 @@ def analyze(directory, plot, ncores):
         df.loc[i] = analyze_run(sim)
 
     if df.isnull().values.any():
-        click.echo(
-            '{}\tWe were not able to gather informations for all systems.\n\t'
-            'Systems marked with question marks have either crashed or\n\t'
-            'were not started yet.'.format(
-                click.style('WARNING', fg='yellow', bold=True)))
+        console.warn(
+            'We were not able to gather informations for all systems. '
+            'Systems marked with question marks have either crashed or '
+            'were not started yet.')
 
     # Sort values by `nodes`
     df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
 
     if df.empty:
-        click.echo('{} There is no data for the given path.'.format(
-            click.style('ERROR', fg='red', bold=True)))
-        sys.exit(1)
+        console.error('There is no data for the given path.')
 
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
@@ -169,17 +167,13 @@ def analyze(directory, plot, ncores):
         # with equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
-            click.echo(
-                '{} Cannot plot benchmarks for more than one GROMACS module'
-                ' and/or host.'.format(
-                    click.style('ERROR', fg='red', bold=True)))
-            sys.exit(1)
+            console.error(
+                'Cannot plot benchmarks for more than one GROMACS module '
+                'and/or host.')
 
         # Fail if we have no values at all. This should be some edge case when
         # a user fumbles around with the datreant categories
         if df['gpu'].empty and df[~df['gpu']].empty:
-            click.echo('{} There is no data to plot.'.format(
-                click.style('ERROR', fg='red', bold=True)))
-            sys.exit(1)
+            console.error('There is no data to plot.')
 
         plot_analysis(df, ncores)

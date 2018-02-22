@@ -53,9 +53,7 @@ show a question mark instead of a float in the corresponding cell.
             '--directory={}'.format(data['analyze-files-w-errors']),
         ])
         assert result.exit_code == 0
-        assert result.output == """WARNING	We were not able to gather informations for all systems.
-	Systems marked with question marks have either crashed or
-	were not started yet.
+        assert result.output == """WARNING We were not able to gather informations for all systems. Systems marked with question marks have either crashed or were not started yet.
           gromacs  nodes   ns/day  run time [min]    gpu   host ncores
 0  gromacs/2016.3      1   98.147              15  False  draco     32
 1  gromacs/2016.3      2  178.044              15  False  draco     64
