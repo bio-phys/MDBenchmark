@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from glob import glob
+
 import numpy as np
 
 
@@ -83,7 +84,7 @@ def analyze_run(sim):
             fh.seek(0)
             ncores = parse_ncores(fh)
 
-    # Backward compatibility to previously created mdbenchmark systems
+    # Backward compatibility to previously created benchmark systems
     if 'time' not in sim.categories:
         sim.categories['time'] = 0
 

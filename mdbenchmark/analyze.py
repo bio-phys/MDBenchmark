@@ -163,7 +163,7 @@ def analyze(directory, plot, ncores):
     if plot:
         df = pd.read_csv('runtimes.csv')
 
-        # We only support plotting of mdbenchmark systems from equal hosts /
+        # We only support plotting of benchmark systems from equal hosts /
         # with equal settings
         uniqueness = df.apply(lambda x: x.nunique())
         if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:

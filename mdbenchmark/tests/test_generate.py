@@ -53,6 +53,25 @@ def test_generate(cli_runner, tmpdir, tpr_file):
             assert os.path.exists(
                 'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
 
+        output = 'Creating a total of 3 benchmarks, with a run time of 15' \
+                 ' minutes each.\nCreating benchmark system for gromacs/2016' \
+                 ' with GPUs.\nFinished generating all benchmarks.\nYou can' \
+                 ' now submit the jobs with mdbenchmark submit.\n'
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016', '--host=draco',
+            '--min-nodes=6', '--max-nodes=8', '--gpu',
+            '--name={}'.format(tpr_file)
+        ])
+        assert result.exit_code == 0
+        assert result.output == output
+        assert os.path.exists('draco_gromacs')
+        for i in range(6, 9):
+            assert os.path.exists('draco_gromacs/2016_gpu/{}'.format(i))
+            assert os.path.exists(
+                'draco_gromacs/2016_gpu/{}/protein.tpr'.format(i))
+            assert os.path.exists(
+                'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
+
 
 def test_generate_console_messages(cli_runner, tmpdir):
     """Test that the CLI for generate prints all error messages as expected."""
@@ -68,6 +87,17 @@ def test_generate_console_messages(cli_runner, tmpdir):
 
         with open('protein.tpr', 'w') as fh:
             fh.write('This is a dummy tpr!')
+
+        # Test that the minimal number of nodes must be bigger than the maximal number
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016', '--host=draco',
+            '--name=protein', '--min-nodes=6', '--max-nodes=4'
+        ])
+        output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for ' \
+                 '"--min-nodes": The minimal number of nodes needs to be smaller ' \
+                 'than the maximal number.\n'
+        assert result.exit_code == 2
+        assert result.output == output
 
         # Test error message if we pass an invalid template name
         result = cli_runner.invoke(cli.cli, [
