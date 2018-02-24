@@ -28,7 +28,8 @@ from jinja2.exceptions import TemplateNotFound
 from mdbenchmark import console
 
 from .cli import cli
-from .utils import ENV, normalize_host, print_possible_hosts
+from .utils import (ENV, get_possible_hosts, guess_host, normalize_host,
+                    print_possible_hosts)
 
 
 def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
@@ -63,34 +64,118 @@ def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
         fh.write(script)
 
 
+def module_ask_again():
+    v = click.prompt('Which module would you like to add?')
+    return (v, )
+
+
+def module_callback(ctx, param, value):
+    # The value is None if the `click.prompt` at the bottom resolves to False.
+    if not value:
+        value = click.prompt(
+            'Specify which module you would like to use again?')
+
+    val = (''.join(value), )
+
+    # Ask the user if they want to add more modules
+    while click.confirm('Would you like to benchmark more modules?'):
+        val = val + module_ask_again()
+
+    # Tell the user which modules will be used.
+    # Ask the user if the selection is correct.
+    click.echo('Going to generate benchmarks for the following modules: {}'.
+               format(', '.join(val)))
+    if not click.confirm('Is the module selection correct?'):
+        val = module_callback(ctx=ctx, param=param, value=None)
+
+    return val
+
+
+def list_available_hosts(ctx, param, value):
+    hosts = get_possible_hosts()
+    while not value in hosts:
+        console.info(
+            'Cannot find job template named {}. Choose one of the following:\n{}',
+            click.style(value, bold=True),
+            '\n'.join(hosts),
+            bold=False)
+        value = click.prompt('Specify a job template')
+
+    return value
+
+
+def check_file_available(ctx=None, param=None, value=''):
+    # Check that the .tpr file exists.
+    fn, ext = os.path.splitext(value)
+
+    if not ext:
+        ext = '.tpr'
+
+    tpr = fn + ext
+    if not os.path.exists(tpr):
+        raise click.FileError(
+            tpr, hint='File does not exist or is not readable.')
+
+    return tpr
+
+
 @cli.command()
+@click.help_option()
 @click.option(
-    '-n', '--name', help='Name of .tpr file.', default='md', show_default=True)
+    '-n',
+    '--name',
+    help='Name of .tpr file.',
+    default='md',
+    prompt='Specify the name of the input file.',
+    callback=check_file_available,
+    is_eager=True,
+    show_default=True)
 @click.option(
     '-g',
     '--gpu',
     is_flag=True,
+    prompt='Should the benchmarks run on GPUs?',
+    is_eager=True,
     help='Use GPUs for benchmark.',
     show_default=True)
-@click.option('-m', '--module', help='GROMACS module to use.', multiple=True)
-@click.option('--host', help='Name of the job template.', default=None)
+@click.option(
+    '--host',
+    help='Which job template to use?',
+    default=guess_host(),
+    prompt='Specify a job template',
+    callback=list_available_hosts,
+    is_eager=True)
+@click.option(
+    '-m',
+    '--module',
+    help='GROMACS module to use.',
+    prompt='Specify which module you would like to use?',
+    callback=module_callback,
+    is_eager=True,
+    multiple=True)
 @click.option(
     '--min-nodes',
     help='Minimal number of nodes to request.',
     default=1,
     show_default=True,
+    prompt='Minimal number of nodes to request.',
+    is_eager=True,
     type=int)
 @click.option(
     '--max-nodes',
     help='Maximal number of nodes to request.',
     default=5,
     show_default=True,
+    prompt='Maximal number of nodes to request',
+    is_eager=True,
     type=int)
 @click.option(
     '--time',
     help='Run time for benchmark in minutes.',
     default=15,
     show_default=True,
+    prompt='Run time for benchmark in minutes.',
+    is_eager=True,
     type=click.IntRange(1, 1440))
 @click.option(
     '--list-hosts', help='Show available job templates.', is_flag=True)
@@ -100,16 +185,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         print_possible_hosts()
         return
 
-    # Check that the .tpr file exists.
-    fn, ext = os.path.splitext(name)
-
-    if not ext:
-        ext = '.tpr'
-
-    tpr = fn + ext
-    if not os.path.exists(tpr):
-        raise click.FileError(
-            tpr, hint='File does not exist or is not readable.')
+    tpr = check_file_available(value=name)
 
     if min_nodes > max_nodes:
         raise click.BadParameter(
