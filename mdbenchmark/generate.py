@@ -91,7 +91,7 @@ def module_callback(ctx, param, value):
     return val
 
 
-def list_available_hosts(ctx, param, value):
+def validate_host(ctx, param, value):
     hosts = get_possible_hosts()
     while not value in hosts:
         console.info(
@@ -143,7 +143,7 @@ def check_file_available(ctx=None, param=None, value=''):
     help='Which job template to use?',
     default=guess_host(),
     prompt='Specify a job template',
-    callback=list_available_hosts,
+    callback=validate_host,
     is_eager=True)
 @click.option(
     '-m',
