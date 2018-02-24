@@ -135,7 +135,6 @@ def check_file_available(ctx=None, param=None, value=''):
     '--gpu',
     is_flag=True,
     prompt='Should the benchmarks run on GPUs?',
-    is_eager=True,
     help='Use GPUs for benchmark.',
     show_default=True)
 @click.option(
@@ -143,15 +142,13 @@ def check_file_available(ctx=None, param=None, value=''):
     help='Which job template to use?',
     default=guess_host(),
     prompt='Specify a job template',
-    callback=validate_host,
-    is_eager=True)
+    callback=validate_host)
 @click.option(
     '-m',
     '--module',
     help='GROMACS module to use.',
     prompt='Specify which module you would like to use?',
     callback=module_callback,
-    is_eager=True,
     multiple=True)
 @click.option(
     '--min-nodes',
@@ -159,7 +156,6 @@ def check_file_available(ctx=None, param=None, value=''):
     default=1,
     show_default=True,
     prompt='Minimal number of nodes to request.',
-    is_eager=True,
     type=int)
 @click.option(
     '--max-nodes',
@@ -167,7 +163,6 @@ def check_file_available(ctx=None, param=None, value=''):
     default=5,
     show_default=True,
     prompt='Maximal number of nodes to request',
-    is_eager=True,
     type=int)
 @click.option(
     '--time',
@@ -175,7 +170,6 @@ def check_file_available(ctx=None, param=None, value=''):
     default=15,
     show_default=True,
     prompt='Run time for benchmark in minutes.',
-    is_eager=True,
     type=click.IntRange(1, 1440))
 @click.option(
     '--list-hosts', help='Show available job templates.', is_flag=True)
