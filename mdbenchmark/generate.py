@@ -17,62 +17,33 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-from shutil import copyfile
-
 import click
 import datreant.core as dtr
-import mdsynthesis as mds
 from jinja2.exceptions import TemplateNotFound
 
-from mdbenchmark import console
-
+from . import console
 from .cli import cli
+from .mdengines import detect_md_engine, namd
 from .utils import ENV, normalize_host, print_possible_hosts
-
-
-def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
-    sim = mds.Sim(
-        top['{}/'.format(nodes)],
-        categories={
-            'module': module,
-            'gpu': gpu,
-            'nodes': nodes,
-            'host': host,
-            'time': time,
-            'name': name,
-            'started': False
-        })
-
-    copyfile(tpr, sim[tpr].relpath)
-
-    # Add some time buffer to the requested time. Otherwise the queuing system
-    # kills the jobs before GROMACS can finish
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
-
-    # create bench job script
-    script = tmpl.render(
-        name=name,
-        gpu=gpu,
-        module=module,
-        n_nodes=nodes,
-        time=time,
-        formatted_time=formatted_time)
-
-    with open(sim['bench.job'].relpath, 'w') as fh:
-        fh.write(script)
 
 
 @cli.command()
 @click.option(
-    '-n', '--name', help='Name of .tpr file.', default='md', show_default=True)
+    '-n',
+    '--name',
+    help='Name of input files. All files must have the same base name.',
+    show_default=True)
 @click.option(
     '-g',
     '--gpu',
     is_flag=True,
     help='Use GPUs for benchmark.',
     show_default=True)
-@click.option('-m', '--module', help='GROMACS module to use.', multiple=True)
+@click.option(
+    '-m',
+    '--module',
+    help='Name of the MD engine module to use.',
+    multiple=True)
 @click.option('--host', help='Name of the job template.', default=None)
 @click.option(
     '--min-nodes',
@@ -100,16 +71,15 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
         print_possible_hosts()
         return
 
-    # Check that the .tpr file exists.
-    fn, ext = os.path.splitext(name)
+    if not name:
+        raise click.BadParameter(
+            'Please specify the base name of your input files.',
+            param_hint='"-n" / "--name"')
 
-    if not ext:
-        ext = '.tpr'
-
-    tpr = fn + ext
-    if not os.path.exists(tpr):
-        raise click.FileError(
-            tpr, hint='File does not exist or is not readable.')
+    if not module:
+        raise click.BadParameter(
+            'Please specify which mdengine module to use for the benchmarks.',
+            param_hint='"-m" / "--module"')
 
     if min_nodes > max_nodes:
         raise click.BadParameter(
@@ -124,33 +94,40 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             'Could not find template for host \'{}\'.'.format(host),
             param_hint='"--host"')
 
-    if not module:
-        raise click.BadParameter(
-            'You did not specify which gromacs module to use for scaling.',
-            param_hint='"-m" / "--module"')
-
-    # Provide some output for the user
-    number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
-    run_time_each = '{} minutes'.format(time)
-    console.info(
-        'Creating a total of {} benchmarks, with a run time of {} each.',
-        number_of_benchmarks, run_time_each)
+    # Make sure we only warn the user once, if they are using NAMD.
+    if any(['namd' in m for m in module]):
+        console.warn(
+            'NAMD support is experimental. '
+            'All input files must be in the current directory. '
+            'Parameter paths must be absolute. Only crude file checks are performed!'
+        )
 
     for m in module:
-        directory = '{}_{}'.format(host, m)
-        gpu_string = '.'
+        # Here we detect the mdengine (GROMACS or NAMD).
+        engine = detect_md_engine(m)
 
+        directory = '{}_{}'.format(host, m)
+        gpu_string = ''
         if gpu:
             directory += '_gpu'
-            gpu_string = ' with GPUs.'
+            gpu_string = ' with GPUs'
+
+        # Check and append the correct extensions for a given module.
+        # If not files exist as expected, we stop here.
+        engine_input = engine.check_file_extension(name)
+
+        console.info('Creating benchmark system for {}.', m + gpu_string)
+        number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
+        run_time_each = '{} minutes'.format(time)
+        console.info(
+            'Creating a total of {} benchmarks, with a run time of {} each.',
+            number_of_benchmarks, run_time_each)
+
         top = dtr.Tree(directory)
-
-        # More user output
-        console.info('Creating benchmark system for {}', m + gpu_string)
-
         for n in range(min_nodes, max_nodes + 1):
-            write_bench(top, tmpl, n, gpu, m, tpr, name, host, time)
+            engine.write_bench(top, tmpl, n, gpu, m, engine_input, name, host,
+                               time)
 
-    console.info(
-        'Finished generating all benchmarks.\nYou can now submit the jobs with {}.',
-        'mdbenchmark submit')
+    # Provide some output for the user
+    console.info('Finished generating all benchmarks.\n'
+                 'You can now submit the jobs with {}.', 'mdbenchmark submit')

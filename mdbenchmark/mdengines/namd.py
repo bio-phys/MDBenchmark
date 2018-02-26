@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import os
 import re
 from glob import glob
@@ -31,7 +29,7 @@ from .. import console
 
 
 def parse_ns_day(fh):
-    """parse nanoseconds per day from a GROMACS log file
+    """parse nanoseconds per day from a NAMD log file
 
     Parameters
     ----------
@@ -40,20 +38,20 @@ def parse_ns_day(fh):
 
     Returns
     -------
-    float / np.nan
-        nanoseconds per day or NaN
+    float
+        nanoseconds per day
     """
     lines = fh.readlines()
 
     for line in lines:
-        if 'Performance' in line:
-            return float(line.split()[1])
+        if 'Benchmark time' in line:
+            return 1 / float(line.split()[7])
 
     return np.nan
 
 
 def parse_ncores(fh):
-    """parse number of cores from a GROMACS log file
+    """parse number of cores from a NAMD log file
 
     Parameters
     ----------
@@ -62,51 +60,42 @@ def parse_ncores(fh):
 
     Returns
     -------
-    int / np.nan
-        number of cores job was run on or NaN
+    float
+        number of cores job was run on
     """
     lines = fh.readlines()
 
     for line in lines:
-        if 'Running on' in line:
-            return int(line.split()[6])
+        if 'Benchmark time' in line:
+            return int(line.split()[3])
 
     return np.nan
 
 
 def analyze_run(sim):
     """
-    Analyze Performance data of a GROMACS simulation.
+    Analyze Performance data of a NAMD simulation
     """
-    # Set defaults if we are unable to find the information in the log file or
-    # the log file does not exist (yet).
     ns_day = np.nan
     ncores = np.nan
 
-    # search all output files and ignore GROMACS backup files
-    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
+    # search all output files
+    output_files = glob(os.path.join(sim.relpath, '*out*'))
     if output_files:
         with open(output_files[0]) as fh:
             ns_day = parse_ns_day(fh)
             fh.seek(0)
             ncores = parse_ncores(fh)
 
-    # Backward compatibility to previously created benchmark systems
-    if 'time' not in sim.categories:
-        sim.categories['time'] = 0
+    # module = sim.categories['module']
 
-    # backward compatibility
-    if 'module' in sim.categories:
-        module = sim.categories['module']
-    else:
-        module = sim.categories['version']
-
-    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'], ncores)
+    return (sim.categories['module'], sim.categories['nodes'], ns_day,
+            sim.categories['time'], sim.categories['gpu'],
+            sim.categories['host'], ncores)
 
 
 def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
-    """ Writes a single gromacs benchmark file and the respective sim object
+    """ Writes a single namd benchmark file and the respective sim object
     """
     sim = mds.Sim(
         top['{}/'.format(nodes)],
@@ -120,12 +109,24 @@ def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
             'started': False
         })
 
-    copyfile(tpr, sim[tpr].relpath)
+    # Copy input files
+    namd = '{}.namd'.format(name)
+    psf = '{}.psf'.format(name)
+    pdb = '{}.pdb'.format(name)
+
+    with open(namd) as fh:
+        analyze_namd_file(fh)
+        fh.seek(0)
+
+    copyfile(namd, sim[namd].relpath)
+    copyfile(psf, sim[psf].relpath)
+    copyfile(pdb, sim[pdb].relpath)
+
     # Add some time buffer to the requested time. Otherwise the queuing system
-    # kills the jobs before GROMACS can finish
+    # kills the jobs before NAMD can finish
     formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
     # engine switch to pick the right submission statement in the templates
-    md_engine = "gromacs"
+    md_engine = "namd"
     # create bench job script
     script = tmpl.render(
         name=name,
@@ -140,26 +141,43 @@ def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
         fh.write(script)
 
 
-def check_file_extension(name):
-    """ check and append the correct file extensions for the given module.
+def analyze_namd_file(fh):
+    """ Check whether the NAMD config file has any relative imports or variables
     """
-    # Check that the .tpr file exists.
-    fn, ext = os.path.splitext(name)
+    lines = fh.readlines()
 
-    if ext == '':
-        ext = '.tpr'
+    for line in lines:
+        # Continue if we do not need to do anything with the current line
+        if ('parameters' not in line) and ('coordinates' not in line) and (
+                'structure' not in line):
+            continue
 
-    tpr = fn + ext
-    if not os.path.exists(tpr):
-        console.error(
-            "File {} does not exist, but is needed for GROMACS benchmarks.",
-            tpr)
+        path = line.split()[1]
+        if '$' in path:
+            console.error(
+                'Variable Substitutions are not allowed in NAMD files!')
+        if '..' in path:
+            console.error('Relative file paths are not allowed in NAMD files!')
+        if '/' not in path or ('/' in path and not path.startswith('/')):
+            console.error('No absolute path detected in NAMD file!')
 
-    return tpr
+
+def check_file_extension(name):
+    """Check and append the correct file extensions for the NAMD module.
+    """
+    # Check whether the needed files are there.
+    for extension in ['namd', 'psf', 'pdb']:
+        fn = '{}.{}'.format(name, extension)
+        if not os.path.exists(fn):
+            console.error(
+                "File {} does not exist, but is needed for NAMD benchmarks.",
+                fn)
+
+    return name
 
 
 def cleanup_before_restart(sim):
-    white_list = ['((?:[^/]*/)*)(bench\.job)', '.*.tpr', '.*.mdp']
+    white_list = ['((?:[^/]*/)*)(bench\.job)', '.*.namd', '.*.psf', '.*.pdb']
     white_list = [re.compile(fname) for fname in white_list]
 
     files_found = []
