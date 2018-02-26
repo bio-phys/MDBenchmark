@@ -24,21 +24,33 @@ from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
 
 
-def test_analyze(cli_runner, tmpdir, data):
+def test_analyze_gromacs(cli_runner, tmpdir, data):
     """Test that the output is OK when all outputs are fine."""
     with tmpdir.as_cwd():
 
         result = cli_runner.invoke(cli.cli, [
             'analyze',
-            '--directory={}'.format(data['analyze-files']),
+            '--directory={}'.format(data['analyze-files-gromacs']),
         ])
         assert result.exit_code == 0
-        assert result.output == """          gromacs  nodes   ns/day  run time [min]    gpu   host  ncores
+        assert result.output == """           module  nodes   ns/day  run time [min]    gpu   host  ncores
 0  gromacs/2016.3      1   98.147              15  False  draco      32
 1  gromacs/2016.3      2  178.044              15  False  draco      64
 2  gromacs/2016.3      3  226.108              15  False  draco      96
 3  gromacs/2016.3      4  246.973              15  False  draco     128
 4  gromacs/2016.3      5  254.266              15  False  draco     160
+"""
+
+
+def test_analze_namd(cli_runner, tmpdir, data):
+    with tmpdir.as_cwd():
+        result = cli_runner.invoke(cli.cli, [
+            'analyze', '--directory={}'.format(data['analyze-files-namd'])
+        ])
+        assert result.exit_code == 0
+        assert result.output == """  module  nodes    ns/day  run time [min]    gpu   host  ncores
+0   namd      1  0.076328              15  False  draco       1
+1   namd      2  0.076328              15  False  draco       1
 """
 
 
@@ -54,7 +66,7 @@ show a question mark instead of a float in the corresponding cell.
         ])
         assert result.exit_code == 0
         assert result.output == """WARNING We were not able to gather informations for all systems. Systems marked with question marks have either crashed or were not started yet.
-          gromacs  nodes   ns/day  run time [min]    gpu   host ncores
+           module  nodes   ns/day  run time [min]    gpu   host ncores
 0  gromacs/2016.3      1   98.147              15  False  draco     32
 1  gromacs/2016.3      2  178.044              15  False  draco     64
 2  gromacs/2016.3      3  226.108              15  False  draco     96
@@ -71,10 +83,10 @@ def test_analyze_plot(cli_runner, tmpdir, data):
 
         result = cli_runner.invoke(cli.cli, [
             'analyze',
-            '--directory={}'.format(data['analyze-files'], '--plot'),
+            '--directory={}'.format(data['analyze-files-gromacs'], '--plot'),
         ])
         assert result.exit_code == 0
-        assert result.output == """          gromacs  nodes   ns/day  run time [min]    gpu   host  ncores
+        assert result.output == """           module  nodes   ns/day  run time [min]    gpu   host  ncores
 0  gromacs/2016.3      1   98.147              15  False  draco      32
 1  gromacs/2016.3      2  178.044              15  False  draco      64
 2  gromacs/2016.3      3  226.108              15  False  draco      96

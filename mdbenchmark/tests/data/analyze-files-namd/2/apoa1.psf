@@ -1,0 +1,27 @@
+PSF
+
+       8 !NTITLE
+ REMARKS FILENAME="apoa1-ht-box.psf"
+ REMARKS This is a box of 125 water molecules in the experimental
+ REMARKS geometry.  The box was equilibrated previously by Monte Carlo
+ REMARKS for the MCY potential.  It is probably appropiate for starting
+ REMARKS configurations for all 3-site water models.  The box length
+ REMARKS is 15.5516 A and the temperature and density are 300 K and
+ REMARKS 0.0334 A**-3.
+ REMARKS DATE:28-Mar-97  16:21:28       created by user: jim
+
+   92224 !NATOM
+       1 PRO1 48   ASP  N    NH3    -.300000       14.0070           0
+       2 PRO1 48   ASP  HT1  HC      .330000       1.00800           0
+       3 PRO1 48   ASP  HT2  HC      .330000       1.00800           0
+       4 PRO1 48   ASP  HT3  HC      .330000       1.00800           0
+     [......]
+   92146       0       0   92149       0       0   92152       0       0
+   92155       0       0   92158       0       0   92161       0       0
+   92164       0       0   92167       0       0   92170       0       0
+   92173       0       0   92176       0       0   92179       0       0
+   92182       0       0   92185       0       0   92188       0       0
+   92191       0       0   92194       0       0   92197       0       0
+   92200       0       0   92203       0       0   92206       0       0
+   92209       0       0   92212       0       0   92215       0       0
+   92218       0       0   92221       0       0

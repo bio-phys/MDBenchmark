@@ -1,0 +1,12 @@
+REMARK FILENAME="apoa1-ht-box-min.pdb"
+REMARK This is a box of 125 water molecules in the experimental
+REMARK geometry.  The box was equilibrated previously by Monte Carlo
+REMARK for the MCY potential.  It is probably appropiate for starting
+REMARK configurations for all 3-site water models.  The box length
+REMARK is 15.5516 A and the temperature and density are 300 K and
+REMARK 0.0334 A**-3.
+REMARK DATE:29-Mar-97  10:48:59       created by user: jim
+ATOM      1  N   ASP    48      41.035   4.952  15.916  1.00   .00      PRO1
+[...]
+ATOM  92224  H2  TIP3 6125      42.109  50.054  26.189  1.00   .00      WAT9
+END
