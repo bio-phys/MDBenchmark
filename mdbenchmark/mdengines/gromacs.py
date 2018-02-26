@@ -159,7 +159,7 @@ def check_file_extension(name):
 
 
 def cleanup_before_restart(sim):
-    white_list = ['((?:[^/]*/)*)(bench\.job)', '.*.tpr', '.*.mdp']
+    white_list = ['.*/bench\.job', '.*\.tpr', '.*\.mdp']
     white_list = [re.compile(fname) for fname in white_list]
 
     files_found = []
