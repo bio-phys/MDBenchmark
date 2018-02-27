@@ -136,7 +136,8 @@ def test_generate_namd_experimental_warning(cli_runner, tmpdir):
         ])
         output = 'WARNING NAMD support is experimental. ' \
                  'All input files must be in the current directory. ' \
-                 'Parameter paths must be absolute. Only crude file checks are performed!\n' \
+                 'Parameter paths must be absolute. Only crude file checks are performed!' \
+                 'If you use the --gpu option make sure you use the GPU compatible NAMD module!\n' \
                  'Creating benchmark system for namd/123.\n' \
                  'Creating a total of 5 benchmarks, with a run time of 15 ' \
                  'minutes each.\nFinished generating all benchmarks.\nYou can ' \

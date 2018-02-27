@@ -100,7 +100,8 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             'NAMD support is experimental. '
             'All input files must be in the current directory. '
             'Parameter paths must be absolute. Only crude file checks are performed!'
-        )
+            'If you use the {} option make sure you use the GPU compatible NAMD module!',
+            '--gpu')
 
     for m in module:
         # Here we detect the mdengine (GROMACS or NAMD).
