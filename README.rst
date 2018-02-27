@@ -1,6 +1,6 @@
-===================================
-  Benchmark GROMACS simulations
-===================================
+============================================
+  Benchmark molecular dynamics simulations
+============================================
 
 .. image:: https://img.shields.io/pypi/v/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
@@ -25,7 +25,7 @@
 
 ---------------
 
-**MDBenchmark** — quickly generate, start and analyze benchmarks for GROMACS simulations.
+**MDBenchmark** — quickly generate, start and analyze benchmarks for your molecular dynamics simulations.
 
 MDBenchmark is a tool to squeeze the maximum out of your limited computing
 resources. It tries to make it as easy as possible to set up systems on varying
@@ -33,7 +33,7 @@ numbers of nodes and compare their performances to each other.
 
 You can also create a plot to get a quick overview of the possible performance
 (and also show of to your friends)! The plot below shows the performance of an
-MD system on up to five nodes with and without GPUs.
+molecular dynamics system on up to five nodes with and without GPUs.
 
 .. image:: https://raw.githubusercontent.com/bio-phys/MDBenchmark/master/runtimes.png
 
@@ -88,9 +88,9 @@ of your shell session.
 Features
 ========
 
-- Generates benchmarks for GROMACS systems (contributions for other MD systems are welcome!).
+- Generates benchmarks for GROMACS and NAMD simulations (contributions for other MD engines are welcome!).
 - Automatically detects the queuing system on your high-performance cluster and submits jobs accordingly.
-- Grabs performance from GROMACS logs and creates a fancy plot.
+- Grabs performance from the output logs and creates a fancy plot.
 - Can benchmark systems either with or without GPUs.
 
 Usage
@@ -100,15 +100,18 @@ After installation, the ``mdbenchmark`` command should be available to you
 globally. If you have installed the package in a virtual environment, make sure
 to activate that first!
 
-Assuming your TPR files is called ``protein.tpr`` and want to run benchmarks
-with the module ``gromacs/5.1.4-plumed2.3`` on up to ten nodes, use the
+Benchmark generation for GROMACS
+--------------------------------
+
+Assuming your TPR file is called ``protein.tpr`` and you want to run benchmarks
+with the module ``gromacs/5.1.4-plumed2.3`` on up to ten nodes, run the
 following command:
 
 .. code::
 
     $ mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --max-nodes 10
 
-To run benchmarks on GPUs add the ``--gpu`` flag:
+To run benchmarks on GPUs simply add the ``--gpu`` flag:
 
 .. code::
 
@@ -120,16 +123,77 @@ You can also create benchmarks for different versions of GROMACS:
 
     $ mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --module gromacs/2016.4-plumed2.3 --max-nodes 10 --gpu
 
-After you generated all benchmark systems, you can start them at once:
+
+Benchmark generation for NAMD
+-----------------------------
+
+**NAMD support is experimental.** If you encounter any problems or bugs, we
+would appreciate to `hear from you`_.
+
+Generating benchmarks for NAMD follows a similar process to GROMACS. Assuming
+the NAMD configuration file is called ``protein.namd``, you will also need the
+corresponding ``protein.pdb`` and ``protein.psf`` inside the same folder.
+**Warning:** Please be aware that all paths given in the ``protein.namd`` file
+must be absolute paths. This ensures that MDBenchmark does not destroy paths
+when copying files around during benchmark generation.
+
+In analogy to the GROMACS setup, you can execute the following command to
+generate benchmarks for a module named ``namd/2.12``:
 
 .. code::
 
-    $ mdbenchmark start
+    $ mdbenchmark generate --name protein --module namd/2.12 --max-nodes 10
 
-As soon as the benchmark simulations have been submitted you can run the
-analysis script via ``mdbenchmark analysis``. As soon as at least one system has
-finished the script will produce a ``.csv`` output file or a plot for direct
-usage (via the ``--plot`` option).
+To run benchmarks on GPUs add the ``--gpu`` flag:
+
+.. code::
+
+    $ mdbenchmark generate --name protein --module namd/2.12-gpu --max-nodes 10 --gpu
+
+Be aware that you will need to specify NAMD modules when running GPU and non-GPU
+benchmarks! To work with GPUs, NAMD needs to be compiled separately and will be
+probably named differently on the host of your choice. Using the ``--gpu``
+option on non-GPU builds of NAMD may lead to poorer performance and erroneous
+results.
+
+Usage with multiple modules
+---------------------------
+
+It is possible to generate benchmarks for different MD engines with a single
+command:
+
+.. code::
+
+    $ mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2016.3 --max-nodes 10
+
+Benchmark submission
+--------------------
+
+After you generated all benchmarks, you can submit them at once:
+
+.. code::
+
+    $ mdbenchmark submit
+
+To start specific benchmarks separately, use the ``--directory`` option and
+specify the corresponding folder:
+
+.. code::
+
+    $ mdbenchmark submit --directory draco_gromacs/5.1.4-plumed2.3
+
+Benchmark analysis
+------------------
+
+As soon as the benchmarks have been submitted you can run the analysis script
+via ``mdbenchmark analysis``. When at least one system has finished, the script
+will produce a ``.csv`` output file or a plot for direct usage (via the
+``--plot`` option).
+
+**Note:** The plotting function currently only allows to plot a CPU and GPU
+benchmark from the same module. We are working on fixing this. If you want to
+compare different modules with each other, either use the ``--directory`` option
+to generate separate plots or create your own plot from the provided CSV file.
 
 .. code::
 
@@ -140,6 +204,7 @@ usage (via the ``--plot`` option).
     2  gromacs/5.1.4-plumed2.3      3  34.033              15  False       draco      96
     3  gromacs/5.1.4-plumed2.3      4  40.274              15  False       draco     128
     4  gromacs/5.1.4-plumed2.3      5   51.71              15  False       draco     160
+
 
 Defining Host Templates
 =======================
@@ -218,6 +283,7 @@ Contributions to the project are welcome! Information on how to contribute to
 the project can be found in `CONTRIBUTING.md`_ and `DEVELOPER.rst`_.
 
 .. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html
+.. _hear from you: https://github.com/bio-phys/MDBenchmark/issues/new
 .. _xdg: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
 .. _CONTRIBUTING.md: https://github.com/bio-phys/MDBenchmark/blob/master/.github/CONTRIBUTING.md
 .. _DEVELOPER.rst: https://github.com/bio-phys/MDBenchmark/blob/master/DEVELOPER.rst
