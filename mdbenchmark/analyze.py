@@ -28,11 +28,12 @@ import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from mdbenchmark import console
+from . import console
+from .mdengines import detect_md_engine
 
 from .cli import cli
-from .mdengines.gromacs import analyze_run
-from .utils import calc_slope_intercept, guess_ncores, lin_func
+from .utils import (calc_slope_intercept, guess_ncores, lin_func,
+                    generate_output_name)
 
 
 def plot_analysis(df, ncores):
@@ -132,15 +133,27 @@ def plot_analysis(df, ncores):
     help='Number of cores per node. If not given it will be parsed from the '
     'benchmarks log file.',
     show_default=True)
-def analyze(directory, plot, ncores):
+@click.option(
+    '-o', '--output-name', default=None, help="Name of the output .csv file.", type=str)
+def analyze(directory, plot, ncores, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
+
     df = pd.DataFrame(columns=[
-        'gromacs', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
+        'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
     ])
 
     for i, sim in enumerate(bundle):
-        df.loc[i] = analyze_run(sim)
+        # older versions wrote a version category. This ensures backwards compatibility
+        if 'module' in sim.categories:
+            module = sim.categories['module']
+        else:
+            module = sim.categories['version']
+        # call the engine specific analysis functions
+        df.loc[i] = detect_md_engine(module).analyze_run(sim)
+
+    if df.empty:
+        console.error('There is no data for the given path.')
 
     if df.isnull().values.any():
         console.warn(
@@ -149,19 +162,22 @@ def analyze(directory, plot, ncores):
             'were not started yet.')
 
     # Sort values by `nodes`
-    df = df.sort_values(['host', 'gromacs', 'run time [min]', 'gpu',
+    df = df.sort_values(['host', 'module', 'run time [min]', 'gpu',
                          'nodes']).reset_index(drop=True)
-
-    if df.empty:
-        console.error('There is no data for the given path.')
 
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
     print(df_to_print)
-    df.to_csv('runtimes.csv')
+
+    # here we determine which output name to use.
+    if output_name is None:
+        output_name = generate_output_name("csv")
+    if '.csv' not in output_name:
+        output_name = '{}.csv'.format(output_name)
+    df.to_csv(output_name)
 
     if plot:
-        df = pd.read_csv('runtimes.csv')
+        df = pd.read_csv(output_name)
 
         # We only support plotting of benchmark systems from equal hosts /
         # with equal settings

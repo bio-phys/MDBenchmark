@@ -35,9 +35,9 @@ def test_generate(cli_runner, tmpdir, tpr_file):
         with open('protein.tpr', 'w') as fh:
             fh.write('This is a dummy tpr ;)')
 
-        output = 'Creating a total of 4 benchmarks, with a run time of 15' \
-                 ' minutes each.\nCreating benchmark system for gromacs/2016' \
-                 ' with GPUs.\nFinished generating all benchmarks.\nYou can' \
+        output = 'Creating benchmark system for gromacs/2016 with GPUs.\n' \
+                 'Creating a total of 4 benchmarks, with a run time of 15' \
+                 ' minutes each.\nFinished generating all benchmarks.\nYou can' \
                  ' now submit the jobs with mdbenchmark submit.\n'
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=draco',
@@ -53,10 +53,10 @@ def test_generate(cli_runner, tmpdir, tpr_file):
             assert os.path.exists(
                 'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
 
-        output = 'Creating a total of 3 benchmarks, with a run time of 15' \
-                 ' minutes each.\nCreating benchmark system for gromacs/2016' \
-                 ' with GPUs.\nFinished generating all benchmarks.\nYou can' \
-                 ' now submit the jobs with mdbenchmark submit.\n'
+        output = 'Creating benchmark system for gromacs/2016 with GPUs.\n' \
+                 'Creating a total of 3 benchmarks, with a run time of 15 minutes each.\n' \
+                 'Finished generating all benchmarks.\n' \
+                 'You can now submit the jobs with mdbenchmark submit.\n'
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=draco',
             '--min-nodes=6', '--max-nodes=8', '--gpu',
@@ -76,14 +76,20 @@ def test_generate(cli_runner, tmpdir, tpr_file):
 def test_generate_console_messages(cli_runner, tmpdir):
     """Test that the CLI for generate prints all error messages as expected."""
     with tmpdir.as_cwd():
+        # Test that we get an error when not supplying a file name
+        result = cli_runner.invoke(
+            cli.cli, ['generate', '--module=gromacs/2016', '--host=draco'])
+        output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for ' \
+                 '"-n" / "--name": Please specifiy the name of your input files.'
+
         # Test error message if the TPR file does not exist
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=draco', '--name=md'
         ])
-        file_not_found = 'Error: Could not open file md.tpr: ' \
-                         'File does not exist or is not readable.\n'
+        output = 'ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n'
+
         assert result.exit_code == 1
-        assert result.output == file_not_found
+        assert result.output == output
 
         with open('protein.tpr', 'w') as fh:
             fh.write('This is a dummy tpr!')
@@ -113,7 +119,29 @@ def test_generate_console_messages(cli_runner, tmpdir):
         result = cli_runner.invoke(
             cli.cli, ['generate', '--host=draco', '--name=protein'])
         output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for ' \
-                 '"-m" / "--module": You did not specify which gromacs module' \
-                 ' to use for scaling.\n'
+                 '"-m" / "--module": Please specify which mdengine module' \
+                 ' to use for the benchmarks.\n'
         assert result.exit_code == 2
+        assert result.output == output
+
+
+def test_generate_namd_experimental_warning(cli_runner, tmpdir):
+    """Test that we print the NAMD experimental warning."""
+    with tmpdir.as_cwd():
+        for f in ['md.namd', 'md.psf', 'md.pdb']:
+            open(f, 'a').close()
+
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=namd/123', '--host=draco', '--name=md'
+        ])
+        output = 'WARNING NAMD support is experimental. ' \
+                 'All input files must be in the current directory. ' \
+                 'Parameter paths must be absolute. Only crude file checks are performed!' \
+                 'If you use the --gpu option make sure you use the GPU compatible NAMD module!\n' \
+                 'Creating benchmark system for namd/123.\n' \
+                 'Creating a total of 5 benchmarks, with a run time of 15 ' \
+                 'minutes each.\nFinished generating all benchmarks.\nYou can ' \
+                 'now submit the jobs with mdbenchmark submit.\n'
+
+        assert result.exit_code == 0
         assert result.output == output

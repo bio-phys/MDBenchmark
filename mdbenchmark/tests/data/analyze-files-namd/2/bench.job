@@ -1,0 +1,25 @@
+#!/bin/bash -l
+# Standard output and error:
+#SBATCH -o ./apoa1.out.%j
+#SBATCH -e ./apoa1.err.%j
+# Initial working directory:
+#SBATCH -D ./
+# Job Name:
+#SBATCH -J apoa1
+#
+# Queue (Partition):
+#SBATCH --partition=express
+#
+# Number of nodes and MPI tasks per node:
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=32
+# Wall clock limit:
+#SBATCH --time=00:20:00
+
+module purge
+module load cuda
+module load impi
+module load namd
+
+# Run namd for 15 minutes
+srun namd2 apoa1.namd

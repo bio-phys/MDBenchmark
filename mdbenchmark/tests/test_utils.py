@@ -17,15 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-from glob import glob
-
 import click
 import numpy as np
 import pytest
 from numpy.testing import assert_equal
 
-from mdbenchmark import cli, utils
+from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
 
 
@@ -93,33 +90,6 @@ def test_calc_slope_intercept():
     slope_intercept = utils.calc_slope_intercept(x1, y1, x2, y2)
 
     assert_equal(slope_intercept, np.hstack([slope, intercept]))
-
-
-def test_cleanup_before_restart(tmpdir):
-    """Test that the cleanup of each directory works as intended."""
-    FILES_TO_DELETE = [
-        'job_thing.err.123job', 'job_thing.out.123job', 'md.log', 'md.xtc',
-        'md.cpt', 'md.edr', 'job.po12345', 'job.o12345', 'md.out'
-    ]
-    FILES_TO_KEEP = ['md.mdp', 'md.tpr']
-
-    # Create temporary directory
-    tmp = tmpdir.mkdir("mdbenchmark")
-
-    # Create empty files
-    for f in FILES_TO_DELETE + FILES_TO_KEEP:
-        open('{}/{}'.format(tmp, f), 'a').close()
-
-    # Run the cleanup script
-    utils.cleanup_before_restart(tmp)
-
-    # Look for files that were left
-    files_found = []
-    for f in FILES_TO_KEEP:
-        files_found.extend(glob(os.path.join(str(tmp), f)))
-
-    # Get rid of the `tmp` path and only compare the actual filenames
-    assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]
 
 
 def test_guess_ncores(cli_runner, monkeypatch):

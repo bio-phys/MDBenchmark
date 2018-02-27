@@ -17,22 +17,31 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import six
+import click
 
-from . import gromacs, namd
-from .. import console
+from mdbenchmark.ext.click_test import cli_runner
+from mdbenchmark.mdengines import detect_md_engine, gromacs, namd
 
 
-def detect_md_engine(modulename):
-    """Detects the MD engine based on the available modules.
-        Any newly implemented mdengines must be added here.
-        Returns the python module."""
-    _engines = {'gromacs': gromacs, 'namd': namd}
+def test_detect_md_engine(cli_runner):
+    """Test that the function `detect_md_engine` works as expected."""
 
-    for name, engine in six.iteritems(_engines):
-        if name in modulename:
-            return engine
+    engine = detect_md_engine('gromacs/2016.3')
+    assert engine.__name__ == 'mdbenchmark.mdengines.gromacs'
 
-    console.error(
-        "No suitable engine detected for '{}'. Known engines are: {}.",
-        modulename, ', '.join(sorted(_engines.keys())))
+    engine = detect_md_engine('namd/123')
+    assert engine.__name__ == 'mdbenchmark.mdengines.namd'
+
+    @click.group()
+    def test_cli():
+        pass
+
+    @test_cli.command()
+    def test():
+        detect_md_engine('MagicMDEngine/123')
+
+    output = 'ERROR No suitable engine detected for \'MagicMDEngine/123\'. ' \
+             'Known engines are: gromacs, namd.\n'
+    result = cli_runner.invoke(test_cli, ['test'])
+    assert result.exit_code == 1
+    assert result.output == output

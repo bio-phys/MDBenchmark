@@ -21,11 +21,11 @@ import click
 
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.submit import get_engine_command
+from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
 
 
-def test_get_engine_command(cli_runner):
+def test_get_batch_command(cli_runner):
     """Test that the get_engine_command works correctly.
 
     It should exit if no batching system was found.
@@ -41,13 +41,19 @@ def test_get_engine_command(cli_runner):
 
     @test_cli.command()
     def test():
-        get_engine_command()
+        get_batch_command()
 
     output = 'ERROR Was not able to find a batch system. ' \
              'Are you trying to use this package on a host with a queuing system?\n'
     result = cli_runner.invoke(test_cli, ['test'])
     assert result.exit_code == 1
     assert result.output == output
+
+
+class DummyEngine(object):
+    @staticmethod
+    def cleanup_before_restart(sim):
+        pass
 
 
 def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
@@ -58,7 +64,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     # Define dummy function, so we can monkeypatch `subprocess.call` and
     # `mdbenchmark.utils.cleanup_before_restart`.
     def call(arg):
-        return True
+        return DummyEngine
 
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
@@ -74,7 +80,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         # already started once.
         result = cli_runner.invoke(cli.cli, [
             'submit',
-            '--directory={}'.format(data['analyze-files']),
+            '--directory={}'.format(data['analyze-files-gromacs']),
         ])
         assert result.exit_code == 1
         assert result.output == 'ERROR All generated benchmarks were already' \
@@ -84,16 +90,16 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         # Test that we can force restart already run benchmarks.
         # Monkeypatch a few functions
         monkeypatch.setattr('subprocess.call', call)
-        monkeypatch.setattr('mdbenchmark.submit.get_engine_command',
+        monkeypatch.setattr('mdbenchmark.submit.get_batch_command',
                             lambda: 'sbatch')
         # We need to patch the cleanup, as we otherwise delete our own test
         # files
-        monkeypatch.setattr('mdbenchmark.submit.cleanup_before_restart', call)
+        monkeypatch.setattr('mdbenchmark.submit.detect_md_engine', call)
         output = 'Submitting a total of 5 benchmarks.\n' \
                  'Submitted all benchmarks. Run mdbenchmark analyze once' \
                  ' they are finished to get the results.\n'
         result = cli_runner.invoke(cli.cli, [
-            'submit', '--directory={}'.format(data['analyze-files']), '--force'
+            'submit', '--directory={}'.format(data['analyze-files-gromacs']), '--force'
         ])
         assert result.exit_code == 0
         assert result.output == output

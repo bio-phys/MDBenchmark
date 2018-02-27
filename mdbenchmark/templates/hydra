@@ -17,6 +17,10 @@
 
 module purge
 module load {{ module }}
-
+module load cuda
 # run {{ module }} for {{ time }} minutes
+{%- if mdengine == "gromacs" %}
 poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
+{%- elif mdengine == "namd" %}
+poe namd2 {{ name }}.namd
+{%- endif %}

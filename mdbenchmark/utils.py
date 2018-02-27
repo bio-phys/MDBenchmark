@@ -21,19 +21,15 @@ import multiprocessing as mp
 import os
 import socket
 import sys
-from glob import glob
-
+import datetime as dt
 import click
 import numpy as np
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 
-from mdbenchmark import console
-
+from . import console
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
-OUTPUT_FILE_TYPES = ('*.err.*', '*.out.*', '*.log', '*.xtc', '*.cpt', '*.edr',
-                     '*.po[1-9]*', '*.o[1-9]*', '*.out')
 # Order where to look for host templates: HOME -> etc -> package
 # home
 _loaders = [
@@ -95,19 +91,6 @@ def calc_slope_intercept(x1, y1, x2, y2):
     return np.hstack([slope, intercept])
 
 
-def cleanup_before_restart(sim):
-    files_found = []
-    for t in OUTPUT_FILE_TYPES:
-        try:
-            p = sim.path.__str__()
-        except AttributeError:
-            p = str(sim)
-        files_found.extend(glob(os.path.join(p, t)))
-
-    for fn in files_found:
-        os.remove(fn)
-
-
 def guess_ncores():
     """Guess the number of physical CPU cores.
 
@@ -126,3 +109,11 @@ def guess_ncores():
                      'Assuming there is only 1 core per node.')
         total_cores = 1
     return total_cores
+
+
+def generate_output_name(extension):
+    """ generate a unique filename based on the date and time for a given extension.
+    """
+    date_time = dt.datetime.now().strftime("%m%d%y_%H-%M")
+    out = '{}.{}'.format(date_time, extension)
+    return out
