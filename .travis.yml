@@ -24,6 +24,11 @@ matrix:
     - os: osx
       env: PYTHON_VERSION=2.7
 
+    - os: linux
+      env: PIP_DEPENDENCIES="restructuredtext_lint"
+           MAIN_CMD="rst-lint README.rst"
+           SETUP_CMD=""
+
 install:
   - git clone git://github.com/astropy/ci-helpers.git
   - source ci-helpers/travis/setup_conda.sh
