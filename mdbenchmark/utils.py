@@ -17,15 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import datetime as dt
 import multiprocessing as mp
 import os
 import socket
 import sys
-import datetime as dt
+
 import click
 import numpy as np
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
+from jinja2.exceptions import TemplateNotFound
 
 from . import console
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
@@ -68,6 +70,32 @@ def guess_host():
             return host
 
     return None
+
+
+def retrieve_host_template(host=None):
+    """Lookup the template name.
+
+    Parameter
+    ---------
+    host : str
+      Name of the host template to lookup
+
+    Returns
+    -------
+    template : str /list
+      Either the name of the host template if it is available, or the value of `host` wrapped
+      inside of a list.
+    """
+
+    host = normalize_host(host)
+    try:
+        template = ENV.get_template(host)
+        status = True
+    except TemplateNotFound:
+        template = host
+        status = False
+
+    return (template, status)
 
 
 def normalize_host(host):
