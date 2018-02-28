@@ -25,6 +25,7 @@ from . import console
 from .cli import cli
 from .mdengines import detect_md_engine, namd
 from .utils import ENV, normalize_host, print_possible_hosts
+from .validate import get_available_modules, validate_module_name
 
 
 @cli.command()
@@ -65,7 +66,13 @@ from .utils import ENV, normalize_host, print_possible_hosts
     type=click.IntRange(1, 1440))
 @click.option(
     '--list-hosts', help='Show available job templates.', is_flag=True)
-def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
+@click.option(
+    '--skip-validation',
+    help='Skip the validation of module names.',
+    default=False,
+    is_flag=True)
+def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
+             skip_validation):
     """Generate benchmarks."""
     if list_hosts:
         print_possible_hosts()
@@ -94,6 +101,11 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             'Could not find template for host \'{}\'.'.format(host),
             param_hint='"--host"')
 
+    if not module:
+        raise click.BadParameter(
+            'You did not specify which gromacs module to use for scaling.',
+            param_hint='"-m" / "--module"')
+
     # Make sure we only warn the user once, if they are using NAMD.
     if any(['namd' in m for m in module]):
         console.warn(
@@ -103,9 +115,39 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             'If you use the {} option make sure you use the GPU compatible NAMD module!',
             '--gpu')
 
+    # Grab list of all available and supported modules
+    available_modules = get_available_modules()
+
     for m in module:
-        # Here we detect the mdengine (GROMACS or NAMD).
+        # Here we detect the MD engine (supported: GROMACS and NAMD).
         engine = detect_md_engine(m)
+
+        # Check the current module
+        validated_module = validate_module_name(
+            m, available_modules=available_modules)
+
+        # If we are unable to find the modules path on the system or if the
+        # user told us to skip the validation, we do so.
+        if (validated_module is None) or skip_validation:
+            console.warn('Not performing module name validation.')
+        # If the validation fails, we throw an error and exit the script.
+        elif not validated_module:
+            # Define a default message.
+            err = 'We cannot find any module named {}.'
+            args = m
+
+            # If we know the MD engine that the user was trying to use, we can
+            # show all available options.
+            str_engine = engine.__name__.split('.')[-1]
+            if str_engine:
+                err += ' Available modules are:\n{}'
+                args = [
+                    m, '\n'.join([
+                        '{}/{}'.format(str_engine, mde)
+                        for mde in available_modules[str_engine]
+                    ])
+                ]
+            console.error(err, bold=False, *args)
 
         directory = '{}_{}'.format(host, m)
         gpu_string = ''
