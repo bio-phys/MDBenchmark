@@ -25,7 +25,7 @@ from mdbenchmark.ext.click_test import cli_runner
 
 
 @pytest.mark.parametrize('tpr_file', ('protein.tpr', 'protein'))
-def test_generate(cli_runner, tmpdir, tpr_file):
+def test_generate(cli_runner, monkeypatch, tmpdir, tpr_file):
     """Run an integration test on the generate function.
 
     Make sure that we accept both `protein` and `protein.tpr` as input files.
@@ -38,6 +38,28 @@ def test_generate(cli_runner, tmpdir, tpr_file):
                  'Creating a total of 4 benchmarks, with a run time of 15' \
                  ' minutes each.\nFinished generating all benchmarks.\nYou can' \
                  ' now submit the jobs with mdbenchmark submit.\n'
+
+        # Test that we get a warning, if no module name validation is performed.
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016', '--host=draco',
+            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
+        ])
+        assert result.exit_code == 0
+        assert result.output == 'WARNING Not performing module name validation.\n' + output
+
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr('mdbenchmark.generate.get_available_modules',
+                            lambda: {'gromacs': ['2016']})
+
+        # Test that we can skip module name validation, even if it actually works.
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016', '--host=draco',
+            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file),
+            '--skip-validation'
+        ])
+        assert result.exit_code == 0
+        assert result.output == 'WARNING Not performing module name validation.\n' + output
+
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=gromacs/2016', '--host=draco',
             '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
@@ -80,9 +102,13 @@ def test_generate(cli_runner, tmpdir, tpr_file):
                 assert line.endswith('-deffnm protein')
 
 
-def test_generate_console_messages(cli_runner, tmpdir):
+def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
     """Test that the CLI for generate prints all error messages as expected."""
     with tmpdir.as_cwd():
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr('mdbenchmark.generate.get_available_modules',
+                            lambda: {'gromacs': ['2016']})
+
         # Test that we get an error when not supplying a file name
         result = cli_runner.invoke(
             cli.cli, ['generate', '--module=gromacs/2016', '--host=draco'])
@@ -132,11 +158,15 @@ def test_generate_console_messages(cli_runner, tmpdir):
         assert result.output == output
 
 
-def test_generate_namd_experimental_warning(cli_runner, tmpdir):
+def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
     """Test that we print the NAMD experimental warning."""
     with tmpdir.as_cwd():
         for f in ['md.namd', 'md.psf', 'md.pdb']:
             open(f, 'a').close()
+
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr('mdbenchmark.generate.get_available_modules',
+                            lambda: {'namd': ['123']})
 
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=namd/123', '--host=draco', '--name=md'
