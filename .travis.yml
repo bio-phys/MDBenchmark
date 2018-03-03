@@ -10,7 +10,7 @@ env:
     - PYTHON_VERSION=3.6
     - MAIN_CMD="pytest"
     - SETUP_CMD="--cov mdbenchmark --pep8 mdbenchmark -v"
-    - CONDA_DEPENDENCIES="numpy cython mdsynthesis jinja2 click pandas matplotlib pytest-pep8 codecov xdg<2"
+    - CONDA_DEPENDENCIES="cython mdsynthesis jinja2 click pandas matplotlib pytest-pep8 codecov xdg<2"
     - CONDA_CHANNELS="conda-forge"
     - NUMPY_VERSION=stable
   matrix:
@@ -23,6 +23,11 @@ matrix:
   include:
     - os: osx
       env: PYTHON_VERSION=2.7
+
+    - os: linux
+      env: PIP_DEPENDENCIES="restructuredtext_lint"
+           MAIN_CMD="rst-lint README.rst"
+           SETUP_CMD=""
 
 install:
   - git clone git://github.com/astropy/ci-helpers.git
