@@ -23,6 +23,8 @@ import pytest
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 
+from .mdengines.test_init import DIR_STRUCTURE
+
 
 @pytest.mark.parametrize('tpr_file', ('protein.tpr', 'protein'))
 def test_generate(cli_runner, monkeypatch, tmpdir, tpr_file):
@@ -73,6 +75,29 @@ def test_generate(cli_runner, monkeypatch, tmpdir, tpr_file):
                 'draco_gromacs/2016_gpu/{}/protein.tpr'.format(i))
             assert os.path.exists(
                 'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
+
+        # Test that we throw an error, if we cannot find the requested module name.
+        with tmpdir.as_cwd():
+            for k, v in DIR_STRUCTURE.items():
+                for k2, v2 in v.items():
+                    os.makedirs(os.path.join(k, k2))
+                    for v3 in v2:
+                        open(os.path.join(k, k2, v3), 'a').close()
+
+            # Prepare path variable that we are going to monkeypatch for
+            # `validate.get_available_modules`
+            dirs = ':'.join([
+                os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())
+            ])
+            monkeypatch.setenv('MODULEPATH', dirs)
+
+            output = 'ERROR There is currently no support for \'doesnotexist/version\'. ' \
+                     'Supported MD engines are: gromacs, namd.\n'
+            result = cli_runner.invoke(cli.cli, [
+                'generate', '--module=doesnotexist/version', '--host=draco',
+                '--name={}'.format(tpr_file)
+            ])
+            assert result.output == output
 
         output = 'Creating benchmark system for gromacs/2016 with GPUs.\n' \
                  'Creating a total of 3 benchmarks, with a run time of 15 minutes each.\n' \

@@ -23,9 +23,9 @@ from jinja2.exceptions import TemplateNotFound
 
 from . import console
 from .cli import cli
-from .mdengines import detect_md_engine, namd
+from .mdengines import (detect_md_engine, get_available_modules,
+                        validate_module_name)
 from .utils import ENV, normalize_host, print_possible_hosts
-from .validate import get_available_modules, validate_module_name
 
 
 @cli.command()
