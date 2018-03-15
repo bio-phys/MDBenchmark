@@ -20,7 +20,6 @@
 import os
 
 import pytest
-
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 
@@ -71,6 +70,14 @@ def test_generate(cli_runner, tmpdir, tpr_file):
                 'draco_gromacs/2016_gpu/{}/protein.tpr'.format(i))
             assert os.path.exists(
                 'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
+
+        # Make sure we pass the correct file name to the job template. It
+        # should not contain any file extensions for GROMACS.
+        with open('draco_gromacs/2016_gpu/6/bench.job') as f:
+            for line in f:
+                if not line.startswith('srun'):
+                    continue
+                assert line.endswith('-deffnm protein')
 
 
 def test_generate_console_messages(cli_runner, tmpdir):

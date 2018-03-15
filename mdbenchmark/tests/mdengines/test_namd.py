@@ -79,7 +79,7 @@ def test_check_file_extension(cli_runner, tmpdir):
 
     @test_cli.command()
     def test():
-        namd.check_file_extension('md')
+        namd.check_input_file_exists('md')
 
     output = 'ERROR File md.namd does not exist, but is needed for NAMD benchmarks.\n'
     result = cli_runner.invoke(test_cli, ['test'])

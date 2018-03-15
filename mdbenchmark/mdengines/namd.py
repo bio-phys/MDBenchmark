@@ -171,10 +171,10 @@ def check_input_file_exists(name):
     """
     # Check whether the needed files are there.
     for extension in ['namd', 'psf', 'pdb']:
-        if name.endswith('.namd'):
-            fn = name
-        else:
-            fn = '{}.{}'.format(name, extension)
+        if name.endswith('.{}'.format(extension)):
+            name = name[:-1 + len(extension)]
+
+        fn = '{}.{}'.format(name, extension)
         if not os.path.exists(fn):
             console.error(
                 "File {} does not exist, but is needed for NAMD benchmarks.",
