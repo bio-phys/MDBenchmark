@@ -113,9 +113,8 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
             directory += '_gpu'
             gpu_string = ' with GPUs'
 
-        # Check and append the correct extensions for a given module.
-        # If not files exist as expected, we stop here.
-        engine_input = engine.check_file_extension(name)
+        # Check if all needed files exist. Throw an error if they do not.
+        engine.check_input_file_exists(name)
 
         console.info('Creating benchmark system for {}.', m + gpu_string)
         number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
@@ -126,8 +125,15 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts):
 
         top = dtr.Tree(directory)
         for n in range(min_nodes, max_nodes + 1):
-            engine.write_bench(top, tmpl, n, gpu, m, engine_input, name, host,
-                               time)
+            engine.write_bench(
+                top=top,
+                tmpl=tmpl,
+                nodes=n,
+                gpu=gpu,
+                module=m,
+                name=name,
+                host=host,
+                time=time)
 
     # Provide some output for the user
     console.info('Finished generating all benchmarks.\n'

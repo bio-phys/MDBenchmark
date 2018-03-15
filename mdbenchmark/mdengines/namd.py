@@ -94,9 +94,13 @@ def analyze_run(sim):
             sim.categories['host'], ncores)
 
 
-def write_bench(top, tmpl, nodes, gpu, module, tpr, name, host, time):
+def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
     """ Writes a single namd benchmark file and the respective sim object
     """
+    # Strip the file extension, if we were given one.
+    # This makes the usage of `mdbenchmark generate` equivalent between NAMD and GROMACS.
+    if name.endswith('.namd'):
+        name = name[:-5]
     sim = mds.Sim(
         top['{}/'.format(nodes)],
         categories={
@@ -162,18 +166,21 @@ def analyze_namd_file(fh):
             console.error('No absolute path detected in NAMD file!')
 
 
-def check_file_extension(name):
+def check_input_file_exists(name):
     """Check and append the correct file extensions for the NAMD module.
     """
     # Check whether the needed files are there.
     for extension in ['namd', 'psf', 'pdb']:
-        fn = '{}.{}'.format(name, extension)
+        if name.endswith('.namd'):
+            fn = name
+        else:
+            fn = '{}.{}'.format(name, extension)
         if not os.path.exists(fn):
             console.error(
                 "File {} does not exist, but is needed for NAMD benchmarks.",
                 fn)
 
-    return name
+    return
 
 
 def cleanup_before_restart(sim):
