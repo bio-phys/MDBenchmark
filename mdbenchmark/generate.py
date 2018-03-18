@@ -24,8 +24,45 @@ from . import console
 from .cli import cli
 from .mdengines import (SUPPORTED_ENGINES, detect_md_engine,
                         get_available_modules, validate_module_name)
-from .utils import print_possible_hosts, retrieve_host_template
-from .validate import validate_generate_arguments
+from . import utils
+
+
+def validate_name(ctx, param, name=None):
+    """Validate that we are given a name argument."""
+    if name is None:
+        raise click.BadParameter(
+            'Please specify the base name of your input files.',
+            param_hint='"-n" / "--name"')
+
+
+def validate_module(ctx, param, module=None):
+    """Validate that we are given a module argument."""
+    if module is None:
+        raise click.BadParameter(
+            'Please specify the base module of your input files.',
+            param_hint='"-m" / "--module"')
+
+
+def print_known_hosts(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    utils.print_possible_hosts()
+    ctx.exit()
+
+
+def validate_hosts(ctx, param, host=None):
+    if host is None:
+        host = utils.guess_host()
+        if host is None:
+            raise click.BadParameter(
+                'Could not guess host. Please provide a value explicitly.',
+                param_hint='"--host"')
+
+    known_hosts = utils.get_possible_hosts()
+    if host not in known_hosts:
+        utils.print_possible_hosts()
+        # raise some appropriate error here
+        ctx.exit()
 
 
 @cli.command()
@@ -33,7 +70,7 @@ from .validate import validate_generate_arguments
     '-n',
     '--name',
     help='Name of input files. All files must have the same base name.',
-    show_default=True)
+    callback=validate_name)
 @click.option(
     '-g',
     '--gpu',
@@ -44,8 +81,13 @@ from .validate import validate_generate_arguments
     '-m',
     '--module',
     help='Name of the MD engine module to use.',
-    multiple=True)
-@click.option('--host', help='Name of the job template.', default=None)
+    multiple=True,
+    callback=validate_module)
+@click.option(
+    '--host',
+    help='Name of the job template.',
+    default=None,
+    callback=validate_hosts)
 @click.option(
     '--min-nodes',
     help='Minimal number of nodes to request.',
@@ -65,28 +107,28 @@ from .validate import validate_generate_arguments
     show_default=True,
     type=click.IntRange(1, 1440))
 @click.option(
-    '--list-hosts', help='Show available job templates.', is_flag=True)
+    '--list-hosts',
+    help='Show available job templates.',
+    is_flag=True,
+    is_eager=True,
+    callback=print_known_hosts,
+    expose_value=False)
 @click.option(
     '--skip-validation',
     help='Skip the validation of module names.',
     default=False,
     is_flag=True)
-def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
+def generate(name, gpu, module, host, min_nodes, max_nodes, time,
              skip_validation):
     """Generate benchmarks simulations from the CLI."""
-    if list_hosts:
-        print_possible_hosts()
-        return
+    # can't be made a callback due to it being two separate options
+    if min_nodes > max_nodes:
+        raise click.BadParameter(
+            'The minimal number of nodes needs to be smaller than the maximal number.',
+            param_hint='"--min-nodes"')
 
     # Grab the template name for the host and pass it on to validation.
-    tmpl, status = retrieve_host_template(host)
-    # Validate all required input values. Throw an error, if something is wrong.
-    validate_generate_arguments(
-        name=name,
-        module=module,
-        host=(tmpl, status),
-        min_nodes=min_nodes,
-        max_nodes=max_nodes)
+    tmpl = utils.retrieve_host_template(host)
 
     # Warn the user that NAMD support is still experimental.
     if any(['namd' in m for m in module]):

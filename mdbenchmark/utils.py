@@ -82,30 +82,11 @@ def retrieve_host_template(host=None):
 
     Returns
     -------
-    template : str /list
-      Either the name of the host template if it is available, or the value of `host` wrapped
-      inside of a list.
+    template
     """
-
-    host = normalize_host(host)
-    try:
-        template = ENV.get_template(host)
-        status = True
-    except TemplateNotFound:
-        template = host
-        status = False
-
-    return (template, status)
-
-
-def normalize_host(host):
     if host is None:
-        host = guess_host()
-        if host is None:
-            raise click.BadParameter(
-                'Could not guess host. Please provide a value explicitly.',
-                param_hint='"--host"')
-    return host
+        host = guess_host(host)
+    return ENV.get_template(host)
 
 
 def lin_func(x, m, b):

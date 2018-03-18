@@ -22,21 +22,6 @@ import click
 from .utils import ENV, normalize_host
 
 
-def validate_generate_name(name=None):
-    """Validate that we are given a name argument."""
-    if not name:
-        raise click.BadParameter(
-            'Please specify the base name of your input files.',
-            param_hint='"-n" / "--name"')
-
-
-def validate_generate_module(module=None):
-    """Validate that we are given a module argument."""
-    if not module:
-        raise click.BadParameter(
-            'Please specify which MD engine module to use for the benchmarks.',
-            param_hint='"-m" / "--module"')
-
 
 def validate_generate_number_of_nodes(min_nodes, max_nodes):
     """Validate that the minimal number of nodes is not smaller than the maximal number."""
