@@ -79,12 +79,12 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
         return
 
     # Grab the template name for the host and pass it on to validation.
-    tmpl = retrieve_host_template(host)
+    tmpl, status = retrieve_host_template(host)
     # Validate all required input values. Throw an error, if something is wrong.
     validate_generate_arguments(
         name=name,
         module=module,
-        host=tmpl,
+        host=(tmpl, status),
         min_nodes=min_nodes,
         max_nodes=max_nodes)
 

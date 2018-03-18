@@ -65,12 +65,13 @@ def test_validate_generate_number_of_nodes():
 def test_validate_generate_host():
     """Test that the validate_generate_host function works as expected."""
 
+    # Test error without any hostname
     with pytest.raises(exceptions.BadParameter) as error:
-        validate.validate_generate_host()
-
+        assert validate.validate_generate_host() == (None, False)
     assert str(error.value) == 'Could not find template for host \'None\'.'
 
-    assert validate.validate_generate_name('draco') is None
+    # Test success of existent hostname
+    assert validate.validate_generate_host(host='draco', status=True) is None
 
 
 def test_validate_generate_arguments():
@@ -79,6 +80,6 @@ def test_validate_generate_arguments():
     assert validate.validate_generate_arguments(
         name='md',
         module='gromacs/123',
-        host='draco',
+        host=('draco', True),
         min_nodes=1,
         max_nodes=6) is None

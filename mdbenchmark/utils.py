@@ -75,18 +75,27 @@ def guess_host():
 def retrieve_host_template(host=None):
     """Lookup the template name.
 
-    Returns None if it does not exist.
-    """
+    Parameter
+    ---------
+    host : str
+      Name of the host template to lookup
 
-    template = None
+    Returns
+    -------
+    template : str /list
+      Either the name of the host template if it is available, or the value of `host` wrapped
+      inside of a list.
+    """
 
     host = normalize_host(host)
     try:
         template = ENV.get_template(host)
+        status = True
     except TemplateNotFound:
-        pass
+        template = host
+        status = False
 
-    return template
+    return (template, status)
 
 
 def normalize_host(host):

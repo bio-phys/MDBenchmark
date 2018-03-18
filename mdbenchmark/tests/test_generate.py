@@ -47,7 +47,7 @@ def test_generate(cli_runner, monkeypatch, tmpdir, tpr_file):
             '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
         ])
         assert result.exit_code == 0
-        assert result.output == 'WARNING Not performing module name validation.\n' + output
+        assert result.output == 'WARNING Not performing module name validation. Cannot locate modules available on this host.\n' + output
 
         # monkeypatch the output of the available modules
         monkeypatch.setattr('mdbenchmark.generate.get_available_modules',
@@ -165,11 +165,11 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if we pass an invalid template name
         result = cli_runner.invoke(cli.cli, [
-            'generate', '--module=gromacs/2016', '--host=hercules',
+            'generate', '--module=gromacs/2016', '--host=minerva',
             '--name=protein'
         ])
         output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for' \
-                 ' "--host": Could not find template for host \'hercules\'.\n'
+                 ' "--host": Could not find template for host \'minerva\'.\n'
         assert result.exit_code == 2
         assert result.output == output
 
@@ -177,8 +177,8 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
         result = cli_runner.invoke(
             cli.cli, ['generate', '--host=draco', '--name=protein'])
         output = 'Usage: cli generate [OPTIONS]\n\nError: Invalid value for ' \
-                 '"-m" / "--module": Please specify which mdengine module' \
-                 ' to use for the benchmarks.\n'
+                 '"-m" / "--module": Please specify which MD engine module ' \
+                 'to use for the benchmarks.\n'
         assert result.exit_code == 2
         assert result.output == output
 

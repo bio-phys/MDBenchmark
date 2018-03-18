@@ -46,9 +46,9 @@ def validate_generate_number_of_nodes(min_nodes, max_nodes):
             param_hint='"--min-nodes"')
 
 
-def validate_generate_host(host=None):
+def validate_generate_host(host=None, status=None):
     """Validate that we were given a valid template name for the host."""
-    if not host:
+    if not status:
         raise click.BadParameter(
             'Could not find template for host \'{}\'.'.format(host),
             param_hint='"--host"')
@@ -60,7 +60,8 @@ def validate_generate_arguments(name=None,
                                 min_nodes=None,
                                 max_nodes=None):
     """Validate all input provided to the generate CLI command."""
+    template, status = host
     validate_generate_name(name=name)
     validate_generate_module(module=module)
-    validate_generate_host(host=host)
+    validate_generate_host(host=template, status=status)
     validate_generate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
