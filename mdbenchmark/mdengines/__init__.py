@@ -96,7 +96,7 @@ def normalize_modules(modules):
     ]
 
     # warn about missing modules
-    missing_modules = good_modules.difference(modules)
+    missing_modules = set(good_modules).difference(modules)
     if missing_modules:
         d = defaultdict(list)
         for mm in missing_modules:
