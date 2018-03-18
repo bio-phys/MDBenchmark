@@ -19,13 +19,13 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 import datreant.core as dtr
-from jinja2.exceptions import TemplateNotFound
 
 from . import console
 from .cli import cli
 from .mdengines import (SUPPORTED_ENGINES, detect_md_engine,
                         get_available_modules, validate_module_name)
-from .utils import ENV, normalize_host, print_possible_hosts
+from .utils import print_possible_hosts, retrieve_host_template
+from .validate import validate_generate_arguments
 
 
 @cli.command()
@@ -73,40 +73,22 @@ from .utils import ENV, normalize_host, print_possible_hosts
     is_flag=True)
 def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
              skip_validation):
-    """Generate benchmarks."""
+    """Generate benchmarks simulations from the CLI."""
     if list_hosts:
         print_possible_hosts()
         return
 
-    if not name:
-        raise click.BadParameter(
-            'Please specify the base name of your input files.',
-            param_hint='"-n" / "--name"')
+    # Grab the template name for the host and pass it on to validation.
+    tmpl = retrieve_host_template(host)
+    # Validate all required input values. Throw an error, if something is wrong.
+    validate_generate_arguments(
+        name=name,
+        module=module,
+        host=tmpl,
+        min_nodes=min_nodes,
+        max_nodes=max_nodes)
 
-    if not module:
-        raise click.BadParameter(
-            'Please specify which mdengine module to use for the benchmarks.',
-            param_hint='"-m" / "--module"')
-
-    if min_nodes > max_nodes:
-        raise click.BadParameter(
-            'The minimal number of nodes needs to be smaller than the maximal number.',
-            param_hint='"--min-nodes"')
-
-    host = normalize_host(host)
-    try:
-        tmpl = ENV.get_template(host)
-    except TemplateNotFound:
-        raise click.BadParameter(
-            'Could not find template for host \'{}\'.'.format(host),
-            param_hint='"--host"')
-
-    if not module:
-        raise click.BadParameter(
-            'You did not specify which gromacs module to use for scaling.',
-            param_hint='"-m" / "--module"')
-
-    # Make sure we only warn the user once, if they are using NAMD.
+    # Warn the user that NAMD support is still experimental.
     if any(['namd' in m for m in module]):
         console.warn(
             'NAMD support is experimental. '
