@@ -22,9 +22,8 @@ import datreant.core as dtr
 
 from . import console
 from .cli import cli
-from .mdengines import (SUPPORTED_ENGINES, detect_md_engine,
-                        get_available_modules, validate_module_name)
 from . import utils
+from . import mdengines
 
 
 def validate_name(ctx, param, name=None):
@@ -127,7 +126,8 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
             'The minimal number of nodes needs to be smaller than the maximal number.',
             param_hint='"--min-nodes"')
 
-    # Grab the template name for the host and pass it on to validation.
+    # Grab the template name for the host. This should always work because
+    # click does the validation for us
     tmpl = utils.retrieve_host_template(host)
 
     # Warn the user that NAMD support is still experimental.
@@ -139,75 +139,14 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
             'If you use the {} option make sure you use the GPU compatible NAMD module!',
             '--gpu')
 
-    ## TODO: Validation start
-    # Save requested modules as a Set
-    requested_modules = set(module)
-
-    # Make sure that we stop if the user requests any unsupported engines.
-    for req_module in requested_modules:
-        if not detect_md_engine(req_module):
-            console.error(
-                "There is currently no support for '{}'. Supported MD engines are: {}.",
-                req_module, ', '.join(sorted(SUPPORTED_ENGINES.keys())))
-
-    # Grab all available modules on the host
-    available_modules = get_available_modules()
-    # Save all valid requested module version
-    modules = [
-        m for m in module
-        if validate_module_name(module=m, available_modules=available_modules)
-    ]
-    # Create a list of the difference between requested and available modules
-    missing_modules = requested_modules.difference(modules)
-
-    # Warn the user that we are not going to perform any validation on module
-    # names.
-    if skip_validation or not available_modules:
-        warning = 'Not performing module name validation.'
-        if available_modules is None:
-            warning += ' Cannot locate modules available on this host.'
-        console.warn(warning)
-
-    # Inform the user of all modules that are not available. Offer some alternatives.
-    if available_modules and missing_modules and not skip_validation:
-        # Define a default message.
-        err = 'We have problems finding all of your requested modules on this host.\n'
-
-        # Create a dictionary containing all requested engines and the
-        # corresponding missing versions. This way we can list them all in a
-        # nice way!
-        d = {}
-        for mm in missing_modules:
-            engine, version = mm.split('/')
-            if not engine in d:
-                d[engine] = []
-            d[engine].append(version)
-
-        args = []
-        for engine in sorted(d.keys()):
-            # New line to the last list item. We are going to print some more
-            # stuff!
-            if args:
-                args[-1] = args[-1] + '\n'
-            err += 'We were not able to find the following modules for MD engine {}: {}.\n'
-            args.append(engine)
-            args.extend(d[engine])
-
-            # If we know the MD engine that the user was trying to use, we can
-            # show all available options.
-            err += 'Available modules are:\n{}'
-            args.extend([
-                '\n'.join([
-                    '{}/{}'.format(engine, mde)
-                    for mde in available_modules[engine]
-                ])
-            ])
-        console.error(err, bold=True, *args)
-    ## TODO: Validation end
+    if not skip_validation:
+        module = mdengines.normalize_modules(module)
+    else:
+        console.warn('Not performing module name validation.')
 
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
-        engine = detect_md_engine(m)
+        engine = mdengines.detect_md_engine(m)
 
         directory = '{}_{}'.format(host, m)
         gpu_string = ''
