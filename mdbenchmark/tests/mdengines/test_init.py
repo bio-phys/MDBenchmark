@@ -22,7 +22,9 @@ import os
 import click
 
 import pytest
+from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
+from mdbenchmark.generate import generate
 from mdbenchmark.mdengines import (detect_md_engine, get_available_modules,
                                    gromacs, namd, validate_module_name)
 
@@ -96,4 +98,70 @@ def test_validation(monkeypatch, tmpdir, cli_runner):
         output = 'ERROR We were not able to determine the module name.\n'
         result = cli_runner.invoke(test_cli, ['test'])
         assert result.exit_code == 1
+        assert result.output == output
+
+
+def test_generate_validation(cli_runner, tmpdir, monkeypatch):
+    # Test that we get a warning, if the MD engine is unsupported.
+    result = cli_runner.invoke(cli.cli, [
+        'generate', '--module=somehpc/123', '--host=draco', '--name=protein'
+    ])
+    output = 'ERROR There is currently no support for \'somehpc/123\'. ' \
+             'Supported MD engines are: gromacs, namd.\n'
+
+    assert result.exit_code == 1
+    assert result.output == output
+
+    with tmpdir.as_cwd():
+        with open('protein.tpr', 'w') as fh:
+            fh.write('This is a dummy tpr ;)')
+        for k, v in DIR_STRUCTURE.items():
+            for k2, v2 in v.items():
+                os.makedirs(os.path.join(k, k2))
+                for v3 in v2:
+                    open(os.path.join(k, k2, v3), 'a').close()
+
+        # Prepare path variable that we are going to monkeypatch for
+        # `validate.get_available_modules`
+        dirs = ':'.join(
+            [os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())])
+        monkeypatch.setenv('MODULEPATH', dirs)
+
+        # Test that we get a warning if we cannot find the requested modules.
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/doesnotexist', '--host=draco',
+            '--name=protein'
+        ])
+        output = 'ERROR We have problems finding all of your requested modules on this host.\n' \
+                 'We were not able to find the following modules for MD engine gromacs: doesnotexist.\n' \
+                 'Available modules are:\n' \
+                 'gromacs/5.1.4-plumed2.3\n' \
+                 'gromacs/2016.4\n' \
+                 'gromacs/2018.1\n'
+
+        # assert result.exit_code == 1
+        assert result.output == output
+
+        # Test that the warning also works when specifying several MD engines.
+        # Test that we get a warning if we cannot find the requested modules.
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/doesnotexist', '--module=namd/abc',
+            '--module=namd/123', '--host=draco', '--name=protein'
+        ])
+        output = 'WARNING NAMD support is experimental. ' \
+                 'All input files must be in the current directory. ' \
+                 'Parameter paths must be absolute. Only crude file checks are performed!' \
+                 'If you use the --gpu option make sure you use the GPU compatible NAMD module!\n' \
+                 'ERROR We have problems finding all of your requested modules on this host.\n' \
+                 'We were not able to find the following modules for MD engine gromacs: doesnotexist.\n' \
+                 'Available modules are:\n' \
+                 'gromacs/5.1.4-plumed2.3\n' \
+                 'gromacs/2016.4\n' \
+                 'gromacs/2018.1\n' \
+                 'We were not able to find the following modules for MD engine namd: abc.\n' \
+                 'Available modules are:\n' \
+                 'namd/456\n' \
+                 'namd/123\n'
+
+        # assert result.exit_code == 1
         assert result.output == output

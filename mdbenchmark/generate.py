@@ -143,13 +143,17 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
 
         args = []
         for engine in d.keys():
+            # New line to the last list item. We are going to print some more
+            # stuff!
+            if args:
+                args[-1] = args[-1] + '\n'
             err += 'We were not able to find the following modules for MD engine {}: {}.\n'
             args.append(engine)
             args.extend(d[engine])
 
             # If we know the MD engine that the user was trying to use, we can
             # show all available options.
-            err += ' Available modules are:\n{}'
+            err += 'Available modules are:\n{}'
             args.extend([
                 '\n'.join([
                     '{}/{}'.format(engine, mde)
