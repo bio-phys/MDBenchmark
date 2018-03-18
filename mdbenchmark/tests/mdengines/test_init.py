@@ -20,8 +20,8 @@
 import os
 
 import click
-import pytest
 
+import pytest
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import (detect_md_engine, get_available_modules,
                                    gromacs, namd, validate_module_name)
@@ -38,7 +38,7 @@ DIR_STRUCTURE = {
 }
 
 
-def test_detect_md_engine(cli_runner):
+def test_detect_md_engine():
     """Test that we only accept supported MD engines."""
 
     engine = detect_md_engine('gromacs/2016.3')
@@ -47,19 +47,7 @@ def test_detect_md_engine(cli_runner):
     engine = detect_md_engine('namd/123')
     assert engine.__name__ == 'mdbenchmark.mdengines.namd'
 
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        detect_md_engine('MagicMDEngine/123')
-
-    output = 'ERROR There is currently no support for \'MagicMDEngine/123\'. ' \
-             'Supported MD engines are: gromacs, namd.\n'
-    result = cli_runner.invoke(test_cli, ['test'])
-    assert result.exit_code == 1
-    assert result.output == output
+    assert detect_md_engine('someengine/123') is None
 
 
 def test_validation(monkeypatch, tmpdir, cli_runner):
