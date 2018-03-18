@@ -35,16 +35,14 @@ def detect_md_engine(modulename):
 
     Returns
     -------
-    The corresponding MD engine module.
+    The corresponding MD engine module or None if the requested module is not supported.
     """
 
     for name, engine in six.iteritems(SUPPORTED_ENGINES):
         if name in modulename:
             return engine
 
-    console.error(
-        "There is currently no support for '{}'. Supported MD engines are: {}.",
-        modulename, ', '.join(sorted(SUPPORTED_ENGINES.keys())))
+    return None
 
 
 def get_available_modules():

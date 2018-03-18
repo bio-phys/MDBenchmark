@@ -23,8 +23,8 @@ from jinja2.exceptions import TemplateNotFound
 
 from . import console
 from .cli import cli
-from .mdengines import (detect_md_engine, get_available_modules,
-                        validate_module_name, SUPPORTED_ENGINES)
+from .mdengines import (SUPPORTED_ENGINES, detect_md_engine,
+                        get_available_modules, validate_module_name)
 from .utils import ENV, normalize_host, print_possible_hosts
 
 
@@ -115,68 +115,71 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
             'If you use the {} option make sure you use the GPU compatible NAMD module!',
             '--gpu')
 
-    # Grab list of all available and supported modules
+    ## TODO: Validation start
     # Save requested modules as a Set
-    requested_modules = set(modules)
+    requested_modules = set(module)
+
+    # Make sure that we stop if the user requests any unsupported engines.
+    for req_module in requested_modules:
+        if not detect_md_engine(req_module):
+            console.error(
+                "There is currently no support for '{}'. Supported MD engines are: {}.",
+                req_module, ', '.join(sorted(SUPPORTED_ENGINES.keys())))
+
     # Grab all available modules on the host
     available_modules = get_available_modules()
-    # Save all valid requested modules
-    modules = [m for m in modules if validate_module_name(module=m,
-                                                          available_modules=available_modules)]
+    # Save all valid requested module version
+    modules = [
+        m for m in module
+        if validate_module_name(module=m, available_modules=available_modules)
+    ]
     # Create a list of the difference between requested and available modules
-    missing_modules = list(requested_modules.difference(modules))
+    missing_modules = requested_modules.difference(modules)
 
     # Warn the user that we are not going to perform any validation on module
     # names.
-    if not skip_validation:
-        console.warn('Not performing module name validation.')
+    if skip_validation or not available_modules:
+        warning = 'Not performing module name validation.'
+        if available_modules is None:
+            warning += ' Cannot locate modules available on this host.'
+        console.warn(warning)
 
-    # If `skip_validation` is True, we always skip this if.
-    # TODO: This does not work yet.
-    if missing_modules or not skip_validation:
+    # Inform the user of all modules that are not available. Offer some alternatives.
+    if available_modules and missing_modules and not skip_validation:
         # Define a default message.
         err = 'We have problems finding all of your requested modules on this host.\n'
-        args = m
 
-        # Check if the user supplied any unknown modules. Error out if they did.
-        # TODO: Could we show this in a nicer way..?
-        unknown_modules = [m for m in missing_modules if m not in SUPPORTED_ENGINES.keys()]
-        for um in unknown_modules:
-            engine = detect_md_engine(um)
+        # Create a dictionary containing all requested engines and the
+        # corresponding missing versions. This way we can list them all in a
+        # nice way!
+        d = {}
+        for mm in missing_modules:
+            engine, version = mm.split('/')
+            if not engine in d:
+                d[engine] = []
+            d[engine].append(version)
 
-        # TODO: Create a dictionary containing all requested MD engines with a
-        # wrong version. Then list them one by one!
+        args = []
+        for engine in d.keys():
+            err += 'We were not able to find the following modules for MD engine {}: {}.\n'
+            args.append(engine)
+            args.extend(d[engine])
 
-        # If we know the MD engine that the user was trying to use, we can
-        # show all available options.
-        str_engine = engine.__name__.split('.')[-1]
-        if str_engine:
+            # If we know the MD engine that the user was trying to use, we can
+            # show all available options.
             err += ' Available modules are:\n{}'
-            args = [
-                m, '\n'.join([
-                    '{}/{}'.format(str_engine, mde)
-                    for mde in available_modules[str_engine]
+            args.extend([
+                '\n'.join([
+                    '{}/{}'.format(engine, mde)
+                    for mde in available_modules[engine]
                 ])
-            ]
-        console.error(err, bold=False, *args)
+            ])
+        console.error(err, bold=True, *args)
+    ## TODO: Validation end
 
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
-        # This function can throw an error, if the requested MD engine is not
-        # supported and the validation was skipped.
         engine = detect_md_engine(m)
-
-        # Check the current module
-        # validated_module = validate_module_name(
-        # m, available_modules=available_modules)
-
-        # If we are unable to find the modules path on the system or if the
-        # user told us to skip the validation, we do so.
-        if ((validated_module is None) or skip_validation) and not warned_once:
-            warned_once = True
-        # If the validation fails, we throw an error and exit the script.
-        elif not validated_module:
-            
 
         directory = '{}_{}'.format(host, m)
         gpu_string = ''
