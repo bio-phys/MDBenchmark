@@ -142,7 +142,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
             d[engine].append(version)
 
         args = []
-        for engine in d.keys():
+        for engine in sorted(d.keys()):
             # New line to the last list item. We are going to print some more
             # stuff!
             if args:

@@ -30,7 +30,7 @@ from mdbenchmark.mdengines import (detect_md_engine, get_available_modules,
 
 DIR_STRUCTURE = {
     'applications': {
-        'gromacs': ['2016.4', '5.1.4-plumed2.3', '2018.1', '.12345-version'],
+        'gromacs': ['2016.4', '5.1.4-plumed2.3', '2018.1'],
         'namd': ['123', '456'],
         'amber': ['13', '14', '15']
     },
