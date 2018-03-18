@@ -22,10 +22,46 @@ import datreant.core as dtr
 
 from . import console
 from .cli import cli
-from .mdengines import (SUPPORTED_ENGINES, detect_md_engine,
-                        get_available_modules, validate_module_name)
-from .utils import print_possible_hosts, retrieve_host_template
-from .validate import validate_generate_arguments
+from . import utils
+from . import mdengines
+
+
+def validate_name(ctx, param, name=None):
+    """Validate that we are given a name argument."""
+    if name is None:
+        raise click.BadParameter(
+            'Please specify the base name of your input files.',
+            param_hint='"-n" / "--name"')
+
+
+def validate_module(ctx, param, module=None):
+    """Validate that we are given a module argument."""
+    if module is None:
+        raise click.BadParameter(
+            'Please specify the base module of your input files.',
+            param_hint='"-m" / "--module"')
+
+
+def print_known_hosts(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    utils.print_possible_hosts()
+    ctx.exit()
+
+
+def validate_hosts(ctx, param, host=None):
+    if host is None:
+        host = utils.guess_host()
+        if host is None:
+            raise click.BadParameter(
+                'Could not guess host. Please provide a value explicitly.',
+                param_hint='"--host"')
+
+    known_hosts = utils.get_possible_hosts()
+    if host not in known_hosts:
+        utils.print_possible_hosts()
+        # raise some appropriate error here
+        ctx.exit()
 
 
 @cli.command()
@@ -33,7 +69,7 @@ from .validate import validate_generate_arguments
     '-n',
     '--name',
     help='Name of input files. All files must have the same base name.',
-    show_default=True)
+    callback=validate_name)
 @click.option(
     '-g',
     '--gpu',
@@ -44,8 +80,13 @@ from .validate import validate_generate_arguments
     '-m',
     '--module',
     help='Name of the MD engine module to use.',
-    multiple=True)
-@click.option('--host', help='Name of the job template.', default=None)
+    multiple=True,
+    callback=validate_module)
+@click.option(
+    '--host',
+    help='Name of the job template.',
+    default=None,
+    callback=validate_hosts)
 @click.option(
     '--min-nodes',
     help='Minimal number of nodes to request.',
@@ -65,28 +106,29 @@ from .validate import validate_generate_arguments
     show_default=True,
     type=click.IntRange(1, 1440))
 @click.option(
-    '--list-hosts', help='Show available job templates.', is_flag=True)
+    '--list-hosts',
+    help='Show available job templates.',
+    is_flag=True,
+    is_eager=True,
+    callback=print_known_hosts,
+    expose_value=False)
 @click.option(
     '--skip-validation',
     help='Skip the validation of module names.',
     default=False,
     is_flag=True)
-def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
+def generate(name, gpu, module, host, min_nodes, max_nodes, time,
              skip_validation):
     """Generate benchmarks simulations from the CLI."""
-    if list_hosts:
-        print_possible_hosts()
-        return
+    # can't be made a callback due to it being two separate options
+    if min_nodes > max_nodes:
+        raise click.BadParameter(
+            'The minimal number of nodes needs to be smaller than the maximal number.',
+            param_hint='"--min-nodes"')
 
-    # Grab the template name for the host and pass it on to validation.
-    tmpl, status = retrieve_host_template(host)
-    # Validate all required input values. Throw an error, if something is wrong.
-    validate_generate_arguments(
-        name=name,
-        module=module,
-        host=(tmpl, status),
-        min_nodes=min_nodes,
-        max_nodes=max_nodes)
+    # Grab the template name for the host. This should always work because
+    # click does the validation for us
+    tmpl = utils.retrieve_host_template(host)
 
     # Warn the user that NAMD support is still experimental.
     if any(['namd' in m for m in module]):
@@ -97,75 +139,14 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time, list_hosts,
             'If you use the {} option make sure you use the GPU compatible NAMD module!',
             '--gpu')
 
-    ## TODO: Validation start
-    # Save requested modules as a Set
-    requested_modules = set(module)
-
-    # Make sure that we stop if the user requests any unsupported engines.
-    for req_module in requested_modules:
-        if not detect_md_engine(req_module):
-            console.error(
-                "There is currently no support for '{}'. Supported MD engines are: {}.",
-                req_module, ', '.join(sorted(SUPPORTED_ENGINES.keys())))
-
-    # Grab all available modules on the host
-    available_modules = get_available_modules()
-    # Save all valid requested module version
-    modules = [
-        m for m in module
-        if validate_module_name(module=m, available_modules=available_modules)
-    ]
-    # Create a list of the difference between requested and available modules
-    missing_modules = requested_modules.difference(modules)
-
-    # Warn the user that we are not going to perform any validation on module
-    # names.
-    if skip_validation or not available_modules:
-        warning = 'Not performing module name validation.'
-        if available_modules is None:
-            warning += ' Cannot locate modules available on this host.'
-        console.warn(warning)
-
-    # Inform the user of all modules that are not available. Offer some alternatives.
-    if available_modules and missing_modules and not skip_validation:
-        # Define a default message.
-        err = 'We have problems finding all of your requested modules on this host.\n'
-
-        # Create a dictionary containing all requested engines and the
-        # corresponding missing versions. This way we can list them all in a
-        # nice way!
-        d = {}
-        for mm in missing_modules:
-            engine, version = mm.split('/')
-            if not engine in d:
-                d[engine] = []
-            d[engine].append(version)
-
-        args = []
-        for engine in sorted(d.keys()):
-            # New line to the last list item. We are going to print some more
-            # stuff!
-            if args:
-                args[-1] = args[-1] + '\n'
-            err += 'We were not able to find the following modules for MD engine {}: {}.\n'
-            args.append(engine)
-            args.extend(d[engine])
-
-            # If we know the MD engine that the user was trying to use, we can
-            # show all available options.
-            err += 'Available modules are:\n{}'
-            args.extend([
-                '\n'.join([
-                    '{}/{}'.format(engine, mde)
-                    for mde in available_modules[engine]
-                ])
-            ])
-        console.error(err, bold=True, *args)
-    ## TODO: Validation end
+    if not skip_validation:
+        module = mdengines.normalize_modules(module)
+    else:
+        console.warn('Not performing module name validation.')
 
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
-        engine = detect_md_engine(m)
+        engine = mdengines.detect_md_engine(m)
 
         directory = '{}_{}'.format(host, m)
         gpu_string = ''

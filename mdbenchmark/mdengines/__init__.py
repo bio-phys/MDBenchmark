@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
+from collections import defaultdict
 
 import six
 
@@ -75,7 +76,54 @@ def get_available_modules():
     return available_modules
 
 
-def validate_module_name(module=None, available_modules=None):
+def normalize_modules(modules):
+    # Check if modules are from supported md engines
+    d = defaultdict(list)
+    for m in modules:
+        engine, version = m.split('/')
+        d[engine] = version
+    for engine in d.keys():
+        if detect_md_engine(engine) is None:
+            console.warn("There is currently no support for '{}'", engine)
+
+    available_modules = get_available_modules()
+    if available_modules is None:
+        console.warn('Cannot locate modules available on this host.')
+        return modules
+
+    good_modules = [
+        m for m in modules if validate_module_name(m, available_modules)
+    ]
+
+    # warn about missing modules
+    missing_modules = set(good_modules).difference(modules)
+    if missing_modules:
+        d = defaultdict(list)
+        for mm in missing_modules:
+            engine, version = mm.split('/')
+            d[engine].append(version)
+
+        err = 'We have problems finding all of your requested modules on this host.\n'
+        args = []
+        for engine in sorted(d.keys()):
+            err += 'We were not able to find the following modules for MD engine {}: {}.\n'
+            args.append(engine)
+            args.extend(d[engine])
+            # If we know the MD engine that the user was trying to use, we can
+            # show all available options.
+            err += 'Available modules are:\n{}\n'
+            args.extend([
+                '\n'.join([
+                    '{}/{}'.format(engine, mde)
+                    for mde in available_modules[engine]
+                ])
+            ])
+        console.warn(err, bold=True, *args)
+
+    return good_modules
+
+
+def validate_module_name(module, available_modules):
     """Validates that the specified module version is available on the host.
 
     Returns
@@ -88,11 +136,4 @@ def validate_module_name(module=None, available_modules=None):
         basename, version = module.split('/')
     except ValueError:
         console.error('We were not able to determine the module name.')
-
-    if not available_modules:
-        available_modules = get_available_modules()
-
-    if available_modules is None:
-        return None
-
     return version in available_modules[basename]
