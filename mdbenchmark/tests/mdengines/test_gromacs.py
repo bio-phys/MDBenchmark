@@ -118,7 +118,7 @@ def test_check_file_extension(cli_runner, tmpdir):
 
     @test_cli.command()
     def test():
-        gromacs.check_file_extension('md')
+        gromacs.check_input_file_exists('md')
 
     output = 'ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n'
     result = cli_runner.invoke(test_cli, ['test'])
