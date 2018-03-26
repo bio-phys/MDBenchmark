@@ -44,9 +44,9 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
 
 def test_analze_namd(cli_runner, tmpdir, data):
     with tmpdir.as_cwd():
-        result = cli_runner.invoke(cli.cli, [
-            'analyze', '--directory={}'.format(data['analyze-files-namd'])
-        ])
+        result = cli_runner.invoke(
+            cli.cli,
+            ['analyze', '--directory={}'.format(data['analyze-files-namd'])])
         assert result.exit_code == 0
         assert result.output == """  module  nodes    ns/day  run time [min]    gpu   host  ncores
 0   namd      1  0.076328              15  False  draco       1

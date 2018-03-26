@@ -19,9 +19,9 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 import numpy as np
+import pytest
 from numpy.testing import assert_equal
 
-import pytest
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
 
@@ -63,21 +63,8 @@ def test_monkeypatch_guess_host(monkeypatch):
     assert utils.guess_host() == host
 
 
-def test_normalize_host(monkeypatch):
-    """Test `normalize_host()`."""
-    with pytest.raises(click.BadParameter):
-        utils.normalize_host(None)
-
-    host = 'HPC_cluster'
-    monkeypatch.setattr('mdbenchmark.utils.guess_host', lambda: host)
-    assert utils.normalize_host(host) == host
-
-
 def test_retrieve_host_template(monkeypatch):
     """Test `retrieve_host_template` utility function."""
-
-    # Check some non-existent template name
-    assert utils.retrieve_host_template('some_hpc') == ('some_hpc', False)
 
     # Check template name that we supply with the package
     assert utils.retrieve_host_template('draco') is not None
@@ -85,7 +72,7 @@ def test_retrieve_host_template(monkeypatch):
     # Check that the user can define some custom template
     monkeypatch.setattr('mdbenchmark.utils.ENV.get_template',
                         lambda x: 'minerva')
-    assert utils.retrieve_host_template('minerva') == ('minerva', True)
+    assert utils.retrieve_host_template('minerva') == 'minerva'
 
 
 def test_lin_func():

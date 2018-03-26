@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 import click
 
 from mdbenchmark import cli
@@ -25,7 +27,7 @@ from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
 
 
-def test_get_batch_command(cli_runner):
+def test_get_batch_command(cli_runner, monkeypatch, tmpdir):
     """Test that the get_engine_command works correctly.
 
     It should exit if no batching system was found.
@@ -43,11 +45,17 @@ def test_get_batch_command(cli_runner):
     def test():
         get_batch_command()
 
+    # Test fail state
     output = 'ERROR Was not able to find a batch system. ' \
              'Are you trying to use this package on a host with a queuing system?\n'
     result = cli_runner.invoke(test_cli, ['test'])
     assert result.exit_code == 1
     assert result.output == output
+
+    # Test non-fail state
+    monkeypatch.setattr('mdbenchmark.submit.glob', lambda x: ['qsub'])
+    result = cli_runner.invoke(test_cli, ['test'])
+    assert result.exit_code == 0
 
 
 class DummyEngine(object):
@@ -99,7 +107,8 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
                  'Submitted all benchmarks. Run mdbenchmark analyze once' \
                  ' they are finished to get the results.\n'
         result = cli_runner.invoke(cli.cli, [
-            'submit', '--directory={}'.format(data['analyze-files-gromacs']), '--force'
+            'submit', '--directory={}'.format(data['analyze-files-gromacs']),
+            '--force'
         ])
         assert result.exit_code == 0
         assert result.output == output

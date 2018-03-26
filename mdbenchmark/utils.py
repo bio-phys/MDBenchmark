@@ -84,8 +84,6 @@ def retrieve_host_template(host=None):
     -------
     template
     """
-    if host is None:
-        host = guess_host(host)
     return ENV.get_template(host)
 
 

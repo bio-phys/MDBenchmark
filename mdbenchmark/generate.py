@@ -20,10 +20,8 @@
 import click
 import datreant.core as dtr
 
-from . import console
+from . import console, mdengines, utils
 from .cli import cli
-from . import utils
-from . import mdengines
 
 
 def validate_name(ctx, param, name=None):
@@ -33,16 +31,30 @@ def validate_name(ctx, param, name=None):
             'Please specify the base name of your input files.',
             param_hint='"-n" / "--name"')
 
+    return name
+
 
 def validate_module(ctx, param, module=None):
     """Validate that we are given a module argument."""
-    if module is None:
+    if module is None or not module:
         raise click.BadParameter(
-            'Please specify the base module of your input files.',
+            'Please specify which MD engine module to use for the benchmarks.',
             param_hint='"-m" / "--module"')
+    return module
+
+
+def validate_number_of_nodes(min_nodes, max_nodes):
+    """Validate that the minimal number of nodes is smaller than the maximal
+       number.
+    """
+    if min_nodes > max_nodes:
+        raise click.BadParameter(
+            'The minimal number of nodes needs to be smaller than the maximal number.',
+            param_hint='"--min-nodes"')
 
 
 def print_known_hosts(ctx, param, value):
+    """Callback to print all available hosts to the user."""
     if not value or ctx.resilient_parsing:
         return
     utils.print_possible_hosts()
@@ -50,6 +62,15 @@ def print_known_hosts(ctx, param, value):
 
 
 def validate_hosts(ctx, param, host=None):
+    """Callback to validate the hostname received as input.
+
+    If we were not given a hostname, we first try to guess it via
+    `utils.guess_host`. If this fails, we give up and throw an error.
+
+    Otherwise we compare the provided/guessed host with the list of available
+    templates. If the hostname matches the template name, we continue by
+    returning the hostname.
+    """
     if host is None:
         host = utils.guess_host()
         if host is None:
@@ -59,9 +80,13 @@ def validate_hosts(ctx, param, host=None):
 
     known_hosts = utils.get_possible_hosts()
     if host not in known_hosts:
+        console.info('Could not find template for host \'{}\'.', host)
         utils.print_possible_hosts()
-        # raise some appropriate error here
+        # TODO: Raise some appropriate error here
         ctx.exit()
+        return
+
+    return host
 
 
 @cli.command()
@@ -120,11 +145,8 @@ def validate_hosts(ctx, param, host=None):
 def generate(name, gpu, module, host, min_nodes, max_nodes, time,
              skip_validation):
     """Generate benchmarks simulations from the CLI."""
-    # can't be made a callback due to it being two separate options
-    if min_nodes > max_nodes:
-        raise click.BadParameter(
-            'The minimal number of nodes needs to be smaller than the maximal number.',
-            param_hint='"--min-nodes"')
+    # Validate the number of nodes
+    validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
 
     # Grab the template name for the host. This should always work because
     # click does the validation for us
@@ -135,14 +157,16 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
         console.warn(
             'NAMD support is experimental. '
             'All input files must be in the current directory. '
-            'Parameter paths must be absolute. Only crude file checks are performed!'
+            'Parameter paths must be absolute. Only crude file checks are performed! '
             'If you use the {} option make sure you use the GPU compatible NAMD module!',
             '--gpu')
 
-    if not skip_validation:
-        module = mdengines.normalize_modules(module)
-    else:
-        console.warn('Not performing module name validation.')
+    module = mdengines.normalize_modules(module, skip_validation)
+
+    # If several modules were given and we only cannot find one of them, we
+    # continue.
+    if not module:
+        console.error('No requested modules available!')
 
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
