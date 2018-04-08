@@ -28,6 +28,30 @@ import numpy as np
 from .. import console
 from .namd import analyze_namd_file
 
+FILES_TO_KEEP = {
+    'gromacs': ['.*/bench\.job', '.*\.tpr', '.*\.mdp'],
+    'namd': ['.*/bench\.job', '.*\.namd', '.*\.psf', '.*\.pdb']
+}
+
+
+def cleanup_before_restart(engine, sim):
+    whitelist = FILES_TO_KEEP[engine]
+    whitelist = [re.compile(fname) for fname in whitelist]
+
+    files_found = []
+    for fname in sim.leaves:
+        keep = False
+        for wl in whitelist:
+            if wl.match(str(fname)):
+                keep = True
+        if keep:
+            continue
+
+        files_found.append(fname.relpath)
+
+    for fn in files_found:
+        os.remove(fn)
+
 
 def prepare_gromacs_benchmark(name, *args, **kwargs):
     sim = kwargs['sim']

@@ -20,9 +20,9 @@
 import os
 
 import click
-
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
+from mdbenchmark.mdengines import gromacs
 from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
 
@@ -58,22 +58,10 @@ def test_get_batch_command(cli_runner, monkeypatch, tmpdir):
     assert result.exit_code == 0
 
 
-class DummyEngine(object):
-    @staticmethod
-    def cleanup_before_restart(sim):
-        pass
-
-
 def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     """Test that we cannot submit a benchmark system that was already submitted,
        unless we force it.
     """
-
-    # Define dummy function, so we can monkeypatch `subprocess.call` and
-    # `mdbenchmark.utils.cleanup_before_restart`.
-    def call(arg):
-        return DummyEngine
-
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
         # an non-existent path.
@@ -91,21 +79,22 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
             '--directory={}'.format(data['analyze-files-gromacs']),
         ])
         assert result.exit_code == 1
-        assert result.output == 'ERROR All generated benchmarks were already' \
-                                ' started once. You can force a restart with' \
-                                ' --force.\n'
+        assert result.output == 'ERROR All generated benchmarks were already ' \
+                                'started once. You can force a restart with ' \
+                                '--force.\n'
 
         # Test that we can force restart already run benchmarks.
         # Monkeypatch a few functions
-        monkeypatch.setattr('subprocess.call', call)
+        monkeypatch.setattr('subprocess.call', lambda x: True)
         monkeypatch.setattr('mdbenchmark.submit.get_batch_command',
                             lambda: 'sbatch')
-        # We need to patch the cleanup, as we otherwise delete our own test
-        # files
-        monkeypatch.setattr('mdbenchmark.submit.detect_md_engine', call)
+        monkeypatch.setattr('mdbenchmark.submit.detect_md_engine',
+                            lambda x: gromacs)
+        monkeypatch.setattr('mdbenchmark.submit.cleanup_before_restart',
+                            lambda engine, sim: True)
         output = 'Submitting a total of 5 benchmarks.\n' \
-                 'Submitted all benchmarks. Run mdbenchmark analyze once' \
-                 ' they are finished to get the results.\n'
+                 'Submitted all benchmarks. Run mdbenchmark analyze once ' \
+                 'they are finished to get the results.\n'
         result = cli_runner.invoke(cli.cli, [
             'submit', '--directory={}'.format(data['analyze-files-gromacs']),
             '--force'
