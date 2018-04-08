@@ -72,10 +72,11 @@ def prepare_benchmark(engine, name, *args, **kwargs):
     return name
 
 
-def write_benchmark(engine, top, tmpl, nodes, gpu, module, name, host, time):
+def write_benchmark(engine, base_directory, template, nodes, gpu, module, name,
+                    host, time):
     """Generate a benchmark folder with the respective Sim object."""
     # Create the `mds.Sim` object
-    sim = mds.Sim(top['{}/'.format(nodes)])
+    sim = mds.Sim(base_directory['{}/'.format(nodes)])
 
     # Do MD engine specific things. Here we also format the name.
     name = prepare_benchmark(engine=engine, name=name, sim=sim)
@@ -96,7 +97,7 @@ def write_benchmark(engine, top, tmpl, nodes, gpu, module, name, host, time):
     formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
 
     # Create benchmark job script
-    script = tmpl.render(
+    script = template.render(
         name=name,
         gpu=gpu,
         module=module,

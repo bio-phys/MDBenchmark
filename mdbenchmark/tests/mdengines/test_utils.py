@@ -55,14 +55,14 @@ def test_write_benchmark(engine, gpu, module, input_name, extensions, tmpdir):
     base_dirname = '{}_{}'.format(host, engine)
     nodes = 5
     with tmpdir.as_cwd():
-        top = dtr.Tree(base_dirname)
+        base_directory = dtr.Tree(base_dirname)
 
         for ext in extensions:
             open('md.{}'.format(ext), 'a').close()
 
-        tmpl = retrieve_host_template('draco')
-        utils.write_benchmark(engine, top, tmpl, nodes, gpu, module,
-                              input_name, host, 15)
+        template = retrieve_host_template('draco')
+        utils.write_benchmark(engine, base_directory, template, nodes, gpu,
+                              module, input_name, host, 15)
 
         assert os.path.exists(base_dirname)
         assert os.path.exists(
