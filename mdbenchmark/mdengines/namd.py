@@ -96,57 +96,6 @@ def analyze_run(sim):
             sim.categories['host'], ncores)
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
-    """ Writes a single namd benchmark file and the respective sim object
-    """
-    # Strip the file extension, if we were given one.
-    # This makes the usage of `mdbenchmark generate` equivalent between NAMD and GROMACS.
-    if name.endswith('.namd'):
-        name = name[:-5]
-    sim = mds.Sim(
-        top['{}/'.format(nodes)],
-        categories={
-            'module': module,
-            'gpu': gpu,
-            'nodes': nodes,
-            'host': host,
-            'time': time,
-            'name': name,
-            'started': False
-        })
-
-    # Copy input files
-    namd = '{}.namd'.format(name)
-    psf = '{}.psf'.format(name)
-    pdb = '{}.pdb'.format(name)
-
-    with open(namd) as fh:
-        analyze_namd_file(fh)
-        fh.seek(0)
-
-    copyfile(namd, sim[namd].relpath)
-    copyfile(psf, sim[psf].relpath)
-    copyfile(pdb, sim[pdb].relpath)
-
-    # Add some time buffer to the requested time. Otherwise the queuing system
-    # kills the jobs before NAMD can finish
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
-    # engine switch to pick the right submission statement in the templates
-    md_engine = "namd"
-    # create bench job script
-    script = tmpl.render(
-        name=name,
-        gpu=gpu,
-        module=module,
-        mdengine=md_engine,
-        n_nodes=nodes,
-        time=time,
-        formatted_time=formatted_time)
-
-    with open(sim['bench.job'].relpath, 'w') as fh:
-        fh.write(script)
-
-
 def analyze_namd_file(fh):
     """ Check whether the NAMD config file has any relative imports or variables
     """

@@ -107,46 +107,6 @@ def analyze_run(sim):
             sim.categories['gpu'], sim.categories['host'], ncores)
 
 
-def write_bench(top, tmpl, nodes, gpu, module, name, host, time):
-    """Generates a single job file for GROMACS and the respective Sim object.
-    """
-    sim = mds.Sim(
-        top['{}/'.format(nodes)],
-        categories={
-            'module': module,
-            'gpu': gpu,
-            'nodes': nodes,
-            'host': host,
-            'time': time,
-            'name': name,
-            'started': False
-        })
-
-    full_filename = name + '.tpr'
-    if name.endswith('.tpr'):
-        full_filename = name
-        name = name[:-4]
-
-    copyfile(full_filename, sim[full_filename].relpath)
-    # Add some time buffer to the requested time. Otherwise the queuing system
-    # kills the jobs before GROMACS can finish
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
-    # engine switch to pick the right submission statement in the templates
-    md_engine = "gromacs"
-    # create bench job script
-    script = tmpl.render(
-        name=name,
-        gpu=gpu,
-        module=module,
-        mdengine=md_engine,
-        n_nodes=nodes,
-        time=time,
-        formatted_time=formatted_time)
-
-    with open(sim['bench.job'].relpath, 'w') as fh:
-        fh.write(script)
-
-
 def check_input_file_exists(name):
     """Check if the TPR file exists.
     """
