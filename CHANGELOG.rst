@@ -9,6 +9,31 @@ to update this file automatically for each release.
 
 .. towncrier release notes start
 
+MDBenchmark 1.3.0 (2018-04-08)
+==============================
+
+Features
+--------
+
+- Add functionality to perform benchmarks with NAMD. (#29)
+- Consolidated internal API to output messages to the console. (#42)
+- Module name is now validated against available modules on host. Can be
+  skipped with `--skip-validation`. (#49)
+
+
+Bugfixes
+--------
+
+- The option ``--min-nodes`` needs to be bigger than ``--max-nodes``. (#46)
+- Fixed edge-case in input filename parsing. (#54)
+
+
+Misc
+----
+
+- Fixed display of the number of benchmarks to-be generated. (#46)
+
+
 MDBenchmark 1.2.0 (2018-02-19)
 ==============================
 
