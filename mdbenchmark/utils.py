@@ -17,15 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import datetime as dt
 import multiprocessing as mp
 import os
 import socket
 import sys
-import datetime as dt
+
 import click
 import numpy as np
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
+from jinja2.exceptions import TemplateNotFound
 
 from . import console
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
@@ -70,14 +72,19 @@ def guess_host():
     return None
 
 
-def normalize_host(host):
-    if host is None:
-        host = guess_host()
-        if host is None:
-            raise click.BadParameter(
-                'Could not guess host. Please provide a value explicitly.',
-                param_hint='"--host"')
-    return host
+def retrieve_host_template(host=None):
+    """Lookup the template name.
+
+    Parameter
+    ---------
+    host : str
+      Name of the host template to lookup
+
+    Returns
+    -------
+    template
+    """
+    return ENV.get_template(host)
 
 
 def lin_func(x, m, b):

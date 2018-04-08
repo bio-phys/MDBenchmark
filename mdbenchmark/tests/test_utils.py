@@ -63,14 +63,16 @@ def test_monkeypatch_guess_host(monkeypatch):
     assert utils.guess_host() == host
 
 
-def test_normalize_host(monkeypatch):
-    """Test `normalize_host()`."""
-    with pytest.raises(click.BadParameter):
-        utils.normalize_host(None)
+def test_retrieve_host_template(monkeypatch):
+    """Test `retrieve_host_template` utility function."""
 
-    host = 'HPC_cluster'
-    monkeypatch.setattr('mdbenchmark.utils.guess_host', lambda: host)
-    assert utils.normalize_host(host) == host
+    # Check template name that we supply with the package
+    assert utils.retrieve_host_template('draco') is not None
+
+    # Check that the user can define some custom template
+    monkeypatch.setattr('mdbenchmark.utils.ENV.get_template',
+                        lambda x: 'minerva')
+    assert utils.retrieve_host_template('minerva') == 'minerva'
 
 
 def test_lin_func():
