@@ -21,11 +21,11 @@ import os
 from glob import glob
 
 import click
-import datreant.core as dtr
-import numpy as np
+import pytest
 from six.moves import StringIO
 
-import pytest
+import datreant.core as dtr
+import numpy as np
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import namd, utils
 
@@ -81,21 +81,16 @@ def test_analyze_run(sim):
     assert np.isnan(res[6])  # ncores
 
 
-def test_check_file_extension(cli_runner, tmpdir):
+def test_check_file_extension(capsys, tmpdir):
     """Test that we check for all files needed to run NAMD benchmarks."""
 
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        namd.check_input_file_exists('md')
-
     output = 'ERROR File md.namd does not exist, but is needed for NAMD benchmarks.\n'
-    result = cli_runner.invoke(test_cli, ['test'])
-    assert result.exit_code == 1
-    assert result.output == output
+    with pytest.raises(SystemExit) as e:
+        namd.check_input_file_exists('md')
+        out, err = capsys.readouterr()
+        assert e.type == SystemExit
+        assert e.code == 1
+        assert out == output
 
     NEEDED_FILES = ['md.namd', 'md.psf', 'md.pdb']
     with tmpdir.as_cwd():
@@ -104,58 +99,66 @@ def test_check_file_extension(cli_runner, tmpdir):
             with open(fn, 'w') as fh:
                 fh.write('dummy file')
 
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 0
+        assert namd.check_input_file_exists('md')
 
 
-def test_analyze_namd_file(cli_runner, tmpdir):
+@pytest.mark.parametrize(
+    'file_content, output, exit_exception, exit_code',
+    [('dummy file', '', False, 0),
+     ('parameters ./relative/path/',
+      'ERROR No absolute path detected in NAMD file!\n', SystemExit, 1),
+     ('parameters abc', 'ERROR No absolute path detected in NAMD file!\n',
+      SystemExit, 1),
+     ('coordinates ../another/relative/path',
+      'ERROR Relative file paths are not allowed in NAMD files!\n', SystemExit,
+      1), ('structure $',
+           'ERROR Variable Substitutions are not allowed in NAMD files!\n',
+           SystemExit, 1)])
+def test_analyze_namd_file(capsys, tmpdir, file_content, output,
+                           exit_exception, exit_code):
     """Test that we check the `.namd` file as expected."""
-
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        with open('md.namd') as fh:
-            namd.analyze_namd_file(fh)
 
     with tmpdir.as_cwd():
         # Make sure that we do not throw any error when everything is fine!
         with open('md.namd', 'w') as fh:
-            fh.write('dummy file')
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 0
-        assert result.output == ''
+            fh.write(file_content)
 
-        # Assert that we fail, when a relative path is given.
-        with open('md.namd', 'w') as fh:
-            fh.write('parameters ./relative/path/')
-        output = 'ERROR No absolute path detected in NAMD file!\n'
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 1
-        assert result.output == output
+        with open('md.namd', 'r') as fh:
+            if exit_exception:
+                with pytest.raises(exit_exception) as e:
+                    namd.analyze_namd_file(fh)
+                    out, err = capsys.readouterr()
+                    assert out.type == exit_exception
+                    assert out.code == exit_code
+                    assert out == output
+            else:
+                namd.analyze_namd_file(fh)
+                out, err = capsys.readouterr()
+                assert out == output
 
-        # Fail if we do not give ANY absolute path.
-        with open('md.namd', 'w') as fh:
-            fh.write('parameters abc')
-        output = 'ERROR No absolute path detected in NAMD file!\n'
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 1
-        assert result.output == output
 
-        # Fail if we do not give ANY absolute path.
-        with open('md.namd', 'w') as fh:
-            fh.write('coordinates ../another/relative/path')
-        output = 'ERROR Relative file paths are not allowed in NAMD files!\n'
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 1
-        assert result.output == output
+def test_cleanup_before_restart(tmpdir):
+    """Test that the cleanup of each directory works as intended for NAMD."""
+    FILES_TO_DELETE = [
+        'job_thing.err.123job', 'job_thing.out.123job', 'job.po12345',
+        'job.o12345', 'benchmark.out'
+    ]
+    FILES_TO_KEEP = ['md.namd', 'md.pdb', 'md.psf', 'bench.job']
 
-        # Fail if we do not give ANY absolute path.
-        with open('md.namd', 'w') as fh:
-            fh.write('structure $')
-        output = 'ERROR Variable Substitutions are not allowed in NAMD files!\n'
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 1
-        assert result.output == output
+    # Create temporary directory
+    tmp = tmpdir.mkdir("mdbenchmark")
+
+    # Create empty files
+    for f in FILES_TO_DELETE + FILES_TO_KEEP:
+        open('{}/{}'.format(tmp, f), 'a').close()
+
+    # Run the cleanup script
+    namd.cleanup_before_restart(dtr.Tree(tmp.strpath))
+
+    # Look for files that were left
+    files_found = []
+    for f in FILES_TO_KEEP:
+        files_found.extend(glob(os.path.join(tmp.strpath, f)))
+
+    # Get rid of the `tmp` path and only compare the actual filenames
+    assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]

@@ -46,8 +46,7 @@ def prepare_benchmark(name, *args, **kwargs):
 
 
 def check_input_file_exists(name):
-    """Check if the TPR file exists.
-    """
+    """Check if the TPR file exists."""
     fn = name
     if fn.endswith('.tpr'):
         fn = name[:-4]
@@ -58,4 +57,23 @@ def check_input_file_exists(name):
             "File {} does not exist, but is needed for GROMACS benchmarks.",
             tpr)
 
-    return
+    return True
+
+
+def cleanup_before_restart(sim):
+    white_list = ['.*/bench\.job', '.*\.tpr', '.*\.mdp']
+    white_list = [re.compile(fname) for fname in white_list]
+
+    files_found = []
+    for fname in sim.leaves:
+        keep = False
+        for wl in white_list:
+            if wl.match(str(fname)):
+                keep = True
+        if keep:
+            continue
+
+        files_found.append(fname.relpath)
+
+    for fn in files_found:
+        os.remove(fn)

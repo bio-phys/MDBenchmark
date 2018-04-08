@@ -73,8 +73,7 @@ def analyze_namd_file(fh):
 
 
 def check_input_file_exists(name):
-    """Check and append the correct file extensions for the NAMD module.
-    """
+    """Check and append the correct file extensions for the NAMD module."""
     # Check whether the needed files are there.
     for extension in ['namd', 'psf', 'pdb']:
         if name.endswith('.{}'.format(extension)):
@@ -86,4 +85,23 @@ def check_input_file_exists(name):
                 "File {} does not exist, but is needed for NAMD benchmarks.",
                 fn)
 
-    return
+    return True
+
+
+def cleanup_before_restart(sim):
+    white_list = ['.*/bench\.job', '.*\.namd', '.*\.psf', '.*\.pdb']
+    white_list = [re.compile(fname) for fname in white_list]
+
+    files_found = []
+    for fname in sim.leaves:
+        keep = False
+        for wl in white_list:
+            if wl.match(str(fname)):
+                keep = True
+        if keep:
+            continue
+
+        files_found.append(fname.relpath)
+
+    for fn in files_found:
+        os.remove(fn)
