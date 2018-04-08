@@ -123,6 +123,6 @@ def guess_ncores():
 def generate_output_name(extension):
     """ generate a unique filename based on the date and time for a given extension.
     """
-    date_time = dt.datetime.now().strftime("%m%d%y_%H-%M")
+    date_time = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
     out = '{}.{}'.format(date_time, extension)
     return out

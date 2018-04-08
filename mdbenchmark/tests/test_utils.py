@@ -109,7 +109,7 @@ def test_calc_slope_intercept():
     slope = (y2 - y1) / (x2 - x1)
     intercept = y1 - (x1 * slope)
 
-    slope_intercept = utils.calc_slope_intercept(x1, y1, x2, y2)
+    slope_intercept = utils.calc_slope_intercept((x1, y1), (x2, y2))
 
     assert_equal(slope_intercept, np.hstack([slope, intercept]))
 
