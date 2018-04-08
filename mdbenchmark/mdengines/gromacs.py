@@ -29,6 +29,8 @@ import numpy as np
 
 from .. import console
 
+NAME = 'gromacs'
+
 
 def parse_ns_day(fh):
     """parse nanoseconds per day from a GROMACS log file

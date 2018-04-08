@@ -22,6 +22,7 @@ import datreant.core as dtr
 
 from . import console, mdengines, utils
 from .cli import cli
+from .mdengines.utils import write_benchmark
 
 
 def validate_name(ctx, param, name=None):
@@ -190,7 +191,8 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
 
         top = dtr.Tree(directory)
         for n in range(min_nodes, max_nodes + 1):
-            engine.write_bench(
+            write_benchmark(
+                engine=engine,
                 top=top,
                 tmpl=tmpl,
                 nodes=n,

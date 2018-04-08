@@ -27,6 +27,8 @@ import numpy as np
 
 from .. import console
 
+NAME = 'namd'
+
 
 def parse_ns_day(fh):
     """parse nanoseconds per day from a NAMD log file
