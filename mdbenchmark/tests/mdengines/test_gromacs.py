@@ -25,7 +25,7 @@ import datreant.core as dtr
 import numpy as np
 import pytest
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.mdengines import gromacs
+from mdbenchmark.mdengines import gromacs, utils
 from six.moves import StringIO
 
 
@@ -45,7 +45,7 @@ def empty_log():
 
 
 def test_parse_ns_day(log):
-    assert gromacs.parse_ns_day(log) == 123.45
+    assert utils.parse_ns_day(gromacs, log) == 123.45
 
 
 def test_parse_ncores(log):

@@ -30,26 +30,6 @@ from .. import console
 NAME = 'namd'
 
 
-def parse_ns_day(fh):
-    """parse nanoseconds per day from a NAMD log file
-
-    Parameters
-    ----------
-    fh : str / filehandle
-        filename or string of log file to read
-
-    Returns
-    -------
-    float
-        nanoseconds per day
-    """
-    lines = fh.readlines()
-
-    for line in lines:
-        if 'Benchmark time' in line:
-            return 1 / float(line.split()[7])
-
-    return np.nan
 
 
 def parse_ncores(fh):

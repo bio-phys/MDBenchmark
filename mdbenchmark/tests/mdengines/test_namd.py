@@ -25,7 +25,7 @@ import datreant.core as dtr
 import numpy as np
 import pytest
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.mdengines import namd
+from mdbenchmark.mdengines import namd, utils
 from six.moves import StringIO
 
 
@@ -44,7 +44,7 @@ def empty_log():
 
 
 def test_parse_ns_day(log):
-    assert namd.parse_ns_day(log) == 1 / 13.1013
+    assert utils.parse_ns_day(namd, log) == 1 / 13.1013
 
 
 def test_parse_ncores(log):

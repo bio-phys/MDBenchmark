@@ -33,7 +33,38 @@ FILES_TO_KEEP = {
     'namd': ['.*/bench\.job', '.*\.namd', '.*\.psf', '.*\.pdb']
 }
 
+PARSE_ENGINE = {
+    'gromacs': {
+        'performance': 'Performance',
+        'performance_return': lambda line: float(line.split()[1]),
+    },
+    'namd': {
+        'performance': 'Benchmark time',
+        'performance_return': lambda line: 1 / float(line.split()[7]),
+    }
+}
 
+
+def parse_ns_day(engine, fh):
+    """Parse the performance (ns/day) from any MD engine log file.
+
+    Parameters
+    ----------
+    fh : str / filehandle
+        Filename or string of log file to read
+
+    Returns
+    -------
+    float / np.nan
+        Nanoseconds per day or NaN
+    """
+    lines = fh.readlines()
+
+    for line in lines:
+        if PARSE_ENGINE[engine.NAME]['performance'] in line:
+            return PARSE_ENGINE[engine.NAME]['performance_return'](line)
+
+    return np.nan
 def cleanup_before_restart(engine, sim):
     whitelist = FILES_TO_KEEP[engine]
     whitelist = [re.compile(fname) for fname in whitelist]

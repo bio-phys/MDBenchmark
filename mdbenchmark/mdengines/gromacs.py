@@ -32,26 +32,6 @@ from .. import console
 NAME = 'gromacs'
 
 
-def parse_ns_day(fh):
-    """parse nanoseconds per day from a GROMACS log file
-
-    Parameters
-    ----------
-    fh : str / filehandle
-        filename or string of log file to read
-
-    Returns
-    -------
-    float / np.nan
-        nanoseconds per day or NaN
-    """
-    lines = fh.readlines()
-
-    for line in lines:
-        if 'Performance' in line:
-            return float(line.split()[1])
-
-    return np.nan
 
 
 def parse_ncores(fh):
