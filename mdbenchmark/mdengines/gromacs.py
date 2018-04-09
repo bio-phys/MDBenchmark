@@ -32,6 +32,19 @@ from .. import console
 NAME = 'gromacs'
 
 
+def prepare_benchmark(name, *args, **kwargs):
+    sim = kwargs['sim']
+
+    full_filename = name + '.tpr'
+    if name.endswith('.tpr'):
+        full_filename = name
+        name = name[:-4]
+
+    copyfile(full_filename, sim[full_filename].relpath)
+
+    return name
+
+
 def check_input_file_exists(name):
     """Check if the TPR file exists.
     """

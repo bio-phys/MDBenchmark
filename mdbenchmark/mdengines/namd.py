@@ -30,6 +30,27 @@ from .. import console
 NAME = 'namd'
 
 
+def prepare_benchmark(name, *args, **kwargs):
+    sim = kwargs['sim']
+
+    if name.endswith('.namd'):
+        name = name[:-5]
+
+    namd = '{}.namd'.format(name)
+    psf = '{}.psf'.format(name)
+    pdb = '{}.pdb'.format(name)
+
+    with open(namd) as fh:
+        analyze_namd_file(fh)
+        fh.seek(0)
+
+    copyfile(namd, sim[namd].relpath)
+    copyfile(psf, sim[psf].relpath)
+    copyfile(pdb, sim[pdb].relpath)
+
+    return name
+
+
 def analyze_namd_file(fh):
     """ Check whether the NAMD config file has any relative imports or variables
     """

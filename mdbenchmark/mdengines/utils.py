@@ -143,49 +143,6 @@ def cleanup_before_restart(engine, sim):
         os.remove(fn)
 
 
-def prepare_gromacs_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
-
-    full_filename = name + '.tpr'
-    if name.endswith('.tpr'):
-        full_filename = name
-        name = name[:-4]
-
-    copyfile(full_filename, sim[full_filename].relpath)
-
-    return name
-
-
-def prepare_namd_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
-
-    if name.endswith('.namd'):
-        name = name[:-5]
-
-    namd = '{}.namd'.format(name)
-    psf = '{}.psf'.format(name)
-    pdb = '{}.pdb'.format(name)
-
-    with open(namd) as fh:
-        analyze_namd_file(fh)
-        fh.seek(0)
-
-    copyfile(namd, sim[namd].relpath)
-    copyfile(psf, sim[psf].relpath)
-    copyfile(pdb, sim[pdb].relpath)
-
-    return name
-
-
-def prepare_benchmark(engine, name, *args, **kwargs):
-    if engine.NAME == 'gromacs':
-        name = prepare_gromacs_benchmark(name, *args, **kwargs)
-    elif engine.NAME == 'namd':
-        name = prepare_namd_benchmark(name, *args, **kwargs)
-
-    return name
-
-
 def write_benchmark(engine, base_directory, template, nodes, gpu, module, name,
                     host, time):
     """Generate a benchmark folder with the respective Sim object."""
@@ -193,7 +150,7 @@ def write_benchmark(engine, base_directory, template, nodes, gpu, module, name,
     sim = mds.Sim(base_directory['{}/'.format(nodes)])
 
     # Do MD engine specific things. Here we also format the name.
-    name = prepare_benchmark(engine=engine, name=name, sim=sim)
+    name = engine.prepare_benchmark(name=name, sim=sim)
 
     # Add categories to the `Sim` object
     sim.categories = {
