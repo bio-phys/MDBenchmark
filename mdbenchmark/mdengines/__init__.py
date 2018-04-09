@@ -106,12 +106,13 @@ def normalize_modules(modules, skip_validation):
     # Check if modules are from supported md engines
     d = defaultdict(list)
     for m in modules:
-        engine, version = prepare_module_name(m)
-        d[engine] = version
-    for engine in d.keys():
-        if detect_md_engine(engine) is None:
+        engine_name, version = prepare_module_name(m)
+        d[engine_name] = version
+    for engine_name in d.keys():
+        if detect_md_engine(engine_name) is None:
             console.error("There is currently no support for '{}'. "
-                          "Supported MD engines are: gromacs, namd.", engine)
+                          "Supported MD engines are: gromacs, namd.",
+                          engine_name)
 
     if skip_validation:
         console.warn('Not performing module name validation.')
@@ -133,21 +134,21 @@ def normalize_modules(modules, skip_validation):
     if missing_modules:
         d = defaultdict(list)
         for mm in sorted(missing_modules):
-            engine, version = mm.split('/')
-            d[engine].append(version)
+            engine_name, version = mm.split('/')
+            d[engine_name].append(version)
 
         err = 'We have problems finding all of your requested modules on this host.\n'
         args = []
-        for engine in sorted(d.keys()):
+        for engine_name in sorted(d.keys()):
             err += 'We were not able to find the following modules for MD engine {}: {}.\n'
-            args.append(engine)
-            args.extend(d[engine])
+            args.append(engine_name)
+            args.extend(d[engine_name])
             # Show all available modules that we found for the requested MD engine
             err += 'Available modules are:\n{}\n'
             args.extend([
                 '\n'.join([
-                    '{}/{}'.format(engine, mde)
-                    for mde in sorted(available_modules[engine])
+                    '{}/{}'.format(engine_name, mde)
+                    for mde in sorted(available_modules[engine_name])
                 ])
             ])
         console.warn(err, bold=True, *args)
