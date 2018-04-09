@@ -19,14 +19,15 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-import pytest
 from click import exceptions
 
+import pytest
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.generate import (print_known_hosts, validate_hosts,
-                                  validate_module, validate_name,
-                                  validate_number_of_nodes)
+from mdbenchmark.generate import (NAMD_WARNING, print_known_hosts,
+                                  validate_hosts, validate_module,
+                                  validate_name, validate_number_of_nodes)
+from mdbenchmark.mdengines import SUPPORTED_ENGINES
 
 DIR_STRUCTURE = {
     'applications': {
@@ -39,107 +40,173 @@ DIR_STRUCTURE = {
     }
 }
 
+NAMD_WARNING_FORMATTED = 'WARNING ' + NAMD_WARNING.format('--gpu') + '\n'
 
-@pytest.mark.parametrize('tpr_file', ('protein.tpr', 'protein'))
-def test_generate(cli_runner, monkeypatch, tmpdir, tpr_file):
-    """Run an integration test on the generate function.
 
-    Make sure that we accept both `protein` and `protein.tpr` as input files.
-    """
+@pytest.fixture
+def ctx_mock():
+    """Mock a context object for python click."""
+
+    class MockCtx(object):
+        resilient_parsing = False
+        color = None
+
+        def exit(self):
+            return
+
+    return MockCtx()
+
+
+@pytest.fixture
+def generate_output():
+    return 'Creating benchmark system for {} with GPUs.\n' \
+           'Creating a total of 4 benchmarks, with a run time of 15' \
+           ' minutes each.\nFinished generating all benchmarks.\nYou can' \
+           ' now submit the jobs with mdbenchmark submit.\n'
+
+
+@pytest.mark.parametrize('module, extensions',
+                         [('gromacs/2016', ['tpr']),
+                          ('namd/11', ['namd', 'pdb', 'psf'])])
+def test_generate_simple_input(cli_runner, generate_output, module, extensions,
+                               tmpdir):
+    """Test that we can generate benchmarks for all supported MD engines w/o module validation."""
     with tmpdir.as_cwd():
-        with open('protein.tpr', 'w') as fh:
-            fh.write('This is a dummy tpr ;)')
+        for ext in extensions:
+            open('protein.{}'.format(ext), 'a').close()
 
-        output = 'Creating benchmark system for gromacs/2016 with GPUs.\n' \
-                 'Creating a total of 4 benchmarks, with a run time of 15' \
-                 ' minutes each.\nFinished generating all benchmarks.\nYou can' \
-                 ' now submit the jobs with mdbenchmark submit.\n'
+        output = generate_output.format(module)
+        output = 'WARNING Cannot locate modules available on this host. ' \
+                 'Not performing module name validation.\n' + output
+        if 'namd' in module:
+            output = NAMD_WARNING_FORMATTED + output
 
         # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(cli.cli, [
-            'generate', '--module=gromacs/2016', '--host=draco',
-            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
+            'generate', '--module={}'.format(module), '--host=draco',
+            '--max-nodes=4', '--gpu', '--name=protein'
         ])
         assert result.exit_code == 0
-        assert result.output == 'WARNING Cannot locate modules available on this host. ' \
-                                + 'Not performing module name validation.\n' + output
+        assert result.output == output
+
+
+@pytest.mark.parametrize('module, extensions',
+                         [('gromacs/2016', ['tpr']),
+                          ('namd/11', ['namd', 'pdb', 'psf'])])
+def test_generate_simple_input_with_working_validation(
+        cli_runner, generate_output, module, monkeypatch, extensions, tmpdir):
+    """Test that we can generate benchmarks for all supported MD engines with module validation."""
+    with tmpdir.as_cwd():
+        for ext in extensions:
+            open('protein.{}'.format(ext), 'a').close()
+
+        output = generate_output.format(module)
+        if 'namd' in module:
+            output = NAMD_WARNING_FORMATTED + output
 
         # monkeypatch the output of the available modules
         monkeypatch.setattr('mdbenchmark.mdengines.get_available_modules',
-                            lambda: {'gromacs': ['2016']})
+                            lambda: {'gromacs': ['2016'], 'namd': ['11']})
 
-        # Test that we can skip module name validation, even if it actually works.
+        # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(cli.cli, [
-            'generate', '--module=gromacs/2016', '--host=draco',
-            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file),
-            '--skip-validation'
-        ])
-        assert result.exit_code == 0
-        assert result.output == 'WARNING Not performing module name validation.\n' + output
-
-        result = cli_runner.invoke(cli.cli, [
-            'generate', '--module=gromacs/2016', '--host=draco',
-            '--max-nodes=4', '--gpu', '--name={}'.format(tpr_file)
+            'generate', '--module={}'.format(module), '--host=draco',
+            '--max-nodes=4', '--gpu', '--name=protein'
         ])
         assert result.exit_code == 0
         assert result.output == output
-        assert os.path.exists('draco_gromacs')
-        for i in range(1, 5):
-            assert os.path.exists('draco_gromacs/2016_gpu/{}'.format(i))
-            assert os.path.exists(
-                'draco_gromacs/2016_gpu/{}/protein.tpr'.format(i))
-            assert os.path.exists(
-                'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
 
-        # Test that we throw an error, if we cannot find the requested module name.
-        with tmpdir.as_cwd():
-            for k, v in DIR_STRUCTURE.items():
-                for k2, v2 in v.items():
-                    os.makedirs(os.path.join(k, k2))
-                    for v3 in v2:
-                        open(os.path.join(k, k2, v3), 'a').close()
 
-            # Prepare path variable that we are going to monkeypatch for
-            # `validate.get_available_modules`
-            dirs = ':'.join([
-                os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())
-            ])
-            monkeypatch.setenv('MODULEPATH', dirs)
+@pytest.mark.parametrize('module, extensions',
+                         [('gromacs/2016', ['tpr']),
+                          ('namd/11', ['namd', 'pdb', 'psf'])])
+def test_generate_skip_validation(cli_runner, module, extensions,
+                                  generate_output, monkeypatch, tmpdir):
+    """Test that we can skip the validation during benchmark generation."""
+    with tmpdir.as_cwd():
+        for ext in extensions:
+            open('protein.{}'.format(ext), 'a').close()
 
-            output = 'ERROR There is currently no support for \'doesnotexist\'. ' \
-                     'Supported MD engines are: gromacs, namd.\n'
-            result = cli_runner.invoke(cli.cli, [
-                'generate', '--module=doesnotexist/version', '--host=draco',
-                '--name={}'.format(tpr_file)
-            ])
-            assert result.output == output
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr('mdbenchmark.mdengines.get_available_modules',
+                            lambda: {'gromacs': ['2016'], 'namd': ['11']})
 
-        output = 'Creating benchmark system for gromacs/2016 with GPUs.\n' \
+        output = generate_output.format(module)
+        output = 'WARNING Not performing module name validation.\n' + output
+        if 'namd' in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module={}'.format(module), '--host=draco',
+            '--max-nodes=4', '--gpu', '--name=protein', '--skip-validation'
+        ])
+        assert result.exit_code == 0
+        assert result.output == output
+
+
+def test_generate_unsupported_engine(cli_runner, monkeypatch, tmpdir):
+    """Make sure we throw the correct error, when passed an unsupported MD engine."""
+    with tmpdir.as_cwd():
+        for k, v in DIR_STRUCTURE.items():
+            for k2, v2 in v.items():
+                os.makedirs(os.path.join(k, k2))
+                for v3 in v2:
+                    open(os.path.join(k, k2, v3), 'a').close()
+
+        # Prepare path variable that we are going to monkeypatch for
+        # `mdengines.get_available_modules`
+        dirs = ':'.join(
+            [os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())])
+        monkeypatch.setenv('MODULEPATH', dirs)
+
+        supported_enginges = ', '.join([x for x in SUPPORTED_ENGINES])
+        output = 'ERROR There is currently no support for \'doesnotexist\'. ' \
+                 'Supported MD engines are: {}.\n'.format(supported_enginges)
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module=doesnotexist/version', '--host=draco',
+            '--name=protein'
+        ])
+        assert result.exit_code == 1
+        assert result.output == output
+
+
+@pytest.mark.parametrize('engine, module, version, extensions',
+                         [('gromacs', 'gromacs/2016', '2016', ['tpr']),
+                          ('namd', 'namd/11', '11', ['namd', 'pdb', 'psf'])])
+def test_generate_odd_number_of_nodes(cli_runner, engine, module, extensions,
+                                      generate_output, monkeypatch, tmpdir,
+                                      version):
+    """Make sure we generate the correct folder structure."""
+    with tmpdir.as_cwd():
+        for ext in extensions:
+            open('protein.{}'.format(ext), 'a').close()
+
+        output = 'Creating benchmark system for {} with GPUs.\n' \
                  'Creating a total of 3 benchmarks, with a run time of 15 minutes each.\n' \
                  'Finished generating all benchmarks.\n' \
-                 'You can now submit the jobs with mdbenchmark submit.\n'
+                 'You can now submit the jobs with mdbenchmark submit.\n'.format(module)
+
+        if 'namd' in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        monkeypatch.setattr('mdbenchmark.mdengines.get_available_modules',
+                            lambda: {'gromacs': ['2016'], 'namd': ['11']})
+
         result = cli_runner.invoke(cli.cli, [
-            'generate', '--module=gromacs/2016', '--host=draco',
-            '--min-nodes=6', '--max-nodes=8', '--gpu',
-            '--name={}'.format(tpr_file)
+            'generate', '--module={}'.format(module), '--host=draco',
+            '--min-nodes=6', '--max-nodes=8', '--gpu', '--name=protein'
         ])
         assert result.exit_code == 0
         assert result.output == output
-        assert os.path.exists('draco_gromacs')
+        assert os.path.exists('draco_{}'.format(engine))
+        host_engine_version_path = 'draco_{}/{}_gpu/'.format(engine, version)
         for i in range(6, 9):
-            assert os.path.exists('draco_gromacs/2016_gpu/{}'.format(i))
+            assert os.path.exists(host_engine_version_path + '{}'.format(i))
+            for ext in extensions:
+                assert os.path.exists(
+                    host_engine_version_path + '{}/protein.{}'.format(i, ext))
             assert os.path.exists(
-                'draco_gromacs/2016_gpu/{}/protein.tpr'.format(i))
-            assert os.path.exists(
-                'draco_gromacs/2016_gpu/{}/bench.job'.format(i))
-
-        # Make sure we pass the correct file name to the job template. It
-        # should not contain any file extensions for GROMACS.
-        with open('draco_gromacs/2016_gpu/6/bench.job') as f:
-            for line in f:
-                if not line.startswith('srun'):
-                    continue
-                assert line.endswith('-deffnm protein')
+                host_engine_version_path + '{}/bench.job'.format(i))
 
 
 def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
@@ -224,20 +291,6 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
 
         assert result.exit_code == 0
         assert result.output == output
-
-
-@pytest.fixture
-def ctx_mock():
-    """Mock a context object for python click."""
-
-    class MockCtx(object):
-        resilient_parsing = False
-        color = None
-
-        def exit(self):
-            return
-
-    return MockCtx()
 
 
 def test_print_known_hosts(ctx_mock, capsys):
