@@ -81,12 +81,13 @@ def test_analyze_run(sim):
     assert np.isnan(res[6])  # ncores
 
 
-def test_check_file_extension(capsys, tmpdir):
+@pytest.mark.parametrize('input_file', ('md', 'md.namd'))
+def test_check_file_extension(capsys, input_file, tmpdir):
     """Test that we check for all files needed to run NAMD benchmarks."""
 
     output = 'ERROR File md.namd does not exist, but is needed for NAMD benchmarks.\n'
     with pytest.raises(SystemExit) as e:
-        namd.check_input_file_exists('md')
+        namd.check_input_file_exists(input_file)
         out, err = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
@@ -99,7 +100,7 @@ def test_check_file_extension(capsys, tmpdir):
             with open(fn, 'w') as fh:
                 fh.write('dummy file')
 
-        assert namd.check_input_file_exists('md')
+        assert namd.check_input_file_exists(input_file)
 
 
 @pytest.mark.parametrize(
