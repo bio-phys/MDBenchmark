@@ -1,0 +1,1 @@
+Consolidate common functions from `mdengines.gromacs` and `mdengines.namd` into `mdengines.utils`, removing code duplication.
