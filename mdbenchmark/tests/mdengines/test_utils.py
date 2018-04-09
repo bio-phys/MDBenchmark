@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
+from glob import glob
 
 import datreant.core as dtr
 import mdsynthesis as mds
@@ -90,3 +91,32 @@ def test_write_benchmark(engine, gpu, module, input_name, extensions, tmpdir):
                         assert line == 'srun gmx_mpi mdrun -v -maxh 0.25 -deffnm md'
                     elif engine == 'namd':
                         assert line == 'srun namd2 md.namd'
+
+
+@pytest.mark.parametrize('engine, files_to_delete, files_to_keep', [(gromacs, [
+    'job_thing.err.123job', 'job_thing.out.123job', 'md.log', 'md.xtc',
+    'md.cpt', 'md.edr', 'job.po12345', 'job.o12345', 'md.out'
+], ['md.mdp', 'md.tpr', 'bench.job']), (namd, [
+    'job_thing.err.123job', 'job_thing.out.123job', 'job.po12345',
+    'job.o12345', 'benchmark.out'
+], ['md.namd', 'md.pdb', 'md.psf', 'bench.job'])])
+def test_cleanup_before_restart(engine, files_to_delete, files_to_keep,
+                                tmpdir):
+    """Test that the cleanup of each directory works as intended for all MD engines."""
+    # Create temporary directory
+    tmp = tmpdir.mkdir("mdbenchmark")
+
+    # Create empty files
+    for f in files_to_delete + files_to_keep:
+        open('{}/{}'.format(tmp, f), 'a').close()
+
+    # Run the cleanup script
+    utils.cleanup_before_restart(engine=engine, sim=dtr.Tree(tmp.strpath))
+
+    # Look for files that were left
+    files_found = []
+    for f in files_to_keep:
+        files_found.extend(glob(os.path.join(tmp.strpath, f)))
+
+    # Get rid of the `tmp` path and only compare the actual filenames
+    assert files_to_keep == [x[len(str(tmp)) + 1:] for x in files_found]

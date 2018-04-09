@@ -24,10 +24,9 @@ import click
 import datreant.core as dtr
 import numpy as np
 import pytest
-from six.moves import StringIO
-
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
+from six.moves import StringIO
 
 
 @pytest.fixture
@@ -80,33 +79,6 @@ def test_analyze_run_backward_compatibility(sim):
     assert not res[4]
     assert res[5] == 'foo'
     assert np.isnan(res[6])
-
-
-def test_cleanup_before_restart(tmpdir):
-    """Test that the cleanup of each directory works as intended."""
-    FILES_TO_DELETE = [
-        'job_thing.err.123job', 'job_thing.out.123job', 'md.log', 'md.xtc',
-        'md.cpt', 'md.edr', 'job.po12345', 'job.o12345', 'md.out'
-    ]
-    FILES_TO_KEEP = ['md.mdp', 'md.tpr', 'bench.job']
-
-    # Create temporary directory
-    tmp = tmpdir.mkdir("mdbenchmark")
-
-    # Create empty files
-    for f in FILES_TO_DELETE + FILES_TO_KEEP:
-        open('{}/{}'.format(tmp, f), 'a').close()
-
-    # Run the cleanup script
-    gromacs.cleanup_before_restart(dtr.Tree(tmp.strpath))
-
-    # Look for files that were left
-    files_found = []
-    for f in FILES_TO_KEEP:
-        files_found.extend(glob(os.path.join(str(tmp), f)))
-
-    # Get rid of the `tmp` path and only compare the actual filenames
-    assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]
 
 
 def test_check_file_extension(cli_runner, tmpdir):
