@@ -159,9 +159,9 @@ def test_generate_unsupported_engine(cli_runner, monkeypatch, tmpdir):
             [os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())])
         monkeypatch.setenv('MODULEPATH', dirs)
 
-        supported_enginges = ', '.join([x for x in SUPPORTED_ENGINES])
+        supported_engines = ', '.join(sorted([x for x in SUPPORTED_ENGINES]))
         output = 'ERROR There is currently no support for \'doesnotexist\'. ' \
-                 'Supported MD engines are: {}.\n'.format(supported_enginges)
+                 'Supported MD engines are: {}.\n'.format(supported_engines)
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module=doesnotexist/version', '--host=draco',
             '--name=protein'
