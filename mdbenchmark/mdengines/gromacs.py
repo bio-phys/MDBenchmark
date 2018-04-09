@@ -32,37 +32,6 @@ from .. import console
 NAME = 'gromacs'
 
 
-def analyze_run(sim):
-    """
-    Analyze Performance data of a GROMACS simulation.
-    """
-    # Set defaults if we are unable to find the information in the log file or
-    # the log file does not exist (yet).
-    ns_day = np.nan
-    ncores = np.nan
-
-    # search all output files and ignore GROMACS backup files
-    output_files = glob(os.path.join(sim.relpath, '[!#]*log*'))
-    if output_files:
-        with open(output_files[0]) as fh:
-            ns_day = parse_ns_day(fh)
-            fh.seek(0)
-            ncores = parse_ncores(fh)
-
-    # Backward compatibility to previously created benchmark systems
-    if 'time' not in sim.categories:
-        sim.categories['time'] = 0
-
-    # backward compatibility
-    if 'module' in sim.categories:
-        module = sim.categories['module']
-    else:
-        module = sim.categories['version']
-
-    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'], ncores)
-
-
 def check_input_file_exists(name):
     """Check if the TPR file exists.
     """

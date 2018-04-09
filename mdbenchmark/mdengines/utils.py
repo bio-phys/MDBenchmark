@@ -39,12 +39,14 @@ PARSE_ENGINE = {
         'performance_return': lambda line: float(line.split()[1]),
         'ncores': 'Running on',
         'ncores_return': lambda line: int(line.split()[6]),
+        'analyze': '[!#]*log*'
     },
     'namd': {
         'performance': 'Benchmark time',
         'performance_return': lambda line: 1 / float(line.split()[7]),
         'ncores': 'Benchmark time',
         'ncores_return': lambda line: int(line.split()[3]),
+        'analyze': '*out*'
     }
 }
 
@@ -91,8 +93,39 @@ def parse_ncores(engine, fh):
             return PARSE_ENGINE[engine.NAME]['ncores_return'](line)
 
     return np.nan
+
+
+def analyze_run(engine, sim):
+    """
+    Analyze performance data from a simulation run with any MD engine.
+    """
+    ns_day = np.nan
+    ncores = np.nan
+
+    # search all output files
+    output_files = glob(
+        os.path.join(sim.relpath, PARSE_ENGINE[engine.NAME]['analyze']))
+    if output_files:
+        with open(output_files[0]) as fh:
+            ns_day = parse_ns_day(engine, fh)
+            fh.seek(0)
+            ncores = parse_ncores(engine, fh)
+
+    # Backward compatibility to benchmark systems created with older versions
+    # of MDBenchmark
+    if 'time' not in sim.categories:
+        sim.categories['time'] = 0
+    if 'module' in sim.categories:
+        module = sim.categories['module']
+    else:
+        module = sim.categories['version']
+
+    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
+            sim.categories['gpu'], sim.categories['host'], ncores)
+
+
 def cleanup_before_restart(engine, sim):
-    whitelist = FILES_TO_KEEP[engine]
+    whitelist = FILES_TO_KEEP[engine.NAME]
     whitelist = [re.compile(fname) for fname in whitelist]
 
     files_found = []

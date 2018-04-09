@@ -65,21 +65,45 @@ def sim(tmpdir_factory):
         str(folder),
         categories={
             'nodes': 42,
-            'host': 'foo',
+            'host': 'draco',
             'gpu': False,
-            'version': 'bar'
+            'module': 'gromacs/5.1.4'
         })
 
 
-def test_analyze_run_backward_compatibility(sim):
-    res = gromacs.analyze_run(sim)
-    assert res[0] == 'bar'
-    assert res[1] == 42
-    assert np.isnan(res[2])
-    assert res[3] == 0
-    assert not res[4]
-    assert res[5] == 'foo'
-    assert np.isnan(res[6])
+@pytest.fixture
+def sim_old(tmpdir_factory):
+    folder = tmpdir_factory.mktemp('simulation')
+    return dtr.Treant(
+        str(folder),
+        categories={
+            'nodes': 42,
+            'host': 'draco',
+            'gpu': False,
+            'version': '5.1.4'
+        })
+
+
+def test_analyze_run(sim):
+    res = utils.analyze_run(gromacs, sim)
+    assert res[0] == 'gromacs/5.1.4'  # version
+    assert res[1] == 42  # nodes
+    assert np.isnan(res[2])  # ns_day
+    assert res[3] == 0  # time
+    assert not res[4]  # gpu
+    assert res[5] == 'draco'  # host
+    assert np.isnan(res[6])  # ncores
+
+
+def test_analyze_run_backward_compatibility(sim_old):
+    res = utils.analyze_run(gromacs, sim_old)
+    assert res[0] == '5.1.4'  # version
+    assert res[1] == 42  # nodes
+    assert np.isnan(res[2])  # ns_day
+    assert res[3] == 0  # time
+    assert not res[4]  # gpu
+    assert res[5] == 'draco'  # host
+    assert np.isnan(res[6])  # ncores
 
 
 def test_check_file_extension(cli_runner, tmpdir):

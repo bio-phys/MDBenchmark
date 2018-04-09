@@ -30,28 +30,6 @@ from .. import console
 NAME = 'namd'
 
 
-def analyze_run(sim):
-    """
-    Analyze Performance data of a NAMD simulation
-    """
-    ns_day = np.nan
-    ncores = np.nan
-
-    # search all output files
-    output_files = glob(os.path.join(sim.relpath, '*out*'))
-    if output_files:
-        with open(output_files[0]) as fh:
-            ns_day = parse_ns_day(fh)
-            fh.seek(0)
-            ncores = parse_ncores(fh)
-
-    # module = sim.categories['module']
-
-    return (sim.categories['module'], sim.categories['nodes'], ns_day,
-            sim.categories['time'], sim.categories['gpu'],
-            sim.categories['host'], ncores)
-
-
 def analyze_namd_file(fh):
     """ Check whether the NAMD config file has any relative imports or variables
     """

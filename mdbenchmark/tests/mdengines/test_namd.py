@@ -64,10 +64,21 @@ def sim(tmpdir_factory):
         str(folder),
         categories={
             'nodes': 42,
-            'host': 'foo',
+            'host': 'draco',
             'gpu': False,
-            'version': 'bar'
+            'module': 'namd/11'
         })
+
+
+def test_analyze_run(sim):
+    res = utils.analyze_run(namd, sim)
+    assert res[0] == 'namd/11'  # version
+    assert res[1] == 42  # nodes
+    assert np.isnan(res[2])  # ns_day
+    assert res[3] == 0  # time
+    assert not res[4]  # gpu
+    assert res[5] == 'draco'  # host
+    assert np.isnan(res[6])  # ncores
 
 
 def test_check_file_extension(cli_runner, tmpdir):
