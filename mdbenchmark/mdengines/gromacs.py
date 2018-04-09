@@ -32,30 +32,6 @@ from .. import console
 NAME = 'gromacs'
 
 
-
-
-def parse_ncores(fh):
-    """parse number of cores from a GROMACS log file
-
-    Parameters
-    ----------
-    fh : str / filehandle
-        filename or string of log file to read
-
-    Returns
-    -------
-    int / np.nan
-        number of cores job was run on or NaN
-    """
-    lines = fh.readlines()
-
-    for line in lines:
-        if 'Running on' in line:
-            return int(line.split()[6])
-
-    return np.nan
-
-
 def analyze_run(sim):
     """
     Analyze Performance data of a GROMACS simulation.

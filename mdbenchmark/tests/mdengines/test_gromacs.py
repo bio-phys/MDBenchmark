@@ -23,10 +23,11 @@ from glob import glob
 import click
 import datreant.core as dtr
 import numpy as np
+from six.moves import StringIO
+
 import pytest
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs, utils
-from six.moves import StringIO
 
 
 @pytest.fixture
@@ -49,12 +50,12 @@ def test_parse_ns_day(log):
 
 
 def test_parse_ncores(log):
-    assert gromacs.parse_ncores(log) == 32
+    assert utils.parse_ncores(gromacs, log) == 32
 
 
-@pytest.mark.parametrize('parse', (gromacs.parse_ncores, gromacs.parse_ns_day))
+@pytest.mark.parametrize('parse', (utils.parse_ncores, utils.parse_ns_day))
 def test_parse_empty_log(empty_log, parse):
-    assert np.isnan(parse(empty_log))
+    assert np.isnan(parse(gromacs, empty_log))
 
 
 @pytest.fixture

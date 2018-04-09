@@ -37,10 +37,14 @@ PARSE_ENGINE = {
     'gromacs': {
         'performance': 'Performance',
         'performance_return': lambda line: float(line.split()[1]),
+        'ncores': 'Running on',
+        'ncores_return': lambda line: int(line.split()[6]),
     },
     'namd': {
         'performance': 'Benchmark time',
         'performance_return': lambda line: 1 / float(line.split()[7]),
+        'ncores': 'Benchmark time',
+        'ncores_return': lambda line: int(line.split()[3]),
     }
 }
 
@@ -63,6 +67,28 @@ def parse_ns_day(engine, fh):
     for line in lines:
         if PARSE_ENGINE[engine.NAME]['performance'] in line:
             return PARSE_ENGINE[engine.NAME]['performance_return'](line)
+
+    return np.nan
+
+
+def parse_ncores(engine, fh):
+    """Parse the number of cores from any MD engine log file.
+
+    Parameters
+    ----------
+    fh : str / filehandle
+        Filename or string of log file to read
+
+    Returns
+    -------
+    int / np.nan
+        Number of cores job was run on or NaN
+    """
+    lines = fh.readlines()
+
+    for line in lines:
+        if PARSE_ENGINE[engine.NAME]['ncores'] in line:
+            return PARSE_ENGINE[engine.NAME]['ncores_return'](line)
 
     return np.nan
 def cleanup_before_restart(engine, sim):

@@ -30,30 +30,6 @@ from .. import console
 NAME = 'namd'
 
 
-
-
-def parse_ncores(fh):
-    """parse number of cores from a NAMD log file
-
-    Parameters
-    ----------
-    fh : str / filehandle
-        filename or string of log file to read
-
-    Returns
-    -------
-    float
-        number of cores job was run on
-    """
-    lines = fh.readlines()
-
-    for line in lines:
-        if 'Benchmark time' in line:
-            return int(line.split()[3])
-
-    return np.nan
-
-
 def analyze_run(sim):
     """
     Analyze Performance data of a NAMD simulation
