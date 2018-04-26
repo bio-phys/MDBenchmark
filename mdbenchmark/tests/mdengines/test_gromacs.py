@@ -106,11 +106,12 @@ def test_analyze_run_backward_compatibility(sim_old):
     assert np.isnan(res[6])  # ncores
 
 
-def test_check_file_extension(capsys, tmpdir):
+@pytest.mark.parametrize('input_name', ['md', 'md.tpr'])
+def test_check_file_extension(capsys, input_name, tmpdir):
     """Test that we check for all files needed to run GROMACS benchmarks."""
     output = 'ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n'
     with pytest.raises(SystemExit) as e:
-        gromacs.check_input_file_exists('md')
+        gromacs.check_input_file_exists(input_name)
         out, err = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
@@ -121,4 +122,4 @@ def test_check_file_extension(capsys, tmpdir):
         with open('md.tpr', 'w') as fh:
             fh.write('dummy file')
 
-        assert gromacs.check_input_file_exists('md')
+        assert gromacs.check_input_file_exists(input_name)
