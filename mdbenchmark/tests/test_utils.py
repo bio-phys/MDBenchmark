@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 import numpy as np
+
 import pytest
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
