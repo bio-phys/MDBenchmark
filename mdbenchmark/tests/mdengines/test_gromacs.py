@@ -17,16 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-from glob import glob
-
-import click
 import pytest
 from six.moves import StringIO
 
 import datreant.core as dtr
 import numpy as np
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs, utils
 
 

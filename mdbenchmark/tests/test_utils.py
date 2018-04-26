@@ -17,10 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import click
+from importlib import reload
+
 import numpy as np
 
-import pytest
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
 from numpy.testing import assert_equal
@@ -94,7 +94,7 @@ def test_calc_slope_intercept():
     assert_equal(slope_intercept, np.hstack([slope, intercept]))
 
 
-def test_guess_ncores(capsys, cli_runner, monkeypatch):
+def test_guess_ncores(capsys, monkeypatch):
     """Test that we can guess the correct number of cores on the supported
     systems.
     """

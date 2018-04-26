@@ -17,9 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-
-import click
 import pytest
 
 from mdbenchmark import cli
@@ -29,7 +26,7 @@ from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
 
 
-def test_get_batch_command(capsys, cli_runner, monkeypatch, tmpdir):
+def test_get_batch_command(capsys, monkeypatch, tmpdir):
     """Test that the get_engine_command works correctly.
 
     It should exit if no batching system was found.
