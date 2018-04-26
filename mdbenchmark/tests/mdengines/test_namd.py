@@ -23,11 +23,11 @@ from glob import glob
 import click
 import datreant.core as dtr
 import numpy as np
-import pytest
 from six.moves import StringIO
 
+import pytest
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.mdengines import namd
+from mdbenchmark.mdengines import namd, utils
 
 
 @pytest.fixture
@@ -45,16 +45,16 @@ def empty_log():
 
 
 def test_parse_ns_day(log):
-    assert namd.parse_ns_day(log) == 1 / 13.1013
+    assert utils.parse_ns_day(namd, log) == 1 / 13.1013
 
 
 def test_parse_ncores(log):
-    assert namd.parse_ncores(log) == 1
+    assert utils.parse_ncores(namd, log) == 1
 
 
-@pytest.mark.parametrize('parse', (namd.parse_ncores, namd.parse_ns_day))
+@pytest.mark.parametrize('parse', (utils.parse_ncores, utils.parse_ns_day))
 def test_parse_empty_log(empty_log, parse):
-    assert np.isnan(parse(empty_log))
+    assert np.isnan(parse(namd, empty_log))
 
 
 @pytest.fixture
@@ -64,10 +64,21 @@ def sim(tmpdir_factory):
         str(folder),
         categories={
             'nodes': 42,
-            'host': 'foo',
+            'host': 'draco',
             'gpu': False,
-            'version': 'bar'
+            'module': 'namd/11'
         })
+
+
+def test_analyze_run(sim):
+    res = utils.analyze_run(namd, sim)
+    assert res[0] == 'namd/11'  # version
+    assert res[1] == 42  # nodes
+    assert np.isnan(res[2])  # ns_day
+    assert res[3] == 0  # time
+    assert not res[4]  # gpu
+    assert res[5] == 'draco'  # host
+    assert np.isnan(res[6])  # ncores
 
 
 def test_check_file_extension(cli_runner, tmpdir):
@@ -148,30 +159,3 @@ def test_analyze_namd_file(cli_runner, tmpdir):
         result = cli_runner.invoke(test_cli, ['test'])
         assert result.exit_code == 1
         assert result.output == output
-
-
-def test_cleanup_before_restart(tmpdir):
-    """Test that the cleanup of each directory works as intended for NAMD."""
-    FILES_TO_DELETE = [
-        'job_thing.err.123job', 'job_thing.out.123job', 'job.po12345',
-        'job.o12345', 'benchmark.out'
-    ]
-    FILES_TO_KEEP = ['md.namd', 'md.pdb', 'md.psf', 'bench.job']
-
-    # Create temporary directory
-    tmp = tmpdir.mkdir("mdbenchmark")
-
-    # Create empty files
-    for f in FILES_TO_DELETE + FILES_TO_KEEP:
-        open('{}/{}'.format(tmp, f), 'a').close()
-
-    # Run the cleanup script
-    namd.cleanup_before_restart(dtr.Tree(tmp.strpath))
-
-    # Look for files that were left
-    files_found = []
-    for f in FILES_TO_KEEP:
-        files_found.extend(glob(os.path.join(tmp.strpath, f)))
-
-    # Get rid of the `tmp` path and only compare the actual filenames
-    assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]

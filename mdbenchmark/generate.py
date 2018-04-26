@@ -22,6 +22,7 @@ import datreant.core as dtr
 
 from . import console, mdengines, utils
 from .cli import cli
+from .mdengines.utils import write_benchmark
 
 
 def validate_name(ctx, param, name=None):
@@ -150,7 +151,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
 
     # Grab the template name for the host. This should always work because
     # click does the validation for us
-    tmpl = utils.retrieve_host_template(host)
+    template = utils.retrieve_host_template(host)
 
     # Warn the user that NAMD support is still experimental.
     if any(['namd' in m for m in module]):
@@ -188,11 +189,12 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
             'Creating a total of {} benchmarks, with a run time of {} each.',
             number_of_benchmarks, run_time_each)
 
-        top = dtr.Tree(directory)
+        base_directory = dtr.Tree(directory)
         for n in range(min_nodes, max_nodes + 1):
-            engine.write_bench(
-                top=top,
-                tmpl=tmpl,
+            write_benchmark(
+                engine=engine,
+                base_directory=base_directory,
+                template=template,
                 nodes=n,
                 gpu=gpu,
                 module=m,

@@ -34,7 +34,7 @@ module load {{ module }}
 
 # Run {{ module }} for {{ time  }} minutes
 {%- if mdengine == "gromacs" %}
-srun gmx_mpi mdrun -v  -maxh {{ time / 60 }} -deffnm {{ name }}
+srun gmx_mpi mdrun -v -maxh {{ time / 60 }} -deffnm {{ name }}
 {%- elif mdengine == "namd" %}
 srun namd2 {{ name }}.namd
 {%- endif %}

@@ -29,11 +29,10 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from . import console
-from .mdengines import detect_md_engine
-
 from .cli import cli
-from .utils import (calc_slope_intercept, guess_ncores, lin_func,
-                    generate_output_name)
+from .mdengines import detect_md_engine, utils
+from .utils import (calc_slope_intercept, generate_output_name, guess_ncores,
+                    lin_func)
 
 
 def plot_analysis(df, ncores):
@@ -134,7 +133,11 @@ def plot_analysis(df, ncores):
     'benchmarks log file.',
     show_default=True)
 @click.option(
-    '-o', '--output-name', default=None, help="Name of the output .csv file.", type=str)
+    '-o',
+    '--output-name',
+    default=None,
+    help="Name of the output .csv file.",
+    type=str)
 def analyze(directory, plot, ncores, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
@@ -150,7 +153,8 @@ def analyze(directory, plot, ncores, output_name):
         else:
             module = sim.categories['version']
         # call the engine specific analysis functions
-        df.loc[i] = detect_md_engine(module).analyze_run(sim)
+        engine = detect_md_engine(module)
+        df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
 
     if df.empty:
         console.error('There is no data for the given path.')
