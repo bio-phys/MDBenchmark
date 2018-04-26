@@ -86,22 +86,3 @@ def check_input_file_exists(name):
                 fn)
 
     return True
-
-
-def cleanup_before_restart(sim):
-    white_list = ['.*/bench\.job', '.*\.namd', '.*\.psf', '.*\.pdb']
-    white_list = [re.compile(fname) for fname in white_list]
-
-    files_found = []
-    for fname in sim.leaves:
-        keep = False
-        for wl in white_list:
-            if wl.match(str(fname)):
-                keep = True
-        if keep:
-            continue
-
-        files_found.append(fname.relpath)
-
-    for fn in files_found:
-        os.remove(fn)

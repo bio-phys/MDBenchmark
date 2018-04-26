@@ -136,30 +136,3 @@ def test_analyze_namd_file(capsys, tmpdir, file_content, output,
                 namd.analyze_namd_file(fh)
                 out, err = capsys.readouterr()
                 assert out == output
-
-
-def test_cleanup_before_restart(tmpdir):
-    """Test that the cleanup of each directory works as intended for NAMD."""
-    FILES_TO_DELETE = [
-        'job_thing.err.123job', 'job_thing.out.123job', 'job.po12345',
-        'job.o12345', 'benchmark.out'
-    ]
-    FILES_TO_KEEP = ['md.namd', 'md.pdb', 'md.psf', 'bench.job']
-
-    # Create temporary directory
-    tmp = tmpdir.mkdir("mdbenchmark")
-
-    # Create empty files
-    for f in FILES_TO_DELETE + FILES_TO_KEEP:
-        open('{}/{}'.format(tmp, f), 'a').close()
-
-    # Run the cleanup script
-    namd.cleanup_before_restart(dtr.Tree(tmp.strpath))
-
-    # Look for files that were left
-    files_found = []
-    for f in FILES_TO_KEEP:
-        files_found.extend(glob(os.path.join(tmp.strpath, f)))
-
-    # Get rid of the `tmp` path and only compare the actual filenames
-    assert FILES_TO_KEEP == [x[len(str(tmp)) + 1:] for x in files_found]
