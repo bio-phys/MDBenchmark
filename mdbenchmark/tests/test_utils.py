@@ -17,13 +17,33 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from importlib import reload
+import os
 
+import jinja2
 import numpy as np
+from numpy.testing import assert_equal
 
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
-from numpy.testing import assert_equal
+
+
+def test_mdbenchmark_template_environment_variable(monkeypatch):
+    """Test that we can set a custom path via environment variable MDBENCHMARK_TEMPLATES."""
+    try:
+        from importlib import reload
+    except ImportError:
+        from imp import reload
+
+    custom_path = '/this/is/a/custom/path'
+    monkeypatch.setenv('MDBENCHMARK_TEMPLATES', custom_path)
+    reload(utils)
+    from mdbenchmark.utils import _loaders
+    for path in _loaders:
+        if isinstance(path, jinja2.loaders.FileSystemLoader):
+            assert path.searchpath[0] in [
+                '{}/.config/MDBenchmark'.format(os.getenv('HOME')),
+                custom_path, '/etc/xdg/MDBenchmark'
+            ]
 
 
 def test_get_possible_hosts():
