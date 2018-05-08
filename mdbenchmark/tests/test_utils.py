@@ -17,13 +17,33 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import click
+import os
+
+import jinja2
 import numpy as np
-import pytest
 from numpy.testing import assert_equal
 
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
+
+
+def test_mdbenchmark_template_environment_variable(monkeypatch):
+    """Test that we can set a custom path via environment variable MDBENCHMARK_TEMPLATES."""
+    try:
+        from importlib import reload
+    except ImportError:
+        from imp import reload
+
+    custom_path = '/this/is/a/custom/path'
+    monkeypatch.setenv('MDBENCHMARK_TEMPLATES', custom_path)
+    reload(utils)
+    from mdbenchmark.utils import _loaders
+    for path in _loaders:
+        if isinstance(path, jinja2.loaders.FileSystemLoader):
+            assert path.searchpath[0] in [
+                '{}/.config/MDBenchmark'.format(os.getenv('HOME')),
+                custom_path, '/etc/xdg/MDBenchmark'
+            ]
 
 
 def test_get_possible_hosts():
@@ -94,7 +114,7 @@ def test_calc_slope_intercept():
     assert_equal(slope_intercept, np.hstack([slope, intercept]))
 
 
-def test_guess_ncores(cli_runner, monkeypatch):
+def test_guess_ncores(capsys, monkeypatch):
     """Test that we can guess the correct number of cores on the supported
     systems.
     """
@@ -102,26 +122,22 @@ def test_guess_ncores(cli_runner, monkeypatch):
     def dummy(arg):
         return 'ABC'
 
+    # Test on Linux
     monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'linux')
     monkeypatch.setattr(
         'mdbenchmark.utils._cat_proc_cpuinfo_grep_query_sort_uniq', dummy)
     assert utils.guess_ncores() == 9
 
+    # Test on Darwin
     monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'darwin')
     monkeypatch.setattr('mdbenchmark.utils.mp.cpu_count', lambda: 10)
     assert utils.guess_ncores() == 5
 
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        utils.guess_ncores()
-
+    # Test on some unknown platform
     monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'starlord')
     output = 'WARNING Could not guess number of physical cores. ' \
              'Assuming there is only 1 core per node.\n'
-    result = cli_runner.invoke(test_cli, ['test'])
-    assert result.exit_code == 0
-    assert result.output == output
+
+    utils.guess_ncores()
+    out, err = capsys.readouterr()
+    assert out == output

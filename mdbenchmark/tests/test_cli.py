@@ -17,23 +17,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import click
+
+from mdbenchmark import cli
+from mdbenchmark.ext.click_test import cli_runner
 
 
-class AliasedGroup(click.Group):
-    aliases = {'start': 'submit'}
+def test_aliasedgroup_unknown_command(cli_runner):
+    """Test that we return an error, when invoking an unknown command."""
+    result = cli_runner.invoke(cli.cli, [
+        'unknown_command',
+    ])
+    assert result.exit_code == 2
+    output = 'Usage: cli [OPTIONS] COMMAND [ARGS]...\n\n' \
+             'Error: Sub command unknown: unknown_command\n'
+    assert result.output == output
 
-    def get_command(self, ctx, cmd_name):
-        rv = click.Group.get_command(self, ctx, cmd_name)
-        if rv is not None:
-            return rv
-        if cmd_name in self.aliases:
-            return click.Group.get_command(self, ctx, self.aliases[cmd_name])
-        ctx.fail('Sub command unknown: {}'.format(cmd_name))
 
-
-@click.command(cls=AliasedGroup)
-@click.version_option()
-def cli():
-    """Generate, run and analyze benchmarks of GROMACS simulations."""
-    pass
+def test_aliasedgroup_known_alias(cli_runner):
+    """Test that we can use all defined aliases."""
+    result = cli_runner.invoke(cli.cli, [
+        'start',
+    ])
+    assert result.exit_code == 1

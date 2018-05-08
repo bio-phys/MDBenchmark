@@ -17,9 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
+import pytest
 
-import click
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
@@ -27,35 +26,22 @@ from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
 
 
-def test_get_batch_command(cli_runner, monkeypatch, tmpdir):
+def test_get_batch_command(capsys, monkeypatch, tmpdir):
     """Test that the get_engine_command works correctly.
 
     It should exit if no batching system was found.
     """
-
-    # The following was taken from the basic testing example from the Click
-    # documentation: http://click.pocoo.org/6/testing/#basic-testing
-    # We need to do this, because `get_engine_command()` uses `click.echo` to
-    # display an error message and we want to test its value.
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        get_batch_command()
-
     # Test fail state
     output = 'ERROR Was not able to find a batch system. ' \
              'Are you trying to use this package on a host with a queuing system?\n'
-    result = cli_runner.invoke(test_cli, ['test'])
-    assert result.exit_code == 1
-    assert result.output == output
+    with pytest.raises(SystemExit):
+        get_batch_command()
+        out, err = capsys.readouterr()
+        assert out == output
 
     # Test non-fail state
     monkeypatch.setattr('mdbenchmark.submit.glob', lambda x: ['qsub'])
-    result = cli_runner.invoke(test_cli, ['test'])
-    assert result.exit_code == 0
+    assert get_batch_command()
 
 
 def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):

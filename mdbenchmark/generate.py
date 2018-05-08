@@ -24,6 +24,11 @@ from . import console, mdengines, utils
 from .cli import cli
 from .mdengines.utils import write_benchmark
 
+NAMD_WARNING = 'NAMD support is experimental. ' \
+               'All input files must be in the current directory. ' \
+               'Parameter paths must be absolute. Only crude file checks are performed! ' \
+               'If you use the {} option make sure you use the GPU compatible NAMD module!'
+
 
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
@@ -155,12 +160,7 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
 
     # Warn the user that NAMD support is still experimental.
     if any(['namd' in m for m in module]):
-        console.warn(
-            'NAMD support is experimental. '
-            'All input files must be in the current directory. '
-            'Parameter paths must be absolute. Only crude file checks are performed! '
-            'If you use the {} option make sure you use the GPU compatible NAMD module!',
-            '--gpu')
+        console.warn(NAMD_WARNING, '--gpu')
 
     module = mdengines.normalize_modules(module, skip_validation)
 

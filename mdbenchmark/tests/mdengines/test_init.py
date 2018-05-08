@@ -19,15 +19,13 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-import click
 import pytest
 
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.generate import generate
 from mdbenchmark.mdengines import (detect_md_engine, get_available_modules,
-                                   gromacs, namd, normalize_modules,
-                                   prepare_module_name, validate_module_name)
+                                   normalize_modules, prepare_module_name,
+                                   validate_module_name)
 
 DIR_STRUCTURE = {
     'applications': {
@@ -41,27 +39,17 @@ DIR_STRUCTURE = {
 }
 
 
-def test_prepare_module_name(cli_runner):
+def test_prepare_module_name(capsys):
     """Test that prepare_module_name works as expected."""
-
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test_wrong_module_name():
+    # Fail state
+    with pytest.raises(SystemExit) as e:
         prepare_module_name('gromacs-2016.4')
+        out, err = capsys.readouterr()
+        assert e.type == SystemExit
+        assert e.code == 1
+        assert out == 'ERROR We were not able to determine the module name.\n'
 
-    @test_cli.command()
-    def test_correct_module_name():
-        prepare_module_name('gromacs/2016.4')
-
-    result = cli_runner.invoke(test_cli, ['test_wrong_module_name'])
-    assert result.exit_code == 1
-    assert result.output == 'ERROR We were not able to determine the module name.\n'
-
-    result = cli_runner.invoke(test_cli, ['test_correct_module_name'])
-    assert result.exit_code == 0
+    assert prepare_module_name('gromacs/2016.4')
 
 
 def test_detect_md_engine():
@@ -76,36 +64,18 @@ def test_detect_md_engine():
     assert detect_md_engine('someengine/123') is None
 
 
-def test_normalize_modules(cli_runner, monkeypatch, tmpdir):
+def test_normalize_modules(capsys, monkeypatch, tmpdir):
     """Test that normalize modules works as expected."""
-
-    @click.group()
-    def test_cli():
-        pass
-
     # Test the warning when we skip the validation
-    @test_cli.command()
-    def skip_validation():
-        normalize_modules(modules=['gromacs/2016.4'], skip_validation=True)
-
-    result = cli_runner.invoke(test_cli, ['skip_validation'])
-    assert result.exit_code == 0
-    assert result.output == 'WARNING Not performing module name validation.\n'
+    normalize_modules(modules=['gromacs/2016.4'], skip_validation=True)
+    out, err = capsys.readouterr()
+    assert out == 'WARNING Not performing module name validation.\n'
 
     # Test the warning when we do not skip the validation
-    @test_cli.command()
-    def do_not_skip_validation():
-        normalize_modules(modules=['gromacs/2016.4'], skip_validation=False)
-
-    result = cli_runner.invoke(test_cli, ['do_not_skip_validation'])
-    assert result.exit_code == 0
-    assert result.output == 'WARNING Cannot locate modules available on this host. ' \
-                            'Not performing module name validation.\n'
-
-    @test_cli.command()
-    def test_normalize():
-        normalize_modules(
-            modules=['gromacs/doesnotexist'], skip_validation=False)
+    normalize_modules(modules=['gromacs/2016.4'], skip_validation=False)
+    out, err = capsys.readouterr()
+    assert out == 'WARNING Cannot locate modules available on this host. ' \
+                  'Not performing module name validation.\n'
 
     with tmpdir.as_cwd():
         for k, v in DIR_STRUCTURE.items():
@@ -119,7 +89,6 @@ def test_normalize_modules(cli_runner, monkeypatch, tmpdir):
         dirs = ':'.join(
             [os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())])
         monkeypatch.setenv('MODULEPATH', dirs)
-        modules = get_available_modules()
 
         output = 'WARNING We have problems finding all of your requested modules on this host.\n' \
                  'We were not able to find the following modules for MD engine gromacs: ' \
@@ -129,26 +98,18 @@ def test_normalize_modules(cli_runner, monkeypatch, tmpdir):
                  'gromacs/2018.1\n' \
                  'gromacs/5.1.4-plumed2.3\n\n'
 
-        result = cli_runner.invoke(test_cli, ['test_normalize'])
-        assert result.exit_code == 0
-        assert result.output == output
+        normalize_modules(
+            modules=['gromacs/doesnotexist'], skip_validation=False)
+        out, err = capsys.readouterr()
+        assert out == output
 
 
-def test_validation(monkeypatch, tmpdir, cli_runner):
+def test_validation(capsys, monkeypatch, tmpdir):
     """Test that we retrieve the correct module versions.
 
        Names are retrieved from a given path and the module names and versions
        are validated.
     """
-
-    @click.group()
-    def test_cli():
-        pass
-
-    @test_cli.command()
-    def test():
-        validate_module_name('wrong-format')
-
     with tmpdir.as_cwd():
         for k, v in DIR_STRUCTURE.items():
             for k2, v2 in v.items():
@@ -173,9 +134,13 @@ def test_validation(monkeypatch, tmpdir, cli_runner):
         assert validate_module_name('gromacs/2018.1', modules)
 
         output = 'ERROR We were not able to determine the module name.\n'
-        result = cli_runner.invoke(test_cli, ['test'])
-        assert result.exit_code == 1
-        assert result.output == output
+        with pytest.raises(SystemExit) as e:
+            validate_module_name('wrong=format')
+            out, err = capsys.readouterr()
+
+            assert e.type == SystemExit
+            assert e.code == 1
+            assert out == output
 
 
 def test_generate_validation(cli_runner, tmpdir, monkeypatch):
