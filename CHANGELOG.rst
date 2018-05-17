@@ -9,6 +9,21 @@ to update this file automatically for each release.
 
 .. towncrier release notes start
 
+MDBenchmark 1.3.1 (2018-05-17)
+==============================
+
+Bugfixes
+--------
+
+- Module names validation is now performed case insensitive. (#61)
+
+
+Misc
+----
+- Consolidate common functions from `mdengines.gromacs` and `mdengines.namd` into `mdengines.utils`, removing code duplication. (#57)
+- Refactor unit tests. Make everything more concise and use some more pytest functionality. (#58)
+
+
 MDBenchmark 1.3.0 (2018-04-08)
 ==============================
 
