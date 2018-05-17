@@ -52,16 +52,23 @@ def test_prepare_module_name(capsys):
     assert prepare_module_name('gromacs/2016.4')
 
 
-def test_detect_md_engine():
+@pytest.mark.parametrize('arg, out',
+                         (('gromacs/2016.3', 'mdbenchmark.mdengines.gromacs'),
+                          ('namd/123', 'mdbenchmark.mdengines.namd'),
+                          ('NAMD/123', 'mdbenchmark.mdengines.namd'),
+                          ('NamD/123', 'mdbenchmark.mdengines.namd'),
+                          ('GROMACS/123', 'mdbenchmark.mdengines.gromacs'),
+                          ('GRomacS/123', 'mdbenchmark.mdengines.gromacs')))
+def test_detect_md_engine_supported(arg, out):
     """Test that we only accept supported MD engines."""
+    engine = detect_md_engine(arg)
+    assert engine.__name__ == out
 
-    engine = detect_md_engine('gromacs/2016.3')
-    assert engine.__name__ == 'mdbenchmark.mdengines.gromacs'
 
-    engine = detect_md_engine('namd/123')
-    assert engine.__name__ == 'mdbenchmark.mdengines.namd'
-
-    assert detect_md_engine('someengine/123') is None
+def test_detect_md_engine_unkown():
+    """Test that we return None for unkown engines"""
+    engine = detect_md_engine('someengine/123')
+    assert engine is None
 
 
 def test_normalize_modules(capsys, monkeypatch, tmpdir):

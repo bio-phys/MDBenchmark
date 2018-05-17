@@ -41,7 +41,7 @@ def detect_md_engine(modulename):
     """
 
     for name, engine in six.iteritems(SUPPORTED_ENGINES):
-        if name in modulename:
+        if name in modulename.lower():
             return engine
 
     return None
