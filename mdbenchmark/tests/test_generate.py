@@ -19,14 +19,15 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
+import pytest
 from click import exceptions
 
-import pytest
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.generate import (NAMD_WARNING, print_known_hosts,
-                                  validate_hosts, validate_module,
-                                  validate_name, validate_number_of_nodes)
+                                  validate_cpu_gpu_flags, validate_hosts,
+                                  validate_module, validate_name,
+                                  validate_number_of_nodes)
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 
 DIR_STRUCTURE = {
@@ -330,6 +331,24 @@ def test_validate_generate_module(ctx_mock):
 
     # Make sure we return the value again
     assert validate_module(ctx_mock, None, 'gromacs/123') == 'gromacs/123'
+
+
+def test_validate_cpu_gpu_flags():
+    """Test that the validate_cpu_gpu_flags function works as expected."""
+
+    with pytest.raises(exceptions.BadParameter) as error:
+        validate_cpu_gpu_flags(
+            cpu=False,
+            gpu=False,
+        )
+
+    assert str(
+        error.value
+    ) == 'You must select either CPUs or GPUs to run the benchmarks on.'
+
+    assert validate_cpu_gpu_flags(cpu=True, gpu=False) is None
+    assert validate_cpu_gpu_flags(cpu=False, gpu=True) is None
+    assert validate_cpu_gpu_flags(cpu=True, gpu=True) is None
 
 
 def test_validate_generate_number_of_nodes():
