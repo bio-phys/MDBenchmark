@@ -85,7 +85,7 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions,
         # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module={}'.format(module), '--host=draco',
-            '--max-nodes=4', '--gpu', '--name=protein'
+            '--max-nodes=4', '--gpu', '--no-cpu', '--name=protein'
         ])
         assert result.exit_code == 0
         assert result.output == output
@@ -112,7 +112,7 @@ def test_generate_simple_input_with_working_validation(
         # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module={}'.format(module), '--host=draco',
-            '--max-nodes=4', '--gpu', '--name=protein'
+            '--max-nodes=4', '--gpu', '--no-cpu', '--name=protein'
         ])
         assert result.exit_code == 0
         assert result.output == output
@@ -139,7 +139,8 @@ def test_generate_skip_validation(cli_runner, module, extensions,
 
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module={}'.format(module), '--host=draco',
-            '--max-nodes=4', '--gpu', '--name=protein', '--skip-validation'
+            '--max-nodes=4', '--gpu', '--no-cpu', '--name=protein',
+            '--skip-validation'
         ])
         assert result.exit_code == 0
         assert result.output == output
@@ -195,7 +196,8 @@ def test_generate_odd_number_of_nodes(cli_runner, engine, module, extensions,
 
         result = cli_runner.invoke(cli.cli, [
             'generate', '--module={}'.format(module), '--host=draco',
-            '--min-nodes=6', '--max-nodes=8', '--gpu', '--name=protein'
+            '--min-nodes=6', '--max-nodes=8', '--gpu', '--no-cpu',
+            '--name=protein'
         ])
         assert result.exit_code == 0
         assert result.output == output
