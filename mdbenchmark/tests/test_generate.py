@@ -59,11 +59,34 @@ def ctx_mock():
 
 
 @pytest.fixture
-def generate_output():
-    return 'Creating benchmark system for {} with GPUs.\n' \
-           'Creating a total of 4 benchmarks, with a run time of 15' \
-           ' minutes each.\nFinished generating all benchmarks.\nYou can' \
-           ' now submit the jobs with mdbenchmark submit.\n'
+def generate_output_create():
+    def _output(gpu=True, n_benchmarks=4, runtime=15):
+        gpu_string = '{}'
+        if gpu:
+            gpu_string = '{} with GPUs'
+
+        return 'Creating benchmark system for {}.\n' \
+            'Creating a total of {} benchmarks, with a run time of {}' \
+            ' minutes each.\n'.format(gpu_string, n_benchmarks, runtime)
+
+    return _output
+
+
+@pytest.fixture
+def generate_output_finish():
+    return 'Finished generating all benchmarks.\nYou can' \
+        ' now submit the jobs with mdbenchmark submit.\n'
+
+
+@pytest.fixture
+def generate_output(generate_output_create, generate_output_finish):
+    def _output(gpu=True, n_benchmarks=4, runtime=15):
+        create_string = generate_output_create(
+            gpu=gpu, n_benchmarks=n_benchmarks, runtime=runtime)
+        finish_string = generate_output_finish
+        return create_string + finish_string
+
+    return _output
 
 
 @pytest.mark.parametrize('module, extensions',
@@ -76,7 +99,7 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions,
         for ext in extensions:
             open('protein.{}'.format(ext), 'a').close()
 
-        output = generate_output.format(module)
+        output = generate_output().format(module)
         output = 'WARNING Cannot locate modules available on this host. ' \
                  'Not performing module name validation.\n' + output
         if 'namd' in module:
@@ -94,6 +117,34 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions,
 @pytest.mark.parametrize('module, extensions',
                          [('gromacs/2016', ['tpr']),
                           ('namd/11', ['namd', 'pdb', 'psf'])])
+def test_generate_simple_input_with_cpu_gpu(cli_runner, generate_output_create,
+                                            generate_output_finish, module,
+                                            extensions, tmpdir):
+    """Test that we can generate benchmarks for CPUs and GPUs at once."""
+    with tmpdir.as_cwd():
+        for ext in extensions:
+            open('protein.{}'.format(ext), 'a').close()
+
+        output = generate_output_create(gpu=False).format(module)
+        output = 'WARNING Cannot locate modules available on this host. ' \
+                 'Not performing module name validation.\n' + output
+        output += generate_output_create(gpu=True).format(module)
+        output += generate_output_finish
+        if 'namd' in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        # Test that we get a warning, if no module name validation is performed.
+        result = cli_runner.invoke(cli.cli, [
+            'generate', '--module={}'.format(module), '--host=draco',
+            '--max-nodes=4', '--gpu', '--name=protein'
+        ])
+        assert result.exit_code == 0
+        assert result.output == output
+
+
+@pytest.mark.parametrize('module, extensions',
+                         [('gromacs/2016', ['tpr']),
+                          ('namd/11', ['namd', 'pdb', 'psf'])])
 def test_generate_simple_input_with_working_validation(
         cli_runner, generate_output, module, monkeypatch, extensions, tmpdir):
     """Test that we can generate benchmarks for all supported MD engines with module validation."""
@@ -101,7 +152,7 @@ def test_generate_simple_input_with_working_validation(
         for ext in extensions:
             open('protein.{}'.format(ext), 'a').close()
 
-        output = generate_output.format(module)
+        output = generate_output().format(module)
         if 'namd' in module:
             output = NAMD_WARNING_FORMATTED + output
 
@@ -132,7 +183,7 @@ def test_generate_skip_validation(cli_runner, module, extensions,
         monkeypatch.setattr('mdbenchmark.mdengines.get_available_modules',
                             lambda: {'gromacs': ['2016'], 'namd': ['11']})
 
-        output = generate_output.format(module)
+        output = generate_output().format(module)
         output = 'WARNING Not performing module name validation.\n' + output
         if 'namd' in module:
             output = NAMD_WARNING_FORMATTED + output
