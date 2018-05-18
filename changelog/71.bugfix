@@ -1,0 +1,1 @@
+Suppress UserWarning caused by ``MDAnalysis==0.18``.
