@@ -27,6 +27,12 @@ with warnings.catch_warnings():
         category=FutureWarning,
         module='h5py')
 
+    warnings.filterwarnings(
+        message='.*No module named \'duecredit\'.*',
+        action='ignore',
+        category=UserWarning,
+        module='MDAnalysis')
+
     from . import analyze, generate, submit
 
     __version__ = '1.3.1'
