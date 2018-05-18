@@ -171,7 +171,8 @@ def analyze(directory, plot, ncores, output_name):
 
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, '?')
-    print(df_to_print)
+    with pd.option_context('display.max_rows', None):
+        print(df_to_print)
 
     # here we determine which output name to use.
     if output_name is None:

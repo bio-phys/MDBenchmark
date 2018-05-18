@@ -21,7 +21,7 @@ import os
 
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.testing import data
+from mdbenchmark.testing import data, datafiles
 
 
 def test_analyze_gromacs(cli_runner, tmpdir, data):
@@ -40,6 +40,27 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
 3  gromacs/2016.3      4  246.973              15  False  draco     128
 4  gromacs/2016.3      5  254.266              15  False  draco     160
 """
+
+
+def test_analyze_many_rows(cli_runner, tmpdir, datafiles):
+    """Test that pandas does not limit the number of printed rows."""
+    with tmpdir.as_cwd():
+        open('protein.tpr', 'a').close()
+
+        generate = cli_runner.invoke(cli.cli, [
+            'generate', '--module=gromacs/2016.3', '--host=draco',
+            '--max-nodes=64', '--name=protein'
+        ])
+
+        data = datafiles['analyze_many_rows.out']
+        with open(data) as f:
+            output = f.readlines()
+
+        result = cli_runner.invoke(cli.cli,
+                                   ['analyze', '--directory=draco_gromacs'])
+
+        assert result.exit_code == 0
+        assert result.output == ''.join(output)
 
 
 def test_analze_namd(cli_runner, tmpdir, data):
