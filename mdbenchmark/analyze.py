@@ -28,7 +28,7 @@ from matplotlib.figure import Figure
 from . import console
 from .cli import cli
 from .mdengines import detect_md_engine, utils
-from .plot import plot_line
+from .plot import plot_over_group
 from .utils import generate_output_name
 
 
@@ -101,27 +101,15 @@ def analyze(directory, plot, ncores, output_name):
     df.to_csv(output_name)
 
     if plot:
-        console.warn(
-            'This feature is now outdated.'
-            'Please use mdbenchmark plot to access all plotting features'
-            'Future versions will not support this feature anymore.')
+        console.warn('DEPECATED Please use \'{}\' in the future', 'mdbenchmark plot')
 
         fig = Figure()
         FigureCanvas(fig)
         ax = fig.add_subplot(111)
 
         df = pd.read_csv(output_name)
-
-        df_sel = 'nodes'
-        gb = df.groupby(['gpu', 'module', 'host'])
-        groupby = ['gpu', 'module', 'host']
-        for key, df in gb:
-            label = ' '.join(['{}={}'.format(n, v) for n, v in zip(groupby, key)])
-            plot_line(df=df, df_sel=df_sel, ax=ax, label=label)
-
-        ax.set_xlabel('Number of Nodes')
-        ax.set_ylabel('Performance [ns/day]')
-        ax.legend()
+        ax = plot_over_group(df, plot_cores=False, ax=ax)
+        lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.175))
 
         fig.tight_layout()
-        fig.savefig('runtimes.pdf', format='pdf')
+        fig.savefig('runtimes.pdf', type='pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')

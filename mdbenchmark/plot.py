@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -28,19 +29,19 @@ from .utils import calc_slope_intercept, lin_func, generate_output_name
 from . import console
 
 
-def plot_line(df, df_sel, label, ax=None):
+def plot_line(df, selection, label, ax=None):
     if ax is None:
         ax = plt.gca()
 
-    p = ax.plot(df_sel, 'ns/day', '.-', data=df, ms='10', label=label)
+    p = ax.plot(selection, 'ns/day', '.-', data=df, ms='10', label=label)
     color = p[0].get_color()
     slope, intercept = calc_slope_intercept(
-        (df[df_sel].iloc[0], df['ns/day'].iloc[0]), (df[df_sel].iloc[1],
+        (df[selection].iloc[0], df['ns/day'].iloc[0]), (df[selection].iloc[1],
                                                      df['ns/day'].iloc[1]))
     # avoid a label and use values instead of pd.Series
     ax.plot(
-        df[df_sel],
-        lin_func(df[df_sel].values, slope, intercept),
+        df[selection],
+        lin_func(df[selection].values, slope, intercept),
         ls='--',
         color=color,
         alpha=.5)
@@ -49,20 +50,20 @@ def plot_line(df, df_sel, label, ax=None):
 
 def plot_over_group(df, plot_cores, ax=None):
     # plot all lines
-    df_sel = 'ncores' if plot_cores else 'nodes'
+    selection = 'ncores' if plot_cores else 'nodes'
 
-    gb = df.groupby(['gpu', 'module', 'host'])
     groupby = ['gpu', 'module', 'host']
+    gb = df.groupby(groupby)
     for key, df in gb:
         label = ' '.join(['{}={}'.format(n, v) for n, v in zip(groupby, key)])
-        plot_line(df=df, df_sel=df_sel, ax=ax, label=label)
+        plot_line(df=df, selection=selection, ax=ax, label=label)
 
     # style axes
     xlabel = 'cores' if plot_cores else 'nodes'
     ax.set_xlabel('Number of {}'.format(xlabel))
     ax.set_ylabel('Performance [ns/day]')
-    ax.legend()
 
+    # here I return the figure as well as the legend
     return ax
 
 
@@ -70,38 +71,39 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     # gpu/cpu can be plotted together or separately
     if gpu and cpu:
         # if no flags are given by the user or both are set everything is plotted
-        console.info("plotting GPU and CPU data.")
+        console.info("Plotting GPU and CPU data.")
     elif gpu and not cpu:
         df = df[df.gpu]
-        console.info("plotting GPU data only.")
+        console.info("Plotting GPU data only.")
     elif cpu and not gpu:
         df = df[~df.gpu]
-        console.info("plotting CPU data only.")
+        console.info("Plotting CPU data only.")
     elif not cpu and not gpu:
-        console.error("CPU and GPU not set. Nothing to plot. Exiting")
+        console.error("CPU and GPU not set. Nothing to plot. Exiting.")
+
 
     for host in host_name:
         if host in df['host'].tolist():
-            df = df[df['host'].isin(host_name)]
             console.info('Data for the following hosts will be plotted: {}.', set(host_name))
-        elif not host:
-            # dataframe stays the same and all hosts will be plotted
-            console.info('All hosts will be plotted.')
         elif host not in df['host'].tolist():
-            # filter host names that don't exist
             console.error('The host {} does not exist in your csv data. Exiting.', host)
 
     if not host_name:
-        console.info("plotting all hosts in csv.")
+        console.info("Plotting all hosts in csv.")
+
+    if host_name:
+        df = df[df['host'].str.contains('|'.join(host_name))]
 
     for module in module_name:
         if module in ['gromacs', 'namd']:
-            console.info("plotting all modules for engine {}.", module)
+            console.info("Plotting all modules for engine {}.", module)
+        elif module in df['module'].tolist():
+            console.info("Plotting module {}.", module)
         elif module not in df['module'].tolist():
             console.error("The module {} does not exist in your data. Exiting.", module)
 
     if not module_name:
-        console.info("plotting all modules in your input data.")
+        console.info("Plotting all modules in your input data.")
     # this should work but we need to check before whether any of the entered
     # names are faulty/don't exist
     if module_name:
@@ -153,14 +155,16 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     default=True)
 @click.option(
     '--plot-cores',
-    help="Plot performance per core instead of nodes",
+    help="Plot performance per core instead of nodes.",
     show_default=True,
     is_flag=True)
 def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_cores):
     """Generate plots from csv files"""
-    print(host_name)
+
     if not csv:
-        console.error("No csv file specified. use --csv to specify a file.")
+        raise click.BadParameter(
+       'You must specify at least one csv file.',
+        param_hint='"--csv"')
 
     df = pd.concat([pd.read_csv(c, index_col=0) for c in csv]).dropna()
 
@@ -169,12 +173,20 @@ def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_c
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    plot_over_group(df, plot_cores, ax=ax)
+    ax = plot_over_group(df, plot_cores, ax=ax)
+    lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.175))
+    plt.tight_layout()
 
-    if output_name is None:
+    if output_name is None and len(csv) == 1:
+        csv_string = csv[0].split(".")[0]
+        output_name = '{}.{}'.format(csv_string, output_type)
+    elif output_name is None and len(csv) != 1:
         output_name = generate_output_name(output_type)
-    elif output_name.endswith('.{}'.format(output_type)):
+    elif not output_name.endswith('.{}'.format(output_type)):
         output_name = '{}.{}'.format(output_name, output_type)
-    fig.savefig(output_name, type=output_type)
+    # tight alone does not consider the legend if it is outside the plot.
+    # therefore i add it manually as extra artist. This way we don't get problems
+    # with the variability of individual lines which are to be plotted
+    fig.savefig(output_name, type=output_type, bbox_extra_artists=(lgd,), bbox_inches='tight')
     console.info(
         'Your file was saved as {} in the working directory.', output_name)
