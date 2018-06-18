@@ -22,6 +22,7 @@ import multiprocessing as mp
 import os
 import socket
 import sys
+import warnings
 
 import click
 import numpy as np
@@ -112,7 +113,7 @@ def guess_ncores():
         # true for all officially supported Apple models.
         total_cores = mp.cpu_count() // 2
     if total_cores is None:
-        console.warn('Could not guess number of physical cores. '
+        warnings.warn('Could not guess number of physical cores. '
                      'Assuming there is only 1 core per node.')
         total_cores = 1
     return total_cores
