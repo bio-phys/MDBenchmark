@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 import contextlib
+import warnings
 
 import click
 import six
@@ -118,9 +119,12 @@ def error(message, *args, **kwargs):
 @contextlib.contextmanager
 def redirect():
     """
-    Redirect Exceptions to be Click Error messages
+    Redirect Exceptions and warnings to be Click Error/Warning messages
     """
-    try:
-        yield
-    except Exception as e:
-        error(str(e))
+    with warnings.catch_warnings(record=True) as ws:
+        try:
+            yield
+        except Exception as e:
+            error(str(e))
+    for w in ws:
+        warn(w.message)
