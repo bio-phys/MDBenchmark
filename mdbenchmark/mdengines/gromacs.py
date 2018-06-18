@@ -47,14 +47,9 @@ def prepare_benchmark(name, *args, **kwargs):
 
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
-    fn = name
-    if fn.endswith('.tpr'):
-        fn = name[:-4]
-
-    tpr = fn + '.tpr'
-    if not os.path.exists(tpr):
-        console.error(
-            "File {} does not exist, but is needed for GROMACS benchmarks.",
-            tpr)
-
+    if not name.endswith('.tpr'):
+        name = name + '.tpr'
+    if not os.path.exists(name):
+        raise IOError(
+            "File {} does not exist, but is needed for GROMACS benchmarks.".format(name))
     return True

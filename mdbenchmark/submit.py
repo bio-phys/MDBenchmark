@@ -38,7 +38,7 @@ def get_batch_command():
         for b in BATCH_SYSTEMS.values():
             if glob(os.path.join(p, b)):
                 return b
-    console.error(
+    raise RuntimeError(
         'Was not able to find a batch system. Are you trying to use this '
         'package on a host with a queuing system?')
 

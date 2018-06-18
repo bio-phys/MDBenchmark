@@ -64,12 +64,12 @@ def analyze_namd_file(fh):
 
         path = line.split()[1]
         if '$' in path:
-            console.error(
+            raise RuntimeError(
                 'Variable Substitutions are not allowed in NAMD files!')
         if '..' in path:
-            console.error('Relative file paths are not allowed in NAMD files!')
+            raise RuntimeError('Relative file paths are not allowed in NAMD files!')
         if '/' not in path or ('/' in path and not path.startswith('/')):
-            console.error('No absolute path detected in NAMD file!')
+            raise RuntimeError('No absolute path detected in NAMD file!')
 
 
 def check_input_file_exists(name):
@@ -78,11 +78,9 @@ def check_input_file_exists(name):
     for extension in ['namd', 'psf', 'pdb']:
         if name.endswith('.{}'.format(extension)):
             name = name[:-2 + len(extension)]
-
-        fn = '{}.{}'.format(name, extension)
-        if not os.path.exists(fn):
-            console.error(
-                "File {} does not exist, but is needed for NAMD benchmarks.",
-                fn)
+        fname = '{}.{}'.format(name, extension)
+        if not os.path.exists(fname):
+            raise IOError(
+                "File {} does not exist, but is needed for NAMD benchmarks.".format(fname))
 
     return True
