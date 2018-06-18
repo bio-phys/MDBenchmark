@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import sys
+import contextlib
 
 import click
 import six
@@ -104,13 +105,22 @@ def info(message, *args, **kwargs):
 def warn(message, *args, **kwargs):
     """Output a warning to the users console."""
     prefix = click.style('WARNING', fg='yellow', bold=True)
-
     console_wrapper(message, prefix=prefix, args=args, **kwargs)
 
 
 def error(message, *args, **kwargs):
     """Output an error to the users console and stop execution of the script."""
     prefix = click.style('ERROR', fg='red', bold=True)
-
     console_wrapper(message=message, prefix=prefix, args=args, **kwargs)
     sys.exit(1)
+
+
+@contextlib.contextmanager
+def redirect():
+    """
+    Redirect Exceptions to be Click Error messages
+    """
+    try:
+        yield
+    except Exception as e:
+        error(str(e))

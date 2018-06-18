@@ -140,61 +140,62 @@ def plot_analysis(df, ncores):
     type=str)
 def analyze(directory, plot, ncores, output_name):
     """Analyze finished benchmarks."""
-    bundle = mds.discover(directory)
+    with console.redirect():
+        bundle = mds.discover(directory)
 
-    df = pd.DataFrame(columns=[
-        'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
-    ])
+        df = pd.DataFrame(columns=[
+            'module', 'nodes', 'ns/day', 'run time [min]', 'gpu', 'host', 'ncores'
+        ])
 
-    for i, sim in enumerate(bundle):
-        # older versions wrote a version category. This ensures backwards compatibility
-        if 'module' in sim.categories:
-            module = sim.categories['module']
-        else:
-            module = sim.categories['version']
-        # call the engine specific analysis functions
-        engine = detect_md_engine(module)
-        df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
+        for i, sim in enumerate(bundle):
+            # older versions wrote a version category. This ensures backwards compatibility
+            if 'module' in sim.categories:
+                module = sim.categories['module']
+            else:
+                module = sim.categories['version']
+            # call the engine specific analysis functions
+            engine = detect_md_engine(module)
+            df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
 
-    if df.empty:
-        console.error('There is no data for the given path.')
+        if df.empty:
+            console.error('There is no data for the given path.')
 
-    if df.isnull().values.any():
-        console.warn(
-            'We were not able to gather informations for all systems. '
-            'Systems marked with question marks have either crashed or '
-            'were not started yet.')
+        if df.isnull().values.any():
+            console.warn(
+                'We were not able to gather informations for all systems. '
+                'Systems marked with question marks have either crashed or '
+                'were not started yet.')
 
-    # Sort values by `nodes`
-    df = df.sort_values(['host', 'module', 'run time [min]', 'gpu',
-                         'nodes']).reset_index(drop=True)
+        # Sort values by `nodes`
+        df = df.sort_values(['host', 'module', 'run time [min]', 'gpu',
+                            'nodes']).reset_index(drop=True)
 
-    # Reformat NaN values nicely into question marks.
-    df_to_print = df.replace(np.nan, '?')
-    with pd.option_context('display.max_rows', None):
-        print(df_to_print)
+        # Reformat NaN values nicely into question marks.
+        df_to_print = df.replace(np.nan, '?')
+        with pd.option_context('display.max_rows', None):
+            print(df_to_print)
 
-    # here we determine which output name to use.
-    if output_name is None:
-        output_name = generate_output_name("csv")
-    if '.csv' not in output_name:
-        output_name = '{}.csv'.format(output_name)
-    df.to_csv(output_name)
+        # here we determine which output name to use.
+        if output_name is None:
+            output_name = generate_output_name("csv")
+        if '.csv' not in output_name:
+            output_name = '{}.csv'.format(output_name)
+        df.to_csv(output_name)
 
-    if plot:
-        df = pd.read_csv(output_name)
+        if plot:
+            df = pd.read_csv(output_name)
 
-        # We only support plotting of benchmark systems from equal hosts /
-        # with equal settings
-        uniqueness = df.apply(lambda x: x.nunique())
-        if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
-            console.error(
-                'Cannot plot benchmarks for more than one GROMACS module '
-                'and/or host.')
+            # We only support plotting of benchmark systems from equal hosts /
+            # with equal settings
+            uniqueness = df.apply(lambda x: x.nunique())
+            if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
+                console.error(
+                    'Cannot plot benchmarks for more than one GROMACS module '
+                    'and/or host.')
 
-        # Fail if we have no values at all. This should be some edge case when
-        # a user fumbles around with the datreant categories
-        if df['gpu'].empty and df[~df['gpu']].empty:
-            console.error('There is no data to plot.')
+            # Fail if we have no values at all. This should be some edge case when
+            # a user fumbles around with the datreant categories
+            if df['gpu'].empty and df[~df['gpu']].empty:
+                console.error('There is no data to plot.')
 
-        plot_analysis(df, ncores)
+            plot_analysis(df, ncores)
