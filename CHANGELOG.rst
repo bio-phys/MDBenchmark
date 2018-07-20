@@ -9,6 +9,22 @@ to update this file automatically for each release.
 
 .. towncrier release notes start
 
+MDBenchmark 1.3.2 (2018-07-20)
+==============================
+
+Bugfixes
+--------
+
+- We now print all rows when running `mdbenchmark analyze`. (#68)
+- Suppress UserWarning caused by ``MDAnalysis==0.18``. (#71)
+
+
+Misc
+----
+
+- Added new error message when running `mdbenchmark generate [...] --skip-validation` without providing a supported MD engine. (#74)
+
+
 MDBenchmark 1.3.1 (2018-05-17)
 ==============================
 

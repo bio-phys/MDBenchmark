@@ -35,4 +35,4 @@ with warnings.catch_warnings():
 
     from . import analyze, generate, submit
 
-    __version__ = '1.3.1'
+    __version__ = '1.3.2'
