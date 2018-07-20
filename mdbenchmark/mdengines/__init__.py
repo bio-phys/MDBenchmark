@@ -47,7 +47,7 @@ def detect_md_engine(modulename):
     return None
 
 
-def prepare_module_name(module):
+def prepare_module_name(module, skip_validation=False):
     """Split the provided module name into its base MD engine and version.
 
     Currently we only try to split via the delimiter `/`, but this could be
@@ -56,6 +56,10 @@ def prepare_module_name(module):
     try:
         basename, version = module.split('/')
     except (ValueError, AttributeError) as e:
+        if skip_validation:
+            console.error('Although you are using the {} option, you have to provide a valid '
+                          'MD engine name, e.g., {} or {}.',
+                          '--skip-validation', 'gromacs/dummy', 'namd/dummy')
         console.error('We were not able to determine the module name.')
 
     return basename, version
@@ -106,7 +110,7 @@ def normalize_modules(modules, skip_validation):
     # Check if modules are from supported md engines
     d = defaultdict(list)
     for m in modules:
-        engine_name, version = prepare_module_name(m)
+        engine_name, version = prepare_module_name(m, skip_validation)
         d[engine_name] = version
     for engine_name in d.keys():
         if detect_md_engine(engine_name) is None:

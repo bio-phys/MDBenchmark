@@ -20,7 +20,6 @@
 import os
 
 import pytest
-
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import (detect_md_engine, get_available_modules,
@@ -44,10 +43,21 @@ def test_prepare_module_name(capsys):
     # Fail state
     with pytest.raises(SystemExit) as e:
         prepare_module_name('gromacs-2016.4')
-        out, err = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
-        assert out == 'ERROR We were not able to determine the module name.\n'
+
+    out, err = capsys.readouterr()
+    assert out == 'ERROR We were not able to determine the module name.\n'
+
+    # Second fail state
+    with pytest.raises(SystemExit) as e:
+        prepare_module_name('whatever', skip_validation=True)
+        assert e.type == SystemExit
+        assert e.code == 1
+
+    out, err = capsys.readouterr()
+    assert out == 'ERROR Although you are using the --skip-validation option, you have to ' \
+                  'provide a valid MD engine name, e.g., gromacs/dummy or namd/dummy.\n'
 
     assert prepare_module_name('gromacs/2016.4')
 
