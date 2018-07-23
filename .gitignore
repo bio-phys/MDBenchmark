@@ -2,6 +2,7 @@
 *.pyc
 .coverage
 .cache/
+.pytest_cache/
 .eggs/
 build/
 dist/
