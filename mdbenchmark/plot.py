@@ -17,17 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import pandas as pd
-import numpy as np
+import click
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-import click
 
-from .cli import cli
-from .utils import calc_slope_intercept, lin_func, generate_output_name
 from . import console
+from .cli import cli
+from .utils import calc_slope_intercept, generate_output_name, lin_func
 
+plt.switch_backend('agg')
 
 def plot_line(df, selection, label, ax=None):
     if ax is None:

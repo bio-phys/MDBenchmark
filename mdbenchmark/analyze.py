@@ -31,6 +31,7 @@ from .mdengines import detect_md_engine, utils
 from .plot import plot_over_group
 from .utils import generate_output_name
 
+plt.switch_backend('agg')
 
 @cli.command()
 @click.option(
