@@ -17,19 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 import click
 import numpy as np
-import pytest
-import os
 import pandas as pd
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-from mdbenchmark import utils
-from mdbenchmark import cli
-from mdbenchmark import plot
-from mdbenchmark.testing import data
+import pytest
+from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
+from mdbenchmark.testing import data
 
 
 def test_plot_gpu(cli_runner, tmpdir, data):
@@ -44,7 +43,10 @@ def test_plot_gpu(cli_runner, tmpdir, data):
 
         result = cli_runner.invoke(cli.cli, [
             'plot',
-            '--csv={}'.format(data['test.csv']), '--gpu', '--output-name=testpng', '--output-type=png'
+            '--csv={}'.format(data['test.csv']),
+            '--gpu',
+            '--output-name=testpng',
+            '--output-type=png'
         ])
 
         assert result.exit_code == 0
@@ -101,7 +103,6 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
         assert os.path.exists("testpng.png")
 
 
-
 @pytest.mark.parametrize('output_type', ('png', 'pdf'))
 def test_plot_output_type(cli_runner, tmpdir, data, output_type):
     """check whether output types are constructed correctly.
@@ -116,14 +117,17 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
         output = 'Plotting GPU and CPU data.\n' \
                  'Plotting all hosts in csv.\n' \
                  'Plotting all modules in your input data.\n' \
-                 'Your file was saved as testfile.{} in the working directory.\n'.format(output_type)
+                 'Your file was saved as testfile.{} in the working ' \
+                 'directory.\n'.format(output_type)
         result = cli_runner.invoke(cli.cli, [
             'plot',
-            '--csv={}'.format(data['test.csv']), '--output-name=testfile', '--output-type={}'.format(output_type)
+            '--csv={}'.format(data['test.csv']),
+            '--output-name=testfile',
+            '--output-type={}'.format(output_type)
         ])
         assert result.output == output
         assert result.exit_code == 0
-        #assert os.path.exists("testfile.{}".format(output_type))
+        # assert os.path.exists("testfile.{}".format(output_type))
 
 
 @pytest.mark.parametrize("gpu,cpu", [
@@ -147,7 +151,11 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu(cli_runner, tmpdir, data
         elif not gpu and not cpu:
             input_df = pd.read_csv(data['empty_df.csv'])
 
-        real_df = plot.filter_dataframe_for_plotting(df=input_df, host_name=(), module_name=(), gpu=gpu, cpu=cpu)
+        real_df = plot.filter_dataframe_for_plotting(df=input_df,
+                                                     host_name=(),
+                                                     module_name=(),
+                                                     gpu=gpu,
+                                                     cpu=cpu)
 
         # here we compare the dataframes for any differences
         assert_frame_equal(input_df, real_df)
@@ -161,7 +169,11 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu_fail(capsys, cli_runner,
 
         expected_output = "ERROR CPU and GPU not set. Nothing to plot. Exiting.\n"
         with pytest.raises(SystemExit) as error:
-            plot.filter_dataframe_for_plotting(df=input_df, host_name=(), module_name=(), gpu=False, cpu=False)
+            plot.filter_dataframe_for_plotting(df=input_df,
+                                               host_name=(),
+                                               module_name=(),
+                                               gpu=False,
+                                               cpu=False)
         out, err = capsys.readouterr()
         assert out == expected_output
         assert error.type == SystemExit
@@ -185,7 +197,11 @@ def test_plot_filter_dataframe_for_plotting_module_name(cli_runner, tmpdir, data
         input_df = pd.read_csv(data['testcsv.csv'])
 
         module = (module_name,)
-        real_df = plot.filter_dataframe_for_plotting(df=input_df, host_name=(), module_name=module, gpu=True, cpu=True)
+        real_df = plot.filter_dataframe_for_plotting(df=input_df,
+                                                     host_name=(),
+                                                     module_name=module,
+                                                     gpu=True,
+                                                     cpu=True)
 
         assert_frame_equal(expected_df, real_df)
 
@@ -206,6 +222,10 @@ def test_plot_filter_dataframe_for_plotting_host_name(cli_runner, tmpdir, data, 
 
         # I have to convert the variable to a tuple, otherwise this appears not to work
         host = (host_name,)
-        real_df = plot.filter_dataframe_for_plotting(df=input_df, host_name=host, module_name=(), gpu=True, cpu=True)
+        real_df = plot.filter_dataframe_for_plotting(df=input_df,
+                                                     host_name=host,
+                                                     module_name=(),
+                                                     gpu=True,
+                                                     cpu=True)
 
         assert_frame_equal(expected_df, real_df)

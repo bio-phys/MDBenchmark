@@ -30,6 +30,7 @@ from .utils import calc_slope_intercept, generate_output_name, lin_func
 
 plt.switch_backend('agg')
 
+
 def plot_line(df, selection, label, ax=None):
     if ax is None:
         ax = plt.gca()
@@ -37,8 +38,8 @@ def plot_line(df, selection, label, ax=None):
     p = ax.plot(selection, 'ns/day', '.-', data=df, ms='10', label=label)
     color = p[0].get_color()
     slope, intercept = calc_slope_intercept(
-        (df[selection].iloc[0], df['ns/day'].iloc[0]), (df[selection].iloc[1],
-                                                     df['ns/day'].iloc[1]))
+        (df[selection].iloc[0], df['ns/day'].iloc[0]),
+        (df[selection].iloc[1], df['ns/day'].iloc[1]))
     # avoid a label and use values instead of pd.Series
     ax.plot(
         df[selection],
@@ -81,7 +82,6 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
         console.info("Plotting CPU data only.")
     elif not cpu and not gpu:
         console.error("CPU and GPU not set. Nothing to plot. Exiting.")
-
 
     for host in host_name:
         if host in df['host'].tolist():
@@ -163,9 +163,7 @@ def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_c
     """Generate plots from csv files"""
 
     if not csv:
-        raise click.BadParameter(
-       'You must specify at least one csv file.',
-        param_hint='"--csv"')
+        raise click.BadParameter('You must specify at least one csv file.', param_hint='"--csv"')
 
     df = pd.concat([pd.read_csv(c, index_col=0) for c in csv]).dropna()
 

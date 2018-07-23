@@ -33,6 +33,7 @@ from .utils import generate_output_name
 
 plt.switch_backend('agg')
 
+
 @cli.command()
 @click.option(
     '-d',
