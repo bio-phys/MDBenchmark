@@ -103,7 +103,8 @@ def analyze(directory, plot, ncores, output_name):
     df.to_csv(output_name)
 
     if plot:
-        console.warn('DEPECATED Please use \'{}\' in the future', 'mdbenchmark plot')
+        console.warn('This feature is deprecated. Please use \'{}\' in the future.',
+                     'mdbenchmark plot')
 
         fig = Figure()
         FigureCanvas(fig)
