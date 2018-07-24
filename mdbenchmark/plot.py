@@ -83,6 +83,9 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     elif not cpu and not gpu:
         console.error("CPU and GPU not set. Nothing to plot. Exiting.")
 
+    if df.empty:
+        console.error("Your filtering led to an empty dataset. Exiting.")
+
     df_filtered_hosts = df[df['host'].isin(host_name)]
     df_unique_hosts = np.unique(df_filtered_hosts['host'])
 

@@ -214,18 +214,37 @@ def test_plot_filter_dataframe_for_plotting_host_name(cli_runner, tmpdir, data, 
     """ Checks whether the host names are filtered correctly in the filtering function.
     """
     with tmpdir.as_cwd():
-
         expected_df = pd.read_csv(data['testcsv.csv'])
         expected_df = expected_df[expected_df['host'].str.contains(host_name)]
 
         input_df = pd.read_csv(data['testcsv.csv'])
 
-        # I have to convert the variable to a tuple, otherwise this appears not to work
-        host = (host_name,)
         real_df = plot.filter_dataframe_for_plotting(df=input_df,
-                                                     host_name=host,
+                                                     host_name=(host_name,),
                                                      module_name=(),
                                                      gpu=True,
                                                      cpu=True)
 
         assert_frame_equal(expected_df, real_df)
+
+
+def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
+    """Assert that we exit when given an empty DataFrame through a specific filter combination.
+    """
+    with tmpdir.as_cwd():
+        df = pd.read_csv(data['testcsv.csv'])
+        df = df[(~df['gpu']) & (df['host'] == 'draco')]
+
+        with pytest.raises(SystemExit) as error:
+            real_df = plot.filter_dataframe_for_plotting(df=df,
+                                                         host_name=('draco',),
+                                                         module_name=(),
+                                                         gpu=True,
+                                                         cpu=False)
+
+        expected_output = ("Plotting GPU data only.\n"
+                           "ERROR Your filtering led to an empty dataset. Exiting.\n")
+        out, err = capsys.readouterr()
+        assert out == expected_output
+        assert error.type == SystemExit
+        assert error.value.code == 1
