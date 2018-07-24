@@ -22,10 +22,10 @@ import os
 import click
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-import pytest
 from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
@@ -61,7 +61,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
     with tmpdir.as_cwd():
 
         output = 'Plotting GPU and CPU data.\n' \
-                 'Data for the following hosts will be plotted: {{\'{}\'}}.\n' \
+                 'Data for the following hosts will be plotted: {}\n' \
                  'Plotting all modules in your input data.\n' \
                  'Your file was saved as testpng.png in the working directory.\n'.format(host)
 

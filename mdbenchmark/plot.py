@@ -83,17 +83,19 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     elif not cpu and not gpu:
         console.error("CPU and GPU not set. Nothing to plot. Exiting.")
 
-    for host in host_name:
-        if host in df['host'].tolist():
-            console.info('Data for the following hosts will be plotted: {}.', set(host_name))
-        elif host not in df['host'].tolist():
-            console.error('The host {} does not exist in your csv data. Exiting.', host)
+    df_filtered_hosts = df[df['host'].isin(host_name)]
+    df_unique_hosts = np.unique(df_filtered_hosts['host'])
+
+    if df_unique_hosts.size != len(host_name):
+        console.error("Could not find all provided hosts. Available hosts are: {}".format(
+            ', '.join(np.unique(df['host']))))
 
     if not host_name:
         console.info("Plotting all hosts in csv.")
-
-    if host_name:
-        df = df[df['host'].str.contains('|'.join(host_name))]
+    else:
+        df = df_filtered_hosts
+        console.info("Data for the following hosts will be plotted: {}".format(
+            ', '.join(df_unique_hosts)))
 
     for module in module_name:
         if module in ['gromacs', 'namd']:
