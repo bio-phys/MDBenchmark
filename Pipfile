@@ -1,0 +1,33 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+seaborn = "*"
+pandas = "*"
+matplotlib = "*"
+mdanalysis = "*"
+"datreant.core" = "*"
+python-levenshtein = "*"
+ipython = "*"
+click = "*"
+"jinja2" = "*"
+"e1839a8" = {path = ".", editable = true}
+towncrier = {git = "https://github.com/hawkowl/towncrier.git"}
+
+[dev-packages]
+pytest = "*"
+pytest-sugar = "*"
+pytest-cov = "*"
+towncrier = "*"
+"pytest-pep8" = "*"
+ipython = "*"
+sphinx = "*"
+sphinx-click = "*"
+sphinx-autobuild = "*"
+ipdb = "*"
+
+[requires]
+python_version = "3.6"

@@ -10,7 +10,3 @@ dist/
 
 **/runtimes.csv
 **/runtimes.pdf
-
-# Ignore local Pipfile
-Pipfile
-Pipfile.lock
