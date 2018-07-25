@@ -1,0 +1,8 @@
+,module,nodes,ns/day,run time [min],gpu,host,ncores
+0,gromacs/2016.4,1,98.147,15,True,draco,32
+1,gromacs/2016.4,2,178.044,15,True,draco,64
+2,gromacs/2016.4,3,226.108,15,True,draco,96
+3,gromacs/2016.4,4,246.973,15,True,draco,128
+4,gromacs/2016.4,5,254.266,15,True,draco,160
+5,namd,1,0.07632830329814598,15,False,hydra,1
+6,namd,2,0.07632830329814598,15,False,hydra,1

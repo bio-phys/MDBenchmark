@@ -11,7 +11,7 @@
 .. image:: https://img.shields.io/pypi/l/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
-.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=master
+.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
     :target: https://travis-ci.org/bio-phys/MDBenchmark
 
 .. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/master/graph/badge.svg
@@ -51,19 +51,19 @@ You can install ``mdbenchmark`` via ``pip`` or ``conda``:
 
     $ conda install -c conda-forge mdbenchmark
 
-Usage with a virtual environments
----------------------------------
+Usage with a virtual environment
+--------------------------------
 
 We recommend to install the package inside a `conda environment`_. This can
 easily be done with ``conda``. The following commands create an environment
-called ``benchmark`` and then installs ``mdbenchmark`` and its dependencies.
+called ``benchmark`` and then installs ``mdbenchmark`` with its dependencies.
 
 .. code::
 
     $ conda create -n benchmark
-    $ conda install -n benchmark -c conda-forge mdsynthesis click mdbenchmark
+    $ conda install -n benchmark -c conda-forge mdbenchmark
 
-Before every usage of ``mdbenchmark``, you need to first activate the conda
+Before every usage of ``mdbenchmark``, you need to activate the conda
 environment. After doing this once, you can use the tool for the whole duration
 of your shell session.
 
@@ -74,16 +74,17 @@ of your shell session.
    $ mdbenchmark
    Usage: mdbenchmark [OPTIONS] COMMAND [ARGS]...
 
-     Generate and run benchmark jobs for GROMACS simulations.
+     Generate, run and analyze benchmarks of molecular dynamics simulations.
 
    Options:
      --version  Show the version and exit.
      --help     Show this message and exit.
 
    Commands:
-     analyze   analyze finished benchmark.
-     generate  Generate benchmark queuing jobs.
-     submit    Start benchmark simulations.
+     analyze   Analyze finished benchmarks.
+     generate  Generate benchmarks simulations from the CLI.
+     plot      Generate plots from csv files
+     submit    Submit benchmarks to queuing system.
 
 Features
 ========
@@ -117,13 +118,6 @@ To run benchmarks on GPUs simply add the ``--gpu`` flag:
 
     $ mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --max-nodes 10 --gpu
 
-You can also create benchmarks for different versions of GROMACS:
-
-.. code::
-
-    $ mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --module gromacs/2016.4-plumed2.3 --max-nodes 10 --gpu
-
-
 Benchmark generation for NAMD
 -----------------------------
 
@@ -156,15 +150,33 @@ probably named differently on the host of your choice. Using the ``--gpu``
 option on non-GPU builds of NAMD may lead to poorer performance and erroneous
 results.
 
-Usage with multiple modules
----------------------------
+Skipping module name validation
+-------------------------------
 
-It is possible to generate benchmarks for different MD engines with a single
-command:
+We try to validate the module name provided during benchmark generation. If you
+want to skip the module name validation, you can do so easily with the
+``--skip-validation`` flag:
 
 .. code::
 
-    $ mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2016.3 --max-nodes 10
+    $ mdbenchmark generate --name protein --module gromacs/dummy --skip-validation
+
+**Note:** We currently only support the MD engines ``gromacs`` and ``namd``.
+Even if you skip the module name validation, our system needs to know that you
+plan to use either of the two engines, so you need to provide a dummy module
+name when skipping the validation, e.g., ``gromacs/abc`` or ``namd/123`` (the
+part after the forward slash ``/`` is arbitrary).
+
+Usage with multiple modules
+---------------------------
+
+It is possible to generate benchmarks for different MD engines or different
+versions of the same engine with a single command:
+
+.. code::
+
+    $ mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2016.3
+    $ mdbenchmark generate --name protein --module gromacs/5.1.4-plumed2.3 --module gromacs/2016.4-plumed2.3
 
 Benchmark submission
 --------------------
@@ -191,9 +203,10 @@ will produce a ``.csv`` output file or a plot for direct usage (via the
 ``--plot`` option).
 
 **Note:** The plotting function currently only allows to plot a CPU and GPU
-benchmark from the same module. We are working on fixing this. If you want to
-compare different modules with each other, either use the ``--directory`` option
-to generate separate plots or create your own plot from the provided CSV file.
+benchmark from the same module. This will be fixed with version 2.0.0 (see
+``develop`` branch). If you want to compare different modules with each other,
+either use the ``--directory`` option to generate separate plots or create your
+own plot from the provided CSV file.
 
 .. code::
 

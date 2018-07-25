@@ -91,10 +91,12 @@ def lin_func(x, m, b):
     return m * x + b
 
 
-def calc_slope_intercept(x1, y1, x2, y2):
-    slope = (y2 - y1) / (x2 - x1)
-    intercept = y1 - (x1 * slope)
-
+def calc_slope_intercept(x, y):
+    x = np.asarray(x)
+    y = np.asarray(y)
+    diff = x - y
+    slope = diff[1] / diff[0]
+    intercept = x[1] - (x[0] * slope)
     return np.hstack([slope, intercept])
 
 
@@ -121,6 +123,6 @@ def guess_ncores():
 def generate_output_name(extension):
     """ generate a unique filename based on the date and time for a given extension.
     """
-    date_time = dt.datetime.now().strftime("%m%d%y_%H-%M")
+    date_time = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
     out = '{}.{}'.format(date_time, extension)
     return out

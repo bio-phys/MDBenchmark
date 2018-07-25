@@ -17,11 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-import sys
-from glob import glob
-
 import click
+import matplotlib.pyplot as plt
 import mdsynthesis as mds
 import numpy as np
 import pandas as pd
@@ -31,86 +28,10 @@ from matplotlib.figure import Figure
 from . import console
 from .cli import cli
 from .mdengines import detect_md_engine, utils
-from .utils import (calc_slope_intercept, generate_output_name, guess_ncores,
-                    lin_func)
+from .plot import plot_over_group
+from .utils import generate_output_name
 
-
-def plot_analysis(df, ncores):
-    # We have to use the matplotlib object-oriented interface directly, because
-    # it expects a display to be attached to the system, which we don't on the
-    # clusters.
-    f = Figure()
-    FigureCanvas(f)
-    ax = f.add_subplot(111)
-
-    # Remove NaN values. These are missing ncores/performance data.
-    df = df.dropna()
-
-    max_x = df['nodes'].max()
-    max_y = df['ns/day'].max()
-
-    if not max_y:
-        max_y = 50
-
-    y_tick_steps = 10
-    if max_y > 100:
-        y_tick_steps = 20
-
-    x = np.arange(1, max_x + 1, 1)
-
-    if not df[~df['gpu']].empty:
-        cpu_data = df[(~df['gpu'])].sort_values('nodes').reset_index()
-        ax.plot(cpu_data['ns/day'], '.-', ms='10', color='C0', label='CPU')
-        slope, intercept = calc_slope_intercept(x[0], cpu_data['ns/day'][0],
-                                                x[1], cpu_data['ns/day'][1])
-        ax.plot(
-            x - 1,
-            lin_func(x, slope, intercept),
-            ls='dashed',
-            color='C0',
-            alpha=0.5)
-
-    gpu_data = df[(df['gpu'])].sort_values('nodes').reset_index()
-    if not gpu_data.empty:
-
-        ax.plot(gpu_data['ns/day'], '.-', ms='10', color='C1', label='GPU')
-        slope, intercept = calc_slope_intercept(x[0], gpu_data['ns/day'][0],
-                                                x[1], gpu_data['ns/day'][1])
-        ax.plot(
-            x - 1,
-            lin_func(x, slope, intercept),
-            ls='dashed',
-            color='C1',
-            alpha=0.5)
-
-    ax.set_xticks(x - 1)
-    ax.set_xticklabels(x)
-
-    axTicks = ax.get_xticks()
-
-    ax2 = ax.twiny()
-    ax2.set_xticks(axTicks)
-    ax2.set_xbound(ax.get_xbound())
-    if ncores is not None:
-        console.info(
-            "Ncores overwritten from CLI. Ignoring values from simulation logs for plot."
-        )
-        ax2.set_xticklabels(x for x in (axTicks + 1) * ncores)
-    else:
-        ax2.set_xticklabels(cpu_data['ncores'])
-
-    ax.set_xlabel('Number of nodes')
-    ax.set_ylabel('Performance [ns/day]')
-
-    ax.set_yticks(np.arange(0, (max_y + (max_y * 0.5)), y_tick_steps))
-    ax.set_ylim(ymin=0, ymax=(max_y + (max_y * 0.2)))
-
-    ax2.set_xlabel('{}'.format('{}\n\nCores'.format(df['host'][0])))
-
-    ax.legend()
-
-    f.tight_layout()
-    f.savefig('runtimes.pdf', format='pdf')
+plt.switch_backend('agg')
 
 
 @cli.command()
@@ -133,11 +54,8 @@ def plot_analysis(df, ncores):
     'benchmarks log file.',
     show_default=True)
 @click.option(
-    '-o',
-    '--output-name',
-    default=None,
-    help="Name of the output .csv file.",
-    type=str)
+    "-o", "--output-name", default=None, help="Name of the output CSV file.", type=str
+)
 def analyze(directory, plot, ncores, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
@@ -182,19 +100,16 @@ def analyze(directory, plot, ncores, output_name):
     df.to_csv(output_name)
 
     if plot:
+        console.warn('This feature is deprecated. Please use \'{}\' in the future.',
+                     'mdbenchmark plot')
+
+        fig = Figure()
+        FigureCanvas(fig)
+        ax = fig.add_subplot(111)
+
         df = pd.read_csv(output_name)
+        ax = plot_over_group(df, plot_cores=False, ax=ax)
+        lgd = ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.175))
 
-        # We only support plotting of benchmark systems from equal hosts /
-        # with equal settings
-        uniqueness = df.apply(lambda x: x.nunique())
-        if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
-            console.error(
-                'Cannot plot benchmarks for more than one GROMACS module '
-                'and/or host.')
-
-        # Fail if we have no values at all. This should be some edge case when
-        # a user fumbles around with the datreant categories
-        if df['gpu'].empty and df[~df['gpu']].empty:
-            console.error('There is no data to plot.')
-
-        plot_analysis(df, ncores)
+        fig.tight_layout()
+        fig.savefig('runtimes.pdf', type='pdf', bbox_extra_artists=(lgd,), bbox_inches='tight')
