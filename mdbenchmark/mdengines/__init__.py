@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from collections import defaultdict
+import warnings
 
 import six
 
@@ -119,12 +120,12 @@ def normalize_modules(modules, skip_validation):
                           engine_name)
 
     if skip_validation:
-        console.warn('Not performing module name validation.')
+        warnings.warn('Not performing module name validation.')
         return modules
 
     available_modules = get_available_modules()
     if available_modules is None:
-        console.warn(
+        warnings.warn(
             'Cannot locate modules available on this host. Not performing module name validation.'
         )
         return modules
@@ -155,7 +156,7 @@ def normalize_modules(modules, skip_validation):
                     for mde in sorted(available_modules[engine_name])
                 ])
             ])
-        console.warn(err, bold=True, *args)
+        warnings.warn(err.format(*args))
 
     return good_modules
 

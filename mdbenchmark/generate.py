@@ -150,58 +150,59 @@ def validate_hosts(ctx, param, host=None):
     is_flag=True)
 def generate(name, gpu, module, host, min_nodes, max_nodes, time,
              skip_validation):
-    """Generate benchmarks simulations from the CLI."""
-    # Validate the number of nodes
-    validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
+    with console.redirect():
+        """Generate benchmarks simulations from the CLI."""
+        # Validate the number of nodes
+        validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
 
-    # Grab the template name for the host. This should always work because
-    # click does the validation for us
-    template = utils.retrieve_host_template(host)
+        # Grab the template name for the host. This should always work because
+        # click does the validation for us
+        template = utils.retrieve_host_template(host)
 
-    # Warn the user that NAMD support is still experimental.
-    if any(['namd' in m for m in module]):
-        console.warn(NAMD_WARNING, '--gpu')
+        # Warn the user that NAMD support is still experimental.
+        if any(['namd' in m for m in module]):
+            console.warn(NAMD_WARNING, '--gpu')
 
-    module = mdengines.normalize_modules(module, skip_validation)
+        module = mdengines.normalize_modules(module, skip_validation)
 
-    # If several modules were given and we only cannot find one of them, we
-    # continue.
-    if not module:
-        console.error('No requested modules available!')
+        # If several modules were given and we only cannot find one of them, we
+        # continue.
+        if not module:
+            console.error('No requested modules available!')
 
-    for m in module:
-        # Here we detect the MD engine (supported: GROMACS and NAMD).
-        engine = mdengines.detect_md_engine(m)
+        for m in module:
+            # Here we detect the MD engine (supported: GROMACS and NAMD).
+            engine = mdengines.detect_md_engine(m)
 
-        directory = '{}_{}'.format(host, m)
-        gpu_string = ''
-        if gpu:
-            directory += '_gpu'
-            gpu_string = ' with GPUs'
+            directory = '{}_{}'.format(host, m)
+            gpu_string = ''
+            if gpu:
+                directory += '_gpu'
+                gpu_string = ' with GPUs'
 
-        # Check if all needed files exist. Throw an error if they do not.
-        engine.check_input_file_exists(name)
+            # Check if all needed files exist. Throw an error if they do not.
+            engine.check_input_file_exists(name)
 
-        console.info('Creating benchmark system for {}.', m + gpu_string)
-        number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
-        run_time_each = '{} minutes'.format(time)
-        console.info(
-            'Creating a total of {} benchmarks, with a run time of {} each.',
-            number_of_benchmarks, run_time_each)
+            console.info('Creating benchmark system for {}.', m + gpu_string)
+            number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
+            run_time_each = '{} minutes'.format(time)
+            console.info(
+                'Creating a total of {} benchmarks, with a run time of {} each.',
+                number_of_benchmarks, run_time_each)
 
-        base_directory = dtr.Tree(directory)
-        for n in range(min_nodes, max_nodes + 1):
-            write_benchmark(
-                engine=engine,
-                base_directory=base_directory,
-                template=template,
-                nodes=n,
-                gpu=gpu,
-                module=m,
-                name=name,
-                host=host,
-                time=time)
+            base_directory = dtr.Tree(directory)
+            for n in range(min_nodes, max_nodes + 1):
+                write_benchmark(
+                    engine=engine,
+                    base_directory=base_directory,
+                    template=template,
+                    nodes=n,
+                    gpu=gpu,
+                    module=m,
+                    name=name,
+                    host=host,
+                    time=time)
 
-    # Provide some output for the user
-    console.info('Finished generating all benchmarks.\n'
-                 'You can now submit the jobs with {}.', 'mdbenchmark submit')
+        # Provide some output for the user
+        console.info('Finished generating all benchmarks.\n'
+                    'You can now submit the jobs with {}.', 'mdbenchmark submit')
