@@ -1,4 +1,4 @@
-.PHONY: build clean clean-build clean-pyc clean-test upload
+.PHONY: build clean clean-build clean-pyc clean-test upload reformat reformat-check flake8 rst-lint
 
 clean: clean-build clean-pyc clean-test
 
@@ -23,3 +23,15 @@ build: clean
 
 upload: build
 	twine upload dist/*
+
+reformat:
+	black setup.py mdbenchmark/
+
+reformat-check:
+	black --check setup.py mdbenchmark/
+
+flake8:
+	flake8 mdbenchmark/
+
+rst-lint:
+	rst-lint README.rst

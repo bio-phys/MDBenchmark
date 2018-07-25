@@ -41,19 +41,19 @@ jobs:
       install:
         - $UPGRADE_PIP
         - pip install black
-      script: black --check setup.py mdbenchmark/
+      script: make reformat-check
     -
       name: "Linting with flake8"
       install:
         - $UPGRADE_PIP
         - pip install flake8
-      script: flake8 mdbenchmark/
+      script: make flake8
     -
       name: "Lint README.rst"
       install:
         - $UPGRADE_PIP
         - pip install restructuredtext_lint
-      script: rst-lint README.rst
+      script: make rst-lint
     - stage: "macOS - Unit tests"
       language: generic
       name: "Python 2.7"
