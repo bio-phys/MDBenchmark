@@ -35,5 +35,5 @@ class AliasedGroup(click.Group):
 @click.command(cls=AliasedGroup)
 @click.version_option()
 def cli():
-    """Generate, run and analyze benchmarks of GROMACS simulations."""
+    """Generate, run and analyze benchmarks of molecular dynamics simulations."""
     pass
