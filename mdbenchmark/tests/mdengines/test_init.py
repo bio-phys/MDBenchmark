@@ -116,7 +116,15 @@ def test_normalize_modules(capsys, monkeypatch, tmpdir):
         dirs = ":".join([os.path.join(os.getcwd(), x) for x in os.listdir(os.getcwd())])
         monkeypatch.setenv("MODULEPATH", dirs)
 
-        output = "WARNING We have problems finding all of your requested modules on this host.\n" "We were not able to find the following modules for MD engine gromacs: " "doesnotexist.\n" "Available modules are:\n" "gromacs/2016.4\n" "gromacs/2018.1\n" "gromacs/5.1.4-plumed2.3\n\n"
+        output = (
+            "WARNING We have problems finding all of your requested modules on this host.\n"
+            "We were not able to find the following modules for MD engine gromacs: "
+            "doesnotexist.\n"
+            "Available modules are:\n"
+            "gromacs/2016.4\n"
+            "gromacs/2018.1\n"
+            "gromacs/5.1.4-plumed2.3\n\n"
+        )
 
         normalize_modules(modules=["gromacs/doesnotexist"], skip_validation=False)
         out, err = capsys.readouterr()
@@ -165,7 +173,10 @@ def test_generate_validation(cli_runner, tmpdir, monkeypatch):
     result = cli_runner.invoke(
         cli.cli, ["generate", "--module=somehpc/123", "--host=draco", "--name=protein"]
     )
-    output = "ERROR There is currently no support for 'somehpc'. " "Supported MD engines are: gromacs, namd.\n"
+    output = (
+        "ERROR There is currently no support for 'somehpc'. "
+        "Supported MD engines are: gromacs, namd.\n"
+    )
 
     # assert result.exit_code == 1
     assert result.output == output
@@ -195,7 +206,17 @@ def test_generate_validation(cli_runner, tmpdir, monkeypatch):
                 "--name=protein",
             ],
         )
-        output = "WARNING We have problems finding all of your requested modules on this host.\n" "We were not able to find the following modules for MD engine gromacs: " "doesnotexist.\n" "Available modules are:\n" "gromacs/2016.4\n" "gromacs/2018.1\n" "gromacs/5.1.4-plumed2.3\n" "\n" "ERROR No requested modules available!\n"
+        output = (
+            "WARNING We have problems finding all of your requested modules on this host.\n"
+            "We were not able to find the following modules for MD engine gromacs: "
+            "doesnotexist.\n"
+            "Available modules are:\n"
+            "gromacs/2016.4\n"
+            "gromacs/2018.1\n"
+            "gromacs/5.1.4-plumed2.3\n"
+            "\n"
+            "ERROR No requested modules available!\n"
+        )
 
         assert result.exit_code == 1
         assert result.output == output
@@ -212,7 +233,25 @@ def test_generate_validation(cli_runner, tmpdir, monkeypatch):
                 "--name=protein",
             ],
         )
-        output = "WARNING NAMD support is experimental. " "All input files must be in the current directory. " "Parameter paths must be absolute. Only crude file checks are performed! " "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n" "WARNING We have problems finding all of your requested modules on this host.\n" "We were not able to find the following modules for MD engine gromacs: " "doesnotexist.\n" "Available modules are:\n" "gromacs/2016.4\n" "gromacs/2018.1\n" "gromacs/5.1.4-plumed2.3\n" "We were not able to find the following modules for MD engine namd: abc.\n" "Available modules are:\n" "namd/123\n" "namd/456\n" "\n" "ERROR No requested modules available!\n"
+        output = (
+            "WARNING NAMD support is experimental. "
+            "All input files must be in the current directory. "
+            "Parameter paths must be absolute. Only crude file checks are performed! "
+            "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n"
+            "WARNING We have problems finding all of your requested modules on this host.\n"
+            "We were not able to find the following modules for MD engine gromacs: "
+            "doesnotexist.\n"
+            "Available modules are:\n"
+            "gromacs/2016.4\n"
+            "gromacs/2018.1\n"
+            "gromacs/5.1.4-plumed2.3\n"
+            "We were not able to find the following modules for MD engine namd: abc.\n"
+            "Available modules are:\n"
+            "namd/123\n"
+            "namd/456\n"
+            "\n"
+            "ERROR No requested modules available!\n"
+        )
 
         assert result.exit_code == 1
         assert result.output == output

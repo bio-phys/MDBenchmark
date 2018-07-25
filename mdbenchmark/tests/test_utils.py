@@ -21,10 +21,9 @@ import os
 
 import jinja2
 import numpy as np
-from numpy.testing import assert_equal
-
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
+from numpy.testing import assert_equal
 
 
 def test_mdbenchmark_template_environment_variable(monkeypatch):
@@ -137,7 +136,10 @@ def test_guess_ncores(capsys, monkeypatch):
 
     # Test on some unknown platform
     monkeypatch.setattr("mdbenchmark.utils.sys.platform", "starlord")
-    output = "WARNING Could not guess number of physical cores. " "Assuming there is only 1 core per node.\n"
+    output = (
+        "WARNING Could not guess number of physical cores. "
+        "Assuming there is only 1 core per node.\n"
+    )
 
     utils.guess_ncores()
     out, err = capsys.readouterr()

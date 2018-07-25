@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
-
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
@@ -32,7 +31,10 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
     It should exit if no batching system was found.
     """
     # Test fail state
-    output = "ERROR Was not able to find a batch system. " "Are you trying to use this package on a host with a queuing system?\n"
+    output = (
+        "ERROR Was not able to find a batch system. "
+        "Are you trying to use this package on a host with a queuing system?\n"
+    )
     with pytest.raises(SystemExit):
         get_batch_command()
         out, err = capsys.readouterr()
@@ -74,7 +76,11 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         monkeypatch.setattr(
             "mdbenchmark.submit.cleanup_before_restart", lambda engine, sim: True
         )
-        output = "Submitting a total of 5 benchmarks.\n" "Submitted all benchmarks. Run mdbenchmark analyze once " "they are finished to get the results.\n"
+        output = (
+            "Submitting a total of 5 benchmarks.\n"
+            "Submitted all benchmarks. Run mdbenchmark analyze once "
+            "they are finished to get the results.\n"
+        )
         result = cli_runner.invoke(
             cli.cli,
             [

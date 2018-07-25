@@ -21,7 +21,6 @@ import os
 
 import pytest
 from click import exceptions
-
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.generate import (
@@ -79,7 +78,10 @@ def generate_output_create():
 
 @pytest.fixture
 def generate_output_finish():
-    return "Finished generating all benchmarks.\nYou can" " now submit the jobs with mdbenchmark submit.\n"
+    return (
+        "Finished generating all benchmarks.\nYou can"
+        " now submit the jobs with mdbenchmark submit.\n"
+    )
 
 
 @pytest.fixture
@@ -358,7 +360,10 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
         result = cli_runner.invoke(
             cli.cli, ["generate", "--module=gromacs/2016", "--host=draco"]
         )
-        output = "Usage: cli generate [OPTIONS]\n\nError: Invalid value for " '"-n" / "--name": Please specifiy the name of your input files.'
+        output = (
+            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
+            '"-n" / "--name": Please specifiy the name of your input files.'
+        )
 
         # Test error message if the TPR file does not exist
         result = cli_runner.invoke(
@@ -386,7 +391,11 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
                 "--max-nodes=4",
             ],
         )
-        output = "Usage: cli generate [OPTIONS]\n\nError: Invalid value for " '"--min-nodes": The minimal number of nodes needs to be smaller ' "than the maximal number.\n"
+        output = (
+            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
+            '"--min-nodes": The minimal number of nodes needs to be smaller '
+            "than the maximal number.\n"
+        )
         assert result.exit_code == 2
         assert result.output == output
 
@@ -395,7 +404,12 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
             cli.cli,
             ["generate", "--module=gromacs/2016", "--host=minerva", "--name=protein"],
         )
-        output = "Could not find template for host 'minerva'.\n" "Available host templates:\n" "draco\n" "hydra\n"
+        output = (
+            "Could not find template for host 'minerva'.\n"
+            "Available host templates:\n"
+            "draco\n"
+            "hydra\n"
+        )
         assert result.exit_code == 0
         assert result.output == output
 
@@ -403,7 +417,11 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
         result = cli_runner.invoke(
             cli.cli, ["generate", "--host=draco", "--name=protein"]
         )
-        output = "Usage: cli generate [OPTIONS]\n\nError: Invalid value for " '"-m" / "--module": Please specify which MD engine module ' "to use for the benchmarks.\n"
+        output = (
+            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
+            '"-m" / "--module": Please specify which MD engine module '
+            "to use for the benchmarks.\n"
+        )
         assert result.exit_code == 2
         assert result.output == output
 
@@ -422,7 +440,16 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
         result = cli_runner.invoke(
             cli.cli, ["generate", "--module=namd/123", "--host=draco", "--name=md"]
         )
-        output = "WARNING NAMD support is experimental. " "All input files must be in the current directory. " "Parameter paths must be absolute. Only crude file checks are performed! " "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n" "Creating benchmark system for namd/123.\n" "Creating a total of 5 benchmarks, with a run time of 15 " "minutes each.\nFinished generating all benchmarks.\nYou can " "now submit the jobs with mdbenchmark submit.\n"
+        output = (
+            "WARNING NAMD support is experimental. "
+            "All input files must be in the current directory. "
+            "Parameter paths must be absolute. Only crude file checks are performed! "
+            "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n"
+            "Creating benchmark system for namd/123.\n"
+            "Creating a total of 5 benchmarks, with a run time of 15 "
+            "minutes each.\nFinished generating all benchmarks.\nYou can "
+            "now submit the jobs with mdbenchmark submit.\n"
+        )
 
         assert result.exit_code == 0
         assert result.output == output

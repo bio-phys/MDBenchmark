@@ -17,12 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import pytest
-from six.moves import StringIO
-
 import datreant.core as dtr
 import numpy as np
+import pytest
 from mdbenchmark.mdengines import namd, utils
+from six.moves import StringIO
 
 
 @pytest.fixture
@@ -140,7 +139,7 @@ def test_analyze_namd_file(
 
         with open("md.namd", "r") as fh:
             if exit_exception:
-                with pytest.raises(exit_exception) as e:
+                with pytest.raises(exit_exception):
                     namd.analyze_namd_file(fh)
                     out, err = capsys.readouterr()
                     assert out.type == exit_exception

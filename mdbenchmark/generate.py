@@ -24,7 +24,12 @@ from . import console, mdengines, utils
 from .cli import cli
 from .mdengines.utils import write_benchmark
 
-NAMD_WARNING = "NAMD support is experimental. " "All input files must be in the current directory. " "Parameter paths must be absolute. Only crude file checks are performed! " "If you use the {} option make sure you use the GPU compatible NAMD module!"
+NAMD_WARNING = (
+    "NAMD support is experimental. "
+    "All input files must be in the current directory. "
+    "Parameter paths must be absolute. Only crude file checks are performed! "
+    "If you use the {} option make sure you use the GPU compatible NAMD module!"
+)
 
 
 def validate_name(ctx, param, name=None):

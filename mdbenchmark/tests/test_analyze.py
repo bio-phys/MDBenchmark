@@ -49,7 +49,7 @@ def test_analyze_many_rows(cli_runner, tmpdir, datafiles):
     with tmpdir.as_cwd():
         open("protein.tpr", "a").close()
 
-        generate = cli_runner.invoke(
+        result = cli_runner.invoke(
             cli.cli,
             [
                 "generate",
@@ -96,9 +96,8 @@ show a question mark instead of a float in the corresponding cell.
             ["analyze", "--directory={}".format(data["analyze-files-w-errors"])],
         )
         assert result.exit_code == 0
-        assert (
-            result.output
-            == """WARNING We were not able to gather informations for all systems. Systems marked with question marks have either crashed or were not started yet.
+        assert result.output == (
+            """WARNING We were not able to gather informations for all systems. Systems marked with question marks have either crashed or were not started yet.
            module  nodes   ns/day  run time [min]    gpu   host ncores
 0  gromacs/2016.3      1   98.147              15  False  draco     32
 1  gromacs/2016.3      2  178.044              15  False  draco     64
@@ -123,9 +122,8 @@ def test_analyze_plot(cli_runner, tmpdir, data):
             ],
         )
         assert result.exit_code == 0
-        assert (
-            result.output
-            == """           module  nodes   ns/day  run time [min]    gpu   host  ncores
+        assert result.output == (
+            """           module  nodes   ns/day  run time [min]    gpu   host  ncores
 0  gromacs/2016.3      1   98.147              15  False  draco      32
 1  gromacs/2016.3      2  178.044              15  False  draco      64
 2  gromacs/2016.3      3  226.108              15  False  draco      96
