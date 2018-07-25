@@ -30,13 +30,19 @@ matrix:
            MAIN_CMD="rst-lint README.rst"
            SETUP_CMD=""
 
+    - os: linux
+      language: python
+      python: "3.6"
+      env: SKIP_INSTALL=true
+
 install:
-  - git clone git://github.com/astropy/ci-helpers.git
-  - source ci-helpers/travis/setup_conda.sh
-  - pip install -e .
+  - if [ -z ${SKIP_INSTALL+x} ]; then git clone git://github.com/astropy/ci-helpers.git; fi
+  - if [ -z ${SKIP_INSTALL+x} ]; then source ci-helpers/travis/setup_conda.sh; fi
+  - if [ -z ${SKIP_INSTALL+x} ]; then pip install -e .; fi
+  - if [ ! -z ${SKIP_INSTALL+x} ]; then pip install black; fi
 
 script:
-  - $MAIN_CMD $SETUP_CMD
+  - if [ -z {$SKIP_INSTALL+x} ]; then $MAIN_CMD $SETUP_CMD; else black --check setup.py mdbenchmark/; fi
 
 after_success:
   - codecov
