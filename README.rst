@@ -14,7 +14,7 @@
 .. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
     :target: https://travis-ci.org/bio-phys/MDBenchmark
 
-.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/bio-phys/MDBenchmark
 
 .. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square

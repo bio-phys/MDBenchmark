@@ -49,6 +49,15 @@ def validate_module(ctx, param, module=None):
     return module
 
 
+def validate_cpu_gpu_flags(cpu, gpu):
+    """Validate that either the CPU or GPU flag is set to True.
+    """
+    if not (cpu or gpu):
+        raise click.BadParameter(
+            'You must select either CPUs or GPUs to run the benchmarks on.',
+            param_hint='"--cpu" / "--gpu"')
+
+
 def validate_number_of_nodes(min_nodes, max_nodes):
     """Validate that the minimal number of nodes is smaller than the maximal
        number.
@@ -102,8 +111,15 @@ def validate_hosts(ctx, param, host=None):
     help='Name of input files. All files must have the same base name.',
     callback=validate_name)
 @click.option(
+    '-c',
+    '--cpu/--no-cpu',
+    is_flag=True,
+    help='Use CPUs for benchmark.',
+    default=True,
+    show_default=True)
+@click.option(
     '-g',
-    '--gpu',
+    '--gpu/--no-gpu',
     is_flag=True,
     help='Use GPUs for benchmark.',
     show_default=True)
@@ -148,9 +164,12 @@ def validate_hosts(ctx, param, host=None):
     help='Skip the validation of module names.',
     default=False,
     is_flag=True)
-def generate(name, gpu, module, host, min_nodes, max_nodes, time,
+def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time,
              skip_validation):
     """Generate benchmarks simulations from the CLI."""
+    # Validate the CPU and GPU flags
+    validate_cpu_gpu_flags(cpu, gpu)
+
     # Validate the number of nodes
     validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
 
@@ -173,34 +192,42 @@ def generate(name, gpu, module, host, min_nodes, max_nodes, time,
         # Here we detect the MD engine (supported: GROMACS and NAMD).
         engine = mdengines.detect_md_engine(m)
 
-        directory = '{}_{}'.format(host, m)
-        gpu_string = ''
-        if gpu:
-            directory += '_gpu'
-            gpu_string = ' with GPUs'
-
         # Check if all needed files exist. Throw an error if they do not.
         engine.check_input_file_exists(name)
 
-        console.info('Creating benchmark system for {}.', m + gpu_string)
-        number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
-        run_time_each = '{} minutes'.format(time)
-        console.info(
-            'Creating a total of {} benchmarks, with a run time of {} each.',
-            number_of_benchmarks, run_time_each)
+        gpu_cpu = {'cpu': cpu, 'gpu': gpu}
+        for pu, state in sorted(gpu_cpu.items()):
+            if not state:
+                continue
 
-        base_directory = dtr.Tree(directory)
-        for n in range(min_nodes, max_nodes + 1):
-            write_benchmark(
-                engine=engine,
-                base_directory=base_directory,
-                template=template,
-                nodes=n,
-                gpu=gpu,
-                module=m,
-                name=name,
-                host=host,
-                time=time)
+            directory = '{}_{}'.format(host, m)
+
+            gpu = False
+            gpu_string = ''
+            if pu == 'gpu':
+                gpu = True
+                directory += '_gpu'
+                gpu_string = ' with GPUs'
+
+            console.info('Creating benchmark system for {}.', m + gpu_string)
+            number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
+            run_time_each = '{} minutes'.format(time)
+            console.info(
+                'Creating a total of {} benchmarks, with a run time of {} each.',
+                number_of_benchmarks, run_time_each)
+
+            base_directory = dtr.Tree(directory)
+            for n in range(min_nodes, max_nodes + 1):
+                write_benchmark(
+                    engine=engine,
+                    base_directory=base_directory,
+                    template=template,
+                    nodes=n,
+                    gpu=gpu,
+                    module=m,
+                    name=name,
+                    host=host,
+                    time=time)
 
     # Provide some output for the user
     console.info('Finished generating all benchmarks.\n'
