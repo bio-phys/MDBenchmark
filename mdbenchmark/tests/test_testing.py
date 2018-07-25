@@ -24,9 +24,9 @@ from mdbenchmark.testing import data, datafiles
 
 def test_datafiles(datafiles):
     with pytest.raises(RuntimeError):
-        datafiles['foo']
+        datafiles["foo"]
 
 
 def test_data(data):
     with pytest.raises(RuntimeError):
-        data['foo']
+        data["foo"]

@@ -21,7 +21,7 @@ import click
 
 
 class AliasedGroup(click.Group):
-    aliases = {'start': 'submit'}
+    aliases = {"start": "submit"}
 
     def get_command(self, ctx, cmd_name):
         rv = click.Group.get_command(self, ctx, cmd_name)
@@ -29,7 +29,7 @@ class AliasedGroup(click.Group):
             return rv
         if cmd_name in self.aliases:
             return click.Group.get_command(self, ctx, self.aliases[cmd_name])
-        ctx.fail('Sub command unknown: {}'.format(cmd_name))
+        ctx.fail("Sub command unknown: {}".format(cmd_name))
 
 
 @click.command(cls=AliasedGroup)

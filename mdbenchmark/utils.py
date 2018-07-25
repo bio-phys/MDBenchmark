@@ -34,20 +34,17 @@ from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 
 # Order where to look for host templates: HOME -> etc -> package
 # home
-_loaders = [
-    FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, 'MDBenchmark')),
-]
+_loaders = [FileSystemLoader(os.path.join(xdg.XDG_CONFIG_HOME, "MDBenchmark"))]
 # allow custom folder for templates. Useful for environment modules
 _mdbenchmark_env = os.getenv("MDBENCHMARK_TEMPLATES")
 if _mdbenchmark_env is not None:
     _loaders.append(FileSystemLoader(_mdbenchmark_env))
 # global
-_loaders.extend([
-    FileSystemLoader(os.path.join(d, 'MDBenchmark'))
-    for d in xdg.XDG_CONFIG_DIRS
-])
+_loaders.extend(
+    [FileSystemLoader(os.path.join(d, "MDBenchmark")) for d in xdg.XDG_CONFIG_DIRS]
+)
 # from package
-_loaders.append(PackageLoader('mdbenchmark', 'templates'))
+_loaders.append(PackageLoader("mdbenchmark", "templates"))
 ENV = Environment(loader=ChoiceLoader(_loaders))
 
 
@@ -57,7 +54,7 @@ def get_possible_hosts():
 
 def print_possible_hosts():
     all_hosts = get_possible_hosts()
-    console.info('Available host templates:')
+    console.info("Available host templates:")
     for host in all_hosts:
         console.info(host)
 
@@ -105,17 +102,19 @@ def guess_ncores():
 
     We inspect `/proc/cpuinfo` to grab the actual number."""
     total_cores = None
-    if sys.platform.startswith('linux'):
-        nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq('physical id'))
-        ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq('core id'))
+    if sys.platform.startswith("linux"):
+        nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq("physical id"))
+        ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq("core id"))
         total_cores = ncores * nsocket
-    elif sys.platform == 'darwin':
+    elif sys.platform == "darwin":
         # assumes we have an INTEL CPU with hyper-threading. As of 2017 this is
         # true for all officially supported Apple models.
         total_cores = mp.cpu_count() // 2
     if total_cores is None:
-        console.warn('Could not guess number of physical cores. '
-                     'Assuming there is only 1 core per node.')
+        console.warn(
+            "Could not guess number of physical cores. "
+            "Assuming there is only 1 core per node."
+        )
         total_cores = 1
     return total_cores
 
@@ -124,5 +123,5 @@ def generate_output_name(extension):
     """ generate a unique filename based on the date and time for a given extension.
     """
     date_time = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
-    out = '{}.{}'.format(date_time, extension)
+    out = "{}.{}".format(date_time, extension)
     return out

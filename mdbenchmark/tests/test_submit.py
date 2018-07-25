@@ -32,15 +32,14 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
     It should exit if no batching system was found.
     """
     # Test fail state
-    output = 'ERROR Was not able to find a batch system. ' \
-             'Are you trying to use this package on a host with a queuing system?\n'
+    output = "ERROR Was not able to find a batch system. " "Are you trying to use this package on a host with a queuing system?\n"
     with pytest.raises(SystemExit):
         get_batch_command()
         out, err = capsys.readouterr()
         assert out == output
 
     # Test non-fail state
-    monkeypatch.setattr('mdbenchmark.submit.glob', lambda x: ['qsub'])
+    monkeypatch.setattr("mdbenchmark.submit.glob", lambda x: ["qsub"])
     assert get_batch_command()
 
 
@@ -51,39 +50,38 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
         # an non-existent path.
-        result = cli_runner.invoke(cli.cli, [
-            'submit',
-            '--directory=look_here/',
-        ])
+        result = cli_runner.invoke(cli.cli, ["submit", "--directory=look_here/"])
         assert result.exit_code == 1
-        assert result.output == 'ERROR No benchmarks found.\n'
+        assert result.output == "ERROR No benchmarks found.\n"
 
         # Test that we get an error if we try to start benchmarks that were
         # already started once.
-        result = cli_runner.invoke(cli.cli, [
-            'submit',
-            '--directory={}'.format(data['analyze-files-gromacs']),
-        ])
+        result = cli_runner.invoke(
+            cli.cli, ["submit", "--directory={}".format(data["analyze-files-gromacs"])]
+        )
         assert result.exit_code == 1
-        assert result.output == 'ERROR All generated benchmarks were already ' \
-                                'started once. You can force a restart with ' \
-                                '--force.\n'
+        assert (
+            result.output == "ERROR All generated benchmarks were already "
+            "started once. You can force a restart with "
+            "--force.\n"
+        )
 
         # Test that we can force restart already run benchmarks.
         # Monkeypatch a few functions
-        monkeypatch.setattr('subprocess.call', lambda x: True)
-        monkeypatch.setattr('mdbenchmark.submit.get_batch_command',
-                            lambda: 'sbatch')
-        monkeypatch.setattr('mdbenchmark.submit.detect_md_engine',
-                            lambda x: gromacs)
-        monkeypatch.setattr('mdbenchmark.submit.cleanup_before_restart',
-                            lambda engine, sim: True)
-        output = 'Submitting a total of 5 benchmarks.\n' \
-                 'Submitted all benchmarks. Run mdbenchmark analyze once ' \
-                 'they are finished to get the results.\n'
-        result = cli_runner.invoke(cli.cli, [
-            'submit', '--directory={}'.format(data['analyze-files-gromacs']),
-            '--force'
-        ])
+        monkeypatch.setattr("subprocess.call", lambda x: True)
+        monkeypatch.setattr("mdbenchmark.submit.get_batch_command", lambda: "sbatch")
+        monkeypatch.setattr("mdbenchmark.submit.detect_md_engine", lambda x: gromacs)
+        monkeypatch.setattr(
+            "mdbenchmark.submit.cleanup_before_restart", lambda engine, sim: True
+        )
+        output = "Submitting a total of 5 benchmarks.\n" "Submitted all benchmarks. Run mdbenchmark analyze once " "they are finished to get the results.\n"
+        result = cli_runner.invoke(
+            cli.cli,
+            [
+                "submit",
+                "--directory={}".format(data["analyze-files-gromacs"]),
+                "--force",
+            ],
+        )
         assert result.exit_code == 0
         assert result.output == output

@@ -29,14 +29,14 @@ import numpy as np
 
 from .. import console
 
-NAME = 'gromacs'
+NAME = "gromacs"
 
 
 def prepare_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
+    sim = kwargs["sim"]
 
-    full_filename = name + '.tpr'
-    if name.endswith('.tpr'):
+    full_filename = name + ".tpr"
+    if name.endswith(".tpr"):
         full_filename = name
         name = name[:-4]
 
@@ -48,13 +48,13 @@ def prepare_benchmark(name, *args, **kwargs):
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
     fn = name
-    if fn.endswith('.tpr'):
+    if fn.endswith(".tpr"):
         fn = name[:-4]
 
-    tpr = fn + '.tpr'
+    tpr = fn + ".tpr"
     if not os.path.exists(tpr):
         console.error(
-            "File {} does not exist, but is needed for GROMACS benchmarks.",
-            tpr)
+            "File {} does not exist, but is needed for GROMACS benchmarks.", tpr
+        )
 
     return True

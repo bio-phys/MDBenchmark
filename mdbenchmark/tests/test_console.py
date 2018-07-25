@@ -29,37 +29,38 @@ def test_console_wrapper():
     # Test that we must pass the same number of placeholders and arguments to
     # the console_wrapper.
     with pytest.raises(ValueError):
-        console.console_wrapper('Hello John {}')
+        console.console_wrapper("Hello John {}")
 
     # Test that we can pass a placeholder via args
     fh = StringIO()
-    console.console_wrapper('Hello {}', filehandler=fh, args=['John'])
-    assert fh.getvalue() == 'Hello John\n'
+    console.console_wrapper("Hello {}", filehandler=fh, args=["John"])
+    assert fh.getvalue() == "Hello John\n"
 
     # Make sure we can pass positional placeholders via kwargs
     fh = StringIO()
     console.console_wrapper(
-        'Starting {count} benchmarks on {host} using {nodes} nodes!',
+        "Starting {count} benchmarks on {host} using {nodes} nodes!",
         filehandler=fh,
-        host='draco',
+        host="draco",
         nodes=123,
-        count=5.0)
-    output = 'Starting 5.0 benchmarks on draco using 123 nodes!\n'
+        count=5.0,
+    )
+    output = "Starting 5.0 benchmarks on draco using 123 nodes!\n"
     assert fh.getvalue() == output
 
 
 def test_console_info():
     """Test the output of console.info()."""
     fh = StringIO()
-    console.info('You have been informed.', filehandler=fh)
-    assert fh.getvalue() == 'You have been informed.\n'
+    console.info("You have been informed.", filehandler=fh)
+    assert fh.getvalue() == "You have been informed.\n"
 
 
 def test_console_warn():
     """Test the output of console.warn()."""
     fh = StringIO()
-    console.warn('I am not feeling good today.', filehandler=fh)
-    assert fh.getvalue() == 'WARNING I am not feeling good today.\n'
+    console.warn("I am not feeling good today.", filehandler=fh)
+    assert fh.getvalue() == "WARNING I am not feeling good today.\n"
 
 
 def test_console_error():
@@ -67,7 +68,7 @@ def test_console_error():
     fh = StringIO()
 
     with pytest.raises(SystemExit) as error:
-        console.error('Does not compute.', filehandler=fh)
-    assert fh.getvalue() == 'ERROR Does not compute.\n'
+        console.error("Does not compute.", filehandler=fh)
+    assert fh.getvalue() == "ERROR Does not compute.\n"
     assert error.type == SystemExit
     assert error.value.code == 1
