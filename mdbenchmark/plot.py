@@ -94,19 +94,21 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
             ', '.join(np.unique(df['host']))))
 
     if not host_name:
-        console.info("Plotting all hosts in csv.")
+        console.info("Plotting all hosts in input file.")
     else:
         df = df_filtered_hosts
         console.info("Data for the following hosts will be plotted: {}".format(
             ', '.join(df_unique_hosts)))
 
     for module in module_name:
-        if module in ['gromacs', 'namd']:
-            console.info("Plotting all modules for engine {}.", module)
-        elif module in df['module'].tolist():
-            console.info("Plotting module {}.", module)
-        elif module not in df['module'].tolist():
-            console.error("The module {} does not exist in your data. Exiting.", module)
+        if module in ["gromacs", "namd"]:
+            console.info("Plotting all modules for engine '{}'.", module)
+        elif module in df["module"].tolist():
+            console.info("Plotting module '{}'.", module)
+        elif module not in df["module"].tolist():
+            console.error(
+                "The module '{}' does not exist in your data. Exiting.", module
+            )
 
     if not module_name:
         console.info("Plotting all modules in your input data.")
@@ -117,58 +119,50 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
 
     if df.empty:
         console.error(
-            'Your selections contained no Benchmarking Information.\n'
-            'Are you sure all your selections are correct?')
+            "Your selections contained no benchmarking information. "
+            "Are you sure all your selections are correct?"
+        )
 
     return df
 
 
 @cli.command()
+@click.option("--csv", help="Name of CSV file to plot.", multiple=True)
+@click.option("--output-name", "-o", help="Name of output file.")
 @click.option(
-    '--csv',
-    help='Name of csv file to plot.',
-    multiple=True)
-@click.option(
-    '--output-name',
-    '-o',
-    help="Name of output file.")
-@click.option(
-    '--output-type',
-    '-t',
+    "--output-type",
+    "-t",
     help="File extension for output file.",
-    type=click.Choice(['png', 'pdf', 'svg', 'ps']),
+    type=click.Choice(["png", "pdf", "svg", "ps"]),
     show_default=True,
-    default='png')
+    default="png",
+)
 @click.option(
-    '--module-name',
-    '-h',
+    "--module-name",
+    "-h",
     multiple=True,
-    help="Module name or engine name (gromacs, namd) which is plotted.")
+    help="Name of the MD engine module(s) to plot.",
+)
+@click.option("--host-name", "-h", multiple=True, help="Name of hosts to plot.")
 @click.option(
-    '--host-name',
-    '-h',
-    multiple=True,
-    help="Host name which is plotted.")
+    "--gpu/--no-gpu", help="Plot data of GPU runs.", show_default=True, default=True
+)
 @click.option(
-    '--gpu/--no-gpu',
-    help="Plot data for GPU runs.",
-    show_default=True,
-    default=True)
+    "--cpu/--no-cpu", help="Plot data of CPU runs.", show_default=True, default=True
+)
 @click.option(
-    '--cpu/--no-cpu',
-    help="Plot data for CPU runs.",
-    show_default=True,
-    default=True)
-@click.option(
-    '--plot-cores',
+    "--plot-cores",
     help="Plot performance per core instead of nodes.",
     show_default=True,
-    is_flag=True)
+    is_flag=True,
+)
 def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_cores):
     """Generate plots from csv files"""
 
     if not csv:
-        raise click.BadParameter('You must specify at least one csv file.', param_hint='"--csv"')
+        raise click.BadParameter(
+            "You must specify at least one CSV file.", param_hint='"--csv"'
+        )
 
     df = pd.concat([pd.read_csv(c, index_col=0) for c in csv]).dropna()
 
@@ -192,5 +186,4 @@ def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_c
     # therefore i add it manually as extra artist. This way we don't get problems
     # with the variability of individual lines which are to be plotted
     fig.savefig(output_name, type=output_type, bbox_extra_artists=(lgd,), bbox_inches='tight')
-    console.info(
-        'Your file was saved as {} in the working directory.', output_name)
+    console.info("Your file was saved as '{}' in the working directory.", output_name)

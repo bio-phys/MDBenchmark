@@ -54,11 +54,8 @@ plt.switch_backend('agg')
     'benchmarks log file.',
     show_default=True)
 @click.option(
-    '-o',
-    '--output-name',
-    default=None,
-    help="Name of the output .csv file.",
-    type=str)
+    "-o", "--output-name", default=None, help="Name of the output CSV file.", type=str
+)
 def analyze(directory, plot, ncores, output_name):
     """Analyze finished benchmarks."""
     bundle = mds.discover(directory)
