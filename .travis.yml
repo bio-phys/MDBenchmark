@@ -49,6 +49,12 @@ jobs:
         - pip install flake8
       script: make flake8
     -
+      name: "Sorting with isort"
+      install:
+        - pip install --upgrade pip
+        - pip install isort
+      script: make isort
+    -
       name: "Lint README.rst"
       install:
         - $UPGRADE_PIP
