@@ -22,10 +22,10 @@ import os
 import click
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-import pytest
 from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
@@ -175,8 +175,6 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu(
 
         input_df = pd.read_csv(data["testcsv.csv"])
 
-        test_df = input_df
-
         if gpu and not cpu:
             input_df = input_df[input_df.gpu]
         elif not gpu and cpu:
@@ -261,7 +259,7 @@ def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
         df = df[(~df["gpu"]) & (df["host"] == "draco")]
 
         with pytest.raises(SystemExit) as error:
-            real_df = plot.filter_dataframe_for_plotting(
+            plot.filter_dataframe_for_plotting(
                 df=df, host_name=("draco",), module_name=(), gpu=True, cpu=False
             )
 

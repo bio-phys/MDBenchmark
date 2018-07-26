@@ -29,25 +29,25 @@ from .. import console
 from .namd import analyze_namd_file
 
 FILES_TO_KEEP = {
-    'gromacs': ['.*/bench\.job', '.*\.tpr', '.*\.mdp'],
-    'namd': ['.*/bench\.job', '.*\.namd', '.*\.psf', '.*\.pdb']
+    "gromacs": [".*/bench\.job", ".*\.tpr", ".*\.mdp"],
+    "namd": [".*/bench\.job", ".*\.namd", ".*\.psf", ".*\.pdb"],
 }
 
 PARSE_ENGINE = {
-    'gromacs': {
-        'performance': 'Performance',
-        'performance_return': lambda line: float(line.split()[1]),
-        'ncores': 'Running on',
-        'ncores_return': lambda line: int(line.split()[6]),
-        'analyze': '[!#]*log*'
+    "gromacs": {
+        "performance": "Performance",
+        "performance_return": lambda line: float(line.split()[1]),
+        "ncores": "Running on",
+        "ncores_return": lambda line: int(line.split()[6]),
+        "analyze": "[!#]*log*",
     },
-    'namd': {
-        'performance': 'Benchmark time',
-        'performance_return': lambda line: 1 / float(line.split()[7]),
-        'ncores': 'Benchmark time',
-        'ncores_return': lambda line: int(line.split()[3]),
-        'analyze': '*out*'
-    }
+    "namd": {
+        "performance": "Benchmark time",
+        "performance_return": lambda line: 1 / float(line.split()[7]),
+        "ncores": "Benchmark time",
+        "ncores_return": lambda line: int(line.split()[3]),
+        "analyze": "*out*",
+    },
 }
 
 
@@ -67,8 +67,8 @@ def parse_ns_day(engine, fh):
     lines = fh.readlines()
 
     for line in lines:
-        if PARSE_ENGINE[engine.NAME]['performance'] in line:
-            return PARSE_ENGINE[engine.NAME]['performance_return'](line)
+        if PARSE_ENGINE[engine.NAME]["performance"] in line:
+            return PARSE_ENGINE[engine.NAME]["performance_return"](line)
 
     return np.nan
 
@@ -89,8 +89,8 @@ def parse_ncores(engine, fh):
     lines = fh.readlines()
 
     for line in lines:
-        if PARSE_ENGINE[engine.NAME]['ncores'] in line:
-            return PARSE_ENGINE[engine.NAME]['ncores_return'](line)
+        if PARSE_ENGINE[engine.NAME]["ncores"] in line:
+            return PARSE_ENGINE[engine.NAME]["ncores_return"](line)
 
     return np.nan
 
@@ -103,8 +103,7 @@ def analyze_run(engine, sim):
     ncores = np.nan
 
     # search all output files
-    output_files = glob(
-        os.path.join(sim.relpath, PARSE_ENGINE[engine.NAME]['analyze']))
+    output_files = glob(os.path.join(sim.relpath, PARSE_ENGINE[engine.NAME]["analyze"]))
     if output_files:
         with open(output_files[0]) as fh:
             ns_day = parse_ns_day(engine, fh)
@@ -113,15 +112,22 @@ def analyze_run(engine, sim):
 
     # Backward compatibility to benchmark systems created with older versions
     # of MDBenchmark
-    if 'time' not in sim.categories:
-        sim.categories['time'] = 0
-    if 'module' in sim.categories:
-        module = sim.categories['module']
+    if "time" not in sim.categories:
+        sim.categories["time"] = 0
+    if "module" in sim.categories:
+        module = sim.categories["module"]
     else:
-        module = sim.categories['version']
+        module = sim.categories["version"]
 
-    return (module, sim.categories['nodes'], ns_day, sim.categories['time'],
-            sim.categories['gpu'], sim.categories['host'], ncores)
+    return (
+        module,
+        sim.categories["nodes"],
+        ns_day,
+        sim.categories["time"],
+        sim.categories["gpu"],
+        sim.categories["host"],
+        ncores,
+    )
 
 
 def cleanup_before_restart(engine, sim):
@@ -143,29 +149,30 @@ def cleanup_before_restart(engine, sim):
         os.remove(fn)
 
 
-def write_benchmark(engine, base_directory, template, nodes, gpu, module, name,
-                    host, time):
+def write_benchmark(
+    engine, base_directory, template, nodes, gpu, module, name, host, time
+):
     """Generate a benchmark folder with the respective Sim object."""
     # Create the `mds.Sim` object
-    sim = mds.Sim(base_directory['{}/'.format(nodes)])
+    sim = mds.Sim(base_directory["{}/".format(nodes)])
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(name=name, sim=sim)
 
     # Add categories to the `Sim` object
     sim.categories = {
-        'module': module,
-        'gpu': gpu,
-        'nodes': nodes,
-        'host': host,
-        'time': time,
-        'name': name,
-        'started': False
+        "module": module,
+        "gpu": gpu,
+        "nodes": nodes,
+        "host": host,
+        "time": time,
+        "name": name,
+        "started": False,
     }
 
     # Add some time buffer to the requested time. Otherwise the queuing system
     # kills the job before the benchmark is finished
-    formatted_time = '{:02d}:{:02d}:00'.format(*divmod(time + 5, 60))
+    formatted_time = "{:02d}:{:02d}:00".format(*divmod(time + 5, 60))
 
     # Create benchmark job script
     script = template.render(
@@ -175,8 +182,9 @@ def write_benchmark(engine, base_directory, template, nodes, gpu, module, name,
         mdengine=engine.NAME,
         n_nodes=nodes,
         time=time,
-        formatted_time=formatted_time)
+        formatted_time=formatted_time,
+    )
 
     # Write the actual job script that is going to be submitted to the cluster
-    with open(sim['bench.job'].relpath, 'w') as fh:
+    with open(sim["bench.job"].relpath, "w") as fh:
         fh.write(script)

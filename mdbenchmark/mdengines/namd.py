@@ -27,18 +27,18 @@ import numpy as np
 
 from .. import console
 
-NAME = 'namd'
+NAME = "namd"
 
 
 def prepare_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
+    sim = kwargs["sim"]
 
-    if name.endswith('.namd'):
+    if name.endswith(".namd"):
         name = name[:-5]
 
-    namd = '{}.namd'.format(name)
-    psf = '{}.psf'.format(name)
-    pdb = '{}.pdb'.format(name)
+    namd = "{}.namd".format(name)
+    psf = "{}.psf".format(name)
+    pdb = "{}.pdb".format(name)
 
     with open(namd) as fh:
         analyze_namd_file(fh)
@@ -58,31 +58,33 @@ def analyze_namd_file(fh):
 
     for line in lines:
         # Continue if we do not need to do anything with the current line
-        if ('parameters' not in line) and ('coordinates' not in line) and (
-                'structure' not in line):
+        if (
+            ("parameters" not in line)
+            and ("coordinates" not in line)
+            and ("structure" not in line)
+        ):
             continue
 
         path = line.split()[1]
-        if '$' in path:
-            console.error(
-                'Variable Substitutions are not allowed in NAMD files!')
-        if '..' in path:
-            console.error('Relative file paths are not allowed in NAMD files!')
-        if '/' not in path or ('/' in path and not path.startswith('/')):
-            console.error('No absolute path detected in NAMD file!')
+        if "$" in path:
+            console.error("Variable Substitutions are not allowed in NAMD files!")
+        if ".." in path:
+            console.error("Relative file paths are not allowed in NAMD files!")
+        if "/" not in path or ("/" in path and not path.startswith("/")):
+            console.error("No absolute path detected in NAMD file!")
 
 
 def check_input_file_exists(name):
     """Check and append the correct file extensions for the NAMD module."""
     # Check whether the needed files are there.
-    for extension in ['namd', 'psf', 'pdb']:
-        if name.endswith('.{}'.format(extension)):
-            name = name[:-2 + len(extension)]
+    for extension in ["namd", "psf", "pdb"]:
+        if name.endswith(".{}".format(extension)):
+            name = name[: -2 + len(extension)]
 
-        fn = '{}.{}'.format(name, extension)
+        fn = "{}.{}".format(name, extension)
         if not os.path.exists(fn):
             console.error(
-                "File {} does not exist, but is needed for NAMD benchmarks.",
-                fn)
+                "File {} does not exist, but is needed for NAMD benchmarks.", fn
+            )
 
     return True

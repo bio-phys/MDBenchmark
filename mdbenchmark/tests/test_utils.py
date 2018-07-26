@@ -34,15 +34,17 @@ def test_mdbenchmark_template_environment_variable(monkeypatch):
     except ImportError:
         from imp import reload
 
-    custom_path = '/this/is/a/custom/path'
-    monkeypatch.setenv('MDBENCHMARK_TEMPLATES', custom_path)
+    custom_path = "/this/is/a/custom/path"
+    monkeypatch.setenv("MDBENCHMARK_TEMPLATES", custom_path)
     reload(utils)
     from mdbenchmark.utils import _loaders
+
     for path in _loaders:
         if isinstance(path, jinja2.loaders.FileSystemLoader):
             assert path.searchpath[0] in [
-                '{}/.config/MDBenchmark'.format(os.getenv('HOME')),
-                custom_path, '/etc/xdg/MDBenchmark'
+                "{}/.config/MDBenchmark".format(os.getenv("HOME")),
+                custom_path,
+                "/etc/xdg/MDBenchmark",
             ]
 
 
@@ -61,7 +63,7 @@ def test_print_possible_hosts(capsys):
     utils.print_possible_hosts()
     out, err = capsys.readouterr()
 
-    assert out == 'Available host templates:\ndraco\nhydra\n'
+    assert out == "Available host templates:\ndraco\nhydra\n"
 
 
 def test_guess_host():
@@ -77,9 +79,9 @@ def test_monkeypatch_guess_host(monkeypatch):
     """Assert that `guess_host()` will correctly assign the hostname to a host
     file.
     """
-    host = 'HPC_cluster'
-    monkeypatch.setattr('mdbenchmark.utils.socket.gethostname', lambda: host)
-    monkeypatch.setattr('mdbenchmark.utils.get_possible_hosts', lambda: [host])
+    host = "HPC_cluster"
+    monkeypatch.setattr("mdbenchmark.utils.socket.gethostname", lambda: host)
+    monkeypatch.setattr("mdbenchmark.utils.get_possible_hosts", lambda: [host])
     assert utils.guess_host() == host
 
 
@@ -87,12 +89,11 @@ def test_retrieve_host_template(monkeypatch):
     """Test `retrieve_host_template` utility function."""
 
     # Check template name that we supply with the package
-    assert utils.retrieve_host_template('draco') is not None
+    assert utils.retrieve_host_template("draco") is not None
 
     # Check that the user can define some custom template
-    monkeypatch.setattr('mdbenchmark.utils.ENV.get_template',
-                        lambda x: 'minerva')
-    assert utils.retrieve_host_template('minerva') == 'minerva'
+    monkeypatch.setattr("mdbenchmark.utils.ENV.get_template", lambda x: "minerva")
+    assert utils.retrieve_host_template("minerva") == "minerva"
 
 
 def test_lin_func():
@@ -120,23 +121,26 @@ def test_guess_ncores(capsys, monkeypatch):
     """
 
     def dummy(arg):
-        return 'ABC'
+        return "ABC"
 
     # Test on Linux
-    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'linux')
+    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "linux")
     monkeypatch.setattr(
-        'mdbenchmark.utils._cat_proc_cpuinfo_grep_query_sort_uniq', dummy)
+        "mdbenchmark.utils._cat_proc_cpuinfo_grep_query_sort_uniq", dummy
+    )
     assert utils.guess_ncores() == 9
 
     # Test on Darwin
-    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'darwin')
-    monkeypatch.setattr('mdbenchmark.utils.mp.cpu_count', lambda: 10)
+    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "darwin")
+    monkeypatch.setattr("mdbenchmark.utils.mp.cpu_count", lambda: 10)
     assert utils.guess_ncores() == 5
 
     # Test on some unknown platform
-    monkeypatch.setattr('mdbenchmark.utils.sys.platform', 'starlord')
-    output = 'WARNING Could not guess number of physical cores. ' \
-             'Assuming there is only 1 core per node.\n'
+    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "starlord")
+    output = (
+        "WARNING Could not guess number of physical cores. "
+        "Assuming there is only 1 core per node.\n"
+    )
 
     utils.guess_ncores()
     out, err = capsys.readouterr()

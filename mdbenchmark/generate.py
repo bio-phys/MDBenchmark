@@ -24,18 +24,21 @@ from . import console, mdengines, utils
 from .cli import cli
 from .mdengines.utils import write_benchmark
 
-NAMD_WARNING = 'NAMD support is experimental. ' \
-               'All input files must be in the current directory. ' \
-               'Parameter paths must be absolute. Only crude file checks are performed! ' \
-               'If you use the {} option make sure you use the GPU compatible NAMD module!'
+NAMD_WARNING = (
+    "NAMD support is experimental. "
+    "All input files must be in the current directory. "
+    "Parameter paths must be absolute. Only crude file checks are performed! "
+    "If you use the {} option make sure you use the GPU compatible NAMD module!"
+)
 
 
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
     if name is None:
         raise click.BadParameter(
-            'Please specify the base name of your input files.',
-            param_hint='"-n" / "--name"')
+            "Please specify the base name of your input files.",
+            param_hint='"-n" / "--name"',
+        )
 
     return name
 
@@ -44,8 +47,9 @@ def validate_module(ctx, param, module=None):
     """Validate that we are given a module argument."""
     if module is None or not module:
         raise click.BadParameter(
-            'Please specify which MD engine module to use for the benchmarks.',
-            param_hint='"-m" / "--module"')
+            "Please specify which MD engine module to use for the benchmarks.",
+            param_hint='"-m" / "--module"',
+        )
     return module
 
 
@@ -54,8 +58,9 @@ def validate_cpu_gpu_flags(cpu, gpu):
     """
     if not (cpu or gpu):
         raise click.BadParameter(
-            'You must select either CPUs or GPUs to run the benchmarks on.',
-            param_hint='"--cpu" / "--gpu"')
+            "You must select either CPUs or GPUs to run the benchmarks on.",
+            param_hint='"--cpu" / "--gpu"',
+        )
 
 
 def validate_number_of_nodes(min_nodes, max_nodes):
@@ -64,8 +69,9 @@ def validate_number_of_nodes(min_nodes, max_nodes):
     """
     if min_nodes > max_nodes:
         raise click.BadParameter(
-            'The minimal number of nodes needs to be smaller than the maximal number.',
-            param_hint='"--min-nodes"')
+            "The minimal number of nodes needs to be smaller than the maximal number.",
+            param_hint='"--min-nodes"',
+        )
 
 
 def print_known_hosts(ctx, param, value):
@@ -90,12 +96,13 @@ def validate_hosts(ctx, param, host=None):
         host = utils.guess_host()
         if host is None:
             raise click.BadParameter(
-                'Could not guess host. Please provide a value explicitly.',
-                param_hint='"--host"')
+                "Could not guess host. Please provide a value explicitly.",
+                param_hint='"--host"',
+            )
 
     known_hosts = utils.get_possible_hosts()
     if host not in known_hosts:
-        console.info('Could not find template for host \'{}\'.', host)
+        console.info("Could not find template for host '{}'.", host)
         utils.print_possible_hosts()
         # TODO: Raise some appropriate error here
         ctx.exit()
@@ -106,66 +113,72 @@ def validate_hosts(ctx, param, host=None):
 
 @cli.command()
 @click.option(
-    '-n',
-    '--name',
-    help='Name of input files. All files must have the same base name.',
-    callback=validate_name)
+    "-n",
+    "--name",
+    help="Name of input files. All files must have the same base name.",
+    callback=validate_name,
+)
 @click.option(
-    '-c',
-    '--cpu/--no-cpu',
+    "-c",
+    "--cpu/--no-cpu",
     is_flag=True,
-    help='Use CPUs for benchmark.',
+    help="Use CPUs for benchmark.",
     default=True,
-    show_default=True)
+    show_default=True,
+)
 @click.option(
-    '-g',
-    '--gpu/--no-gpu',
+    "-g",
+    "--gpu/--no-gpu",
     is_flag=True,
-    help='Use GPUs for benchmark.',
-    show_default=True)
+    help="Use GPUs for benchmark.",
+    show_default=True,
+)
 @click.option(
-    '-m',
-    '--module',
-    help='Name of the MD engine module to use.',
+    "-m",
+    "--module",
+    help="Name of the MD engine module to use.",
     multiple=True,
-    callback=validate_module)
+    callback=validate_module,
+)
 @click.option(
-    '--host',
-    help='Name of the job template.',
-    default=None,
-    callback=validate_hosts)
+    "--host", help="Name of the job template.", default=None, callback=validate_hosts
+)
 @click.option(
-    '--min-nodes',
-    help='Minimal number of nodes to request.',
+    "--min-nodes",
+    help="Minimal number of nodes to request.",
     default=1,
     show_default=True,
-    type=int)
+    type=int,
+)
 @click.option(
-    '--max-nodes',
-    help='Maximal number of nodes to request.',
+    "--max-nodes",
+    help="Maximal number of nodes to request.",
     default=5,
     show_default=True,
-    type=int)
+    type=int,
+)
 @click.option(
-    '--time',
-    help='Run time for benchmark in minutes.',
+    "--time",
+    help="Run time for benchmark in minutes.",
     default=15,
     show_default=True,
-    type=click.IntRange(1, 1440))
+    type=click.IntRange(1, 1440),
+)
 @click.option(
-    '--list-hosts',
-    help='Show available job templates.',
+    "--list-hosts",
+    help="Show available job templates.",
     is_flag=True,
     is_eager=True,
     callback=print_known_hosts,
-    expose_value=False)
+    expose_value=False,
+)
 @click.option(
-    '--skip-validation',
-    help='Skip the validation of module names.',
+    "--skip-validation",
+    help="Skip the validation of module names.",
     default=False,
-    is_flag=True)
-def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time,
-             skip_validation):
+    is_flag=True,
+)
+def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_validation):
     """Generate benchmarks simulations from the CLI."""
     # Validate the CPU and GPU flags
     validate_cpu_gpu_flags(cpu, gpu)
@@ -178,15 +191,15 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time,
     template = utils.retrieve_host_template(host)
 
     # Warn the user that NAMD support is still experimental.
-    if any(['namd' in m for m in module]):
-        console.warn(NAMD_WARNING, '--gpu')
+    if any(["namd" in m for m in module]):
+        console.warn(NAMD_WARNING, "--gpu")
 
     module = mdengines.normalize_modules(module, skip_validation)
 
     # If several modules were given and we only cannot find one of them, we
     # continue.
     if not module:
-        console.error('No requested modules available!')
+        console.error("No requested modules available!")
 
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
@@ -195,26 +208,28 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time,
         # Check if all needed files exist. Throw an error if they do not.
         engine.check_input_file_exists(name)
 
-        gpu_cpu = {'cpu': cpu, 'gpu': gpu}
+        gpu_cpu = {"cpu": cpu, "gpu": gpu}
         for pu, state in sorted(gpu_cpu.items()):
             if not state:
                 continue
 
-            directory = '{}_{}'.format(host, m)
+            directory = "{}_{}".format(host, m)
 
             gpu = False
-            gpu_string = ''
-            if pu == 'gpu':
+            gpu_string = ""
+            if pu == "gpu":
                 gpu = True
-                directory += '_gpu'
-                gpu_string = ' with GPUs'
+                directory += "_gpu"
+                gpu_string = " with GPUs"
 
-            console.info('Creating benchmark system for {}.', m + gpu_string)
-            number_of_benchmarks = (len(module) * (max_nodes + 1 - min_nodes))
-            run_time_each = '{} minutes'.format(time)
+            console.info("Creating benchmark system for {}.", m + gpu_string)
+            number_of_benchmarks = len(module) * (max_nodes + 1 - min_nodes)
+            run_time_each = "{} minutes".format(time)
             console.info(
-                'Creating a total of {} benchmarks, with a run time of {} each.',
-                number_of_benchmarks, run_time_each)
+                "Creating a total of {} benchmarks, with a run time of {} each.",
+                number_of_benchmarks,
+                run_time_each,
+            )
 
             base_directory = dtr.Tree(directory)
             for n in range(min_nodes, max_nodes + 1):
@@ -227,8 +242,11 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time,
                     module=m,
                     name=name,
                     host=host,
-                    time=time)
+                    time=time,
+                )
 
     # Provide some output for the user
-    console.info('Finished generating all benchmarks.\n'
-                 'You can now submit the jobs with {}.', 'mdbenchmark submit')
+    console.info(
+        "Finished generating all benchmarks.\n" "You can now submit the jobs with {}.",
+        "mdbenchmark submit",
+    )

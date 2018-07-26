@@ -26,57 +26,61 @@ from setuptools import find_packages, setup
 
 # modified from https://stackoverflow.com/a/41110107/2207958
 def get_property(prop, project):
-    with open(project + '/__init__.py') as fh:
-        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
-                           fh.read())
+    with open(project + "/__init__.py") as fh:
+        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), fh.read())
     return result.group(1)
 
 
 # Import the README and use it as the long-description.
 here = os.path.abspath(os.path.dirname(__file__))
-with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = '\n' + f.read()
+with io.open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
+    long_description = "\n" + f.read()
 
 CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable', 'Environment :: Console',
-    'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: GNU General Public License (GPL)',
-    'Operating System :: MacOS :: MacOS X', 'Operating System :: POSIX',
-    'Programming Language :: Python', 'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6', 'Topic :: Scientific/Engineering',
-    'Topic :: Scientific/Engineering :: Bio-Informatics',
-    'Topic :: Scientific/Engineering :: Chemistry',
-    'Topic :: Scientific/Engineering :: Physics',
-    'Topic :: System :: Benchmark'
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: System :: Benchmark",
 ]
 
-project_name = 'mdbenchmark'
+project_name = "mdbenchmark"
 setup(
     name=project_name,
-    version=get_property('__version__', project_name),
-    description='Benchmark molecular dynamics simulations',
+    version=get_property("__version__", project_name),
+    description="Benchmark molecular dynamics simulations",
     long_description=long_description,
-    long_description_content_type='text/x-rst',
-    url='https://github.com/bio-phys/MDBenchmark',
-    author='Max Linke, Michael Gecht',
-    license='GPLv3',
+    long_description_content_type="text/x-rst",
+    url="https://github.com/bio-phys/MDBenchmark",
+    author="Max Linke, Michael Gecht",
+    license="GPLv3",
     classifiers=CLASSIFIERS,
-    keywords='benchmark molecular dynamics simulations gromacs namd',
+    keywords="benchmark molecular dynamics simulations gromacs namd",
     packages=find_packages(),
     install_requires=[
-        'numpy>=1.8',
-        'mdsynthesis',
-        'click',
-        'jinja2',
-        'pandas',
-        'matplotlib',
-        'python-Levenshtein',
-        'xdg<2',
+        "numpy>=1.8",
+        "mdsynthesis",
+        "click",
+        "jinja2",
+        "pandas",
+        "matplotlib",
+        "python-Levenshtein",
+        "xdg<2",
     ],
-    package_data={'mdbenchmark': ['templates/*']},
-    entry_points={'console_scripts': ['mdbenchmark=mdbenchmark.cli:cli']},
-    tests_require=['pytest'],
-    zip_safe=False)
+    package_data={"mdbenchmark": ["templates/*"]},
+    entry_points={"console_scripts": ["mdbenchmark=mdbenchmark.cli:cli"]},
+    tests_require=["pytest"],
+    zip_safe=False,
+)

@@ -22,17 +22,19 @@ import warnings
 # Get rid of the h5py FutureWarning
 with warnings.catch_warnings():
     warnings.filterwarnings(
-        message='.*Conversion of the second.*',
-        action='ignore',
+        message=".*Conversion of the second.*",
+        action="ignore",
         category=FutureWarning,
-        module='h5py')
+        module="h5py",
+    )
 
     warnings.filterwarnings(
-        message='.*No module named \'duecredit\'.*',
-        action='ignore',
+        message=".*No module named 'duecredit'.*",
+        action="ignore",
         category=UserWarning,
-        module='MDAnalysis')
+        module="MDAnalysis",
+    )
 
     from . import analyze, generate, submit, plot
 
-    __version__ = '1.3.2'
+    __version__ = "1.3.2"

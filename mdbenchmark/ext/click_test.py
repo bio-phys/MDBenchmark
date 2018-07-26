@@ -35,7 +35,7 @@ def cli_runner(request):
         ...
     """
     init_kwargs = {}
-    marker = request.node.get_marker('runner_setup')
+    marker = request.node.get_marker("runner_setup")
     if marker:
         init_kwargs = marker.kwargs
     return CliRunner(**init_kwargs)
