@@ -1,5 +1,4 @@
-.PHONY: build clean clean-build clean-pyc clean-test upload reformat reformat-check flake8 isort isort-check rst-lint
-
+.PHONY: build clean clean-build clean-pyc clean-test upload reformat reformat-check flake8 isort isort-check lint rst-lint
 clean: clean-build clean-pyc clean-test
 
 clean-build:
@@ -38,6 +37,8 @@ isort:
 
 isort-check:
 	isort --check-only --diff
+
+lint: reformat-check flake8 isort-check
 
 rst-lint:
 	rst-lint README.rst
