@@ -19,7 +19,8 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import absolute_import
 
-from os.path import join as pjoin, exists, isfile
+from os.path import exists, isfile, join as pjoin
+
 import pytest
 
 

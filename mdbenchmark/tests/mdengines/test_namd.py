@@ -20,8 +20,9 @@
 import datreant.core as dtr
 import numpy as np
 import pytest
-from mdbenchmark.mdengines import namd, utils
 from six.moves import StringIO
+
+from mdbenchmark.mdengines import namd, utils
 
 
 @pytest.fixture

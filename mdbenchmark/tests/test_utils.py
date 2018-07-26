@@ -21,9 +21,10 @@ import os
 
 import jinja2
 import numpy as np
+from numpy.testing import assert_equal
+
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
-from numpy.testing import assert_equal
 
 
 def test_mdbenchmark_template_environment_variable(monkeypatch):

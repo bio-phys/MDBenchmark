@@ -21,6 +21,7 @@ import os
 
 import pytest
 from click import exceptions
+
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.generate import (
