@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 MDBenchmark: Benchmark molecular dynamics simulations
-======================================================
+=====================================================
 
 .. image:: https://img.shields.io/pypi/v/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
@@ -15,10 +15,10 @@ MDBenchmark: Benchmark molecular dynamics simulations
 .. image:: https://img.shields.io/pypi/l/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
-.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=master
+.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
     :target: https://travis-ci.org/bio-phys/MDBenchmark
 
-.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/bio-phys/MDBenchmark
 
 .. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
@@ -43,36 +43,59 @@ Quick start
 ===========
 
 You can install ``mdbenchmark`` with your favorite Python package manager.
+Afterwards you are ready to go and call ``mdbenchmark``.
 
-If you are familiar with the usual way of installing python packages, just use pip::
+Install
+-------
 
-  $ pip install mdbenchmark
+If you are familiar with the usual way of installing python packages, just use
+``pip``::
+
+  pip install mdbenchmark
 
 Anaconda users can install via ``conda``::
 
-  $ conda install -c conda-forge mdbenchmark
+  conda install -c conda-forge mdbenchmark
 
 Cutting-edge users may prefer ``pipenv``::
 
-  $ pipenv install mdbenchmark
+  pipenv install mdbenchmark
+
+Usage
+-----
+
+Now that the package is installed, you can generate benchmarks for your system.
+Assuming you want to benchmark a GROMACS 2018.2 simulation on up to 5 nodes,
+with the TPR file called ``md.tpr``, run the following command::
+
+  mdbenchmark generate -n md.tpr --module gromacs/2018.2 --max-nodes 5
+
+After generation benchmarks can be submitted::
+
+  mdbenchmark submit
+
+Now, you can also monitor the status of your benchmark with ``mdbenchmark``.
+This will show you the performance of all runs that have finished::
+
+  mdbenchmark analyze
+
+Plotting of the current results can be achieved with ``mdbenchmark analyze
+--plot``.
+
+Content
+=======
 
 .. toctree::
    :maxdepth: 2
 
    install
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-
-MDBenchmark usage
-=================
+Usage reference
+===============
 
 .. click:: mdbenchmark:cli
    :prog: mdbenchmark
    :show-nested:
-
 
 Indices and tables
 ==================
