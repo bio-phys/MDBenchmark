@@ -30,6 +30,10 @@ from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+
 
 def test_plot_gpu(cli_runner, tmpdir, data):
     """Test gpu flage without any host or module.
@@ -271,3 +275,42 @@ def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1
+
+
+def test_plot_plot_projection(capsys, cli_runner, tmpdir, data):
+    """Assert whether the line projection function returns an ax object.
+    """
+    df = pd.read_csv(data["testcsv.csv"])
+    df = df[:2]
+    selection = "nodes"
+    color = "grey"
+    fig = Figure()
+    FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    plot.plot_projection(df=df, selection=selection, color=color, ax=ax)
+
+
+def test_plot_plot_line(capsys, cli_runner, tmpdir, data):
+    """Assert whether the single plot entry works and returns an ax object.
+    """
+    df = pd.read_csv(data["testcsv.csv"])
+    df = df[:2]
+    selection = "nodes"
+    label = "test"
+    fig = Figure()
+    FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    plot.plot_line(df=df, selection=selection, label=label, ax=ax)
+
+
+def test_plot_plot_line_singlepoint(capsys, cli_runner, tmpdir, data):
+    """Assert whether the single plot entry works and returns an ax object.
+    """
+    df = pd.read_csv(data["testcsv.csv"])
+    df = df[:1]
+    selection = "nodes"
+    label = "test"
+    fig = Figure()
+    FigureCanvas(fig)
+    ax = fig.add_subplot(111)
+    plot.plot_line(df=df, selection=selection, label=label, ax=ax)

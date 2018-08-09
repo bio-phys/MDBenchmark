@@ -31,12 +31,9 @@ from .utils import calc_slope_intercept, generate_output_name, lin_func
 plt.switch_backend("agg")
 
 
-def plot_line(df, selection, label, ax=None):
+def plot_projection(df, selection, color, ax=None):
     if ax is None:
         ax = plt.gca()
-
-    p = ax.plot(selection, "ns/day", ".-", data=df, ms="10", label=label)
-    color = p[0].get_color()
     slope, intercept = calc_slope_intercept(
         (df[selection].iloc[0], df["ns/day"].iloc[0]),
         (df[selection].iloc[1], df["ns/day"].iloc[1]),
@@ -49,6 +46,19 @@ def plot_line(df, selection, label, ax=None):
         color=color,
         alpha=.5,
     )
+    return ax
+
+
+def plot_line(df, selection, label, ax=None):
+    if ax is None:
+        ax = plt.gca()
+
+    p = ax.plot(selection, "ns/day", ".-", data=df, ms="10", label=label)
+    color = p[0].get_color()
+
+    if len(df[selection]) > 1:
+        plot_projection(df=df, selection=selection, color=color, ax=ax)
+
     return ax
 
 
