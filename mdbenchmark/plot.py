@@ -30,7 +30,10 @@ from .utils import calc_slope_intercept, generate_output_name, lin_func
 
 plt.switch_backend("agg")
 
+
 def plot_projection(df, selection, color, ax=None):
+    if ax is None:
+        ax = plt.gca()
     slope, intercept = calc_slope_intercept(
         (df[selection].iloc[0], df["ns/day"].iloc[0]),
         (df[selection].iloc[1], df["ns/day"].iloc[1]),
