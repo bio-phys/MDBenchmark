@@ -42,8 +42,9 @@ molecular dynamics system on up to five nodes with and without GPUs.
 Quick start
 ===========
 
-You can install ``mdbenchmark`` with your favorite Python package manager.
-Afterwards you are ready to go and call ``mdbenchmark``.
+Follow the next two paragraphs to get a quick start. General usage guides can be
+found below. You can install ``mdbenchmark`` with your favorite Python package
+manager. Afterwards you are ready to go and use ``mdbenchmark``.
 
 Install
 -------
