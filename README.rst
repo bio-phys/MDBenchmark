@@ -14,6 +14,9 @@
 .. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
     :target: https://travis-ci.org/bio-phys/MDBenchmark
 
+.. image:: https://readthedocs.org/projects/mdbenchmark/badge/?version=latest&style=flat
+    :target: https://mdbenchmark.readthedocs.io/en/latest/
+
 .. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/bio-phys/MDBenchmark
 
