@@ -187,7 +187,14 @@ def analyze(directory, plot, ncores, output_name):
         # We only support plotting of benchmark systems from equal hosts /
         # with equal settings
         uniqueness = df.apply(lambda x: x.nunique())
-        if uniqueness['gromacs'] > 1 or uniqueness['host'] > 1:
+
+        # Backwards compatibility to older versions.
+        if 'module' in uniqueness:
+            module_column = uniqueness['module']
+        else:
+            module_column = uniqueness['gromacs']
+
+        if module_column > 1 or uniqueness['host'] > 1:
             console.error(
                 'Cannot plot benchmarks for more than one GROMACS module '
                 'and/or host.')
