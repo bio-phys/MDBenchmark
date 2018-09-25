@@ -55,7 +55,7 @@ jobs:
         - pip install isort
       script: make isort
     -
-      name: "Lint README.rst"
+      name: "Lint reStructuredText"
       install:
         - $UPGRADE_PIP
         - pip install restructuredtext_lint

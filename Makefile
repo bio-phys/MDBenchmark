@@ -41,4 +41,4 @@ isort-check:
 lint: reformat-check flake8 isort-check
 
 rst-lint:
-	rst-lint README.rst
+	rst-lint README.rst CHANGELOG.rst DEVELOPER.rst
