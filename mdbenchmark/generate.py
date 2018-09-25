@@ -119,7 +119,7 @@ def validate_hosts(ctx, param, host=None):
     callback=validate_name,
 )
 @click.option(
-    "-c",
+    "-c/-nc",
     "--cpu/--no-cpu",
     is_flag=True,
     help="Use CPUs for benchmark.",
@@ -127,7 +127,7 @@ def validate_hosts(ctx, param, host=None):
     show_default=True,
 )
 @click.option(
-    "-g",
+    "-g/-ng",
     "--gpu/--no-gpu",
     is_flag=True,
     help="Use GPUs for benchmark.",
