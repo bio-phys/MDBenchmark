@@ -51,7 +51,7 @@ jobs:
     -
       name: "Sorting with isort"
       install:
-        - pip install --upgrade pip
+        - $UPGRADE_PIP
         - pip install isort
       script: make isort
     -
@@ -60,15 +60,16 @@ jobs:
         - $UPGRADE_PIP
         - pip install restructuredtext_lint
       script: make rst-lint
+  -
+      name: "Documentation"
+      install:
+        - $UPGRADE_PIP
+        - pip install . sphinx-click
+      script: python setup.py build_sphinx
     - stage: "macOS - Unit tests"
       language: generic
       name: "Python 2.7"
       env: PYTHON_VERSION=2.7
-      install:
-        - git clone git://github.com/astropy/ci-helpers.git
-        - source ci-helpers/travis/setup_conda.sh
-        - pip install -e .
-      script: $MAIN_CMD $SETUP_CMD
 
 install:
   - $UPGRADE_PIP
