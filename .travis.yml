@@ -25,6 +25,11 @@ matrix:
       env: PYTHON_VERSION=2.7
 
     - os: linux
+      env: PIP_DEPENDENCIES="sphinx-click"
+           MAIN_CMD="python setup.py build_sphinx"
+           SETUP_CMD=""
+
+    - os: linux
       env: PIP_DEPENDENCIES="restructuredtext_lint"
            MAIN_CMD="rst-lint README.rst"
            SETUP_CMD=""
