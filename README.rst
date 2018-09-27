@@ -38,7 +38,7 @@ You can also create a plot to get a quick overview of the possible performance
 (and also show of to your friends)! The plot below shows the performance of an
 molecular dynamics system on up to five nodes with and without GPUs.
 
-.. image:: https://raw.githubusercontent.com/bio-phys/MDBenchmark/master/runtimes.png
+.. image:: https://raw.githubusercontent.com/bio-phys/MDBenchmark/master/docs/_static/runtimes.png
 
 
 Installation
