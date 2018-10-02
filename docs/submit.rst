@@ -13,6 +13,12 @@ current directory, use::
 
   mdbenchmark submit
 
+.. note::
+
+   ``mdbenchmark submit`` will currently submit all benchmarks in the current
+   folder and its subdirectory without confirmation. Use the ``--directory``
+   option to limit this behavior.
+
 Submitting specific benchmarks separately
 -----------------------------------------
 
