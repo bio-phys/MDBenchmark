@@ -1,9 +1,13 @@
 Defining host templates
 =======================
 
-It is possible to define your own host templates in addition to the ones shipped
-with the package. A template file should have the same filename as the UNIX
-command ``hostname`` returns to be detected automatically. Otherwise you can
+You can create your own host templates in addition to the ones shipped with the
+MDBenchmark. We use the ``jinja2`` Python package for these host templates.
+Please refer to the `official Jinja2 documentation <http://jinja.pocoo.org/>`
+for further information on formatting and functionality.
+
+To be detected automatically, a template file must have the same filename as
+returned by the UNIX command ``hostname``. If this is not the case, you can
 point MDBenchmark to a specific template by providing its name via the
 ``--host`` option.
 

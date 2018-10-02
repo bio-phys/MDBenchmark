@@ -35,7 +35,7 @@ resources. It tries to make it as easy as possible to set up systems on varying
 numbers of nodes and compare their performances to each other.
 
 You can also create a plot to get a quick overview of the possible performance
-(and also show of to your friends)! The plot below shows the performance of an
+(and also show of to your friends)! The plot below shows the performance of a
 molecular dynamics system on up to five nodes with and without GPUs.
 
 .. image:: https://raw.githubusercontent.com/bio-phys/MDBenchmark/master/docs/_static/runtimes.png
@@ -125,10 +125,11 @@ produce a ``.csv`` output file or a plot for direct usage (via the ``--plot``
 option).
 
 **Note:** The plotting function currently only allows to plot a CPU and GPU
-benchmark from the *same* module. This will be fixed in an upcoming version. If
-you want to compare different modules with each other, either use the
-``--directory`` option to generate separate plots or create your own plot from
-the provided CSV file.
+benchmark from the *same* module. This will be fixed in an upcoming version and
+is already implemented in the `develop
+<https://github.com/bio-phys/MDBenchmark/tree/develop>`_ branch. If you want to
+compare different modules with each other, either use the ``--directory`` option
+to generate separate plots or create your own plot from the provided CSV file.
 
 .. code::
 
