@@ -80,7 +80,9 @@ Usage with multiple modules
 ---------------------------
 
 You can use this feature to compare multiple versions of one MD engine or
-different MD engines with each other::
+different MD engines with each other. Note that the base name for the GROMACS
+and NAMD files (see above) must to be the same, e.g., `protein.tpr` and
+`protein.namd`.
 
   mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2016.4
 

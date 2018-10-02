@@ -46,7 +46,7 @@ Quick start
 
 Follow the next two paragraphs to get a quick start. Extended usage guides can
 be found below. You can install ``mdbenchmark`` with your favorite Python
-package manager. Afterwards you are ready to go and use ``mdbenchmark``.
+package manager. Afterwards you are ready to use ``mdbenchmark``.
 
 Install
 -------
