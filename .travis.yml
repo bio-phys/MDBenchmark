@@ -36,6 +36,7 @@ jobs:
     -
       name: "Python 2.7"
       python: "2.7"
+
     - stage: "Linting and formatting"
       name: "Formatting with black"
       install:
@@ -60,12 +61,13 @@ jobs:
         - $UPGRADE_PIP
         - pip install restructuredtext_lint
       script: make rst-lint
-  -
-      name: "Documentation"
+    -
+      name: "Try to build documentation"
       install:
         - $UPGRADE_PIP
         - pip install . sphinx-click
       script: python setup.py build_sphinx
+
     - stage: "macOS - Unit tests"
       language: generic
       name: "Python 2.7"
