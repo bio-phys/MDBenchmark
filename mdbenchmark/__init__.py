@@ -37,4 +37,4 @@ with warnings.catch_warnings():
 
     from . import analyze, generate, submit, plot
 
-    __version__ = '1.3.3'
+    __version__ = "1.3.3"

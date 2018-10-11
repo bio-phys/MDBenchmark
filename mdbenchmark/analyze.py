@@ -113,15 +113,16 @@ def analyze(directory, plot, ncores, output_name):
         uniqueness = df.apply(lambda x: x.nunique())
 
         # Backwards compatibility to older versions.
-        if 'module' in uniqueness:
-            module_column = uniqueness['module']
+        if "module" in uniqueness:
+            module_column = uniqueness["module"]
         else:
-            module_column = uniqueness['gromacs']
+            module_column = uniqueness["gromacs"]
 
-        if module_column > 1 or uniqueness['host'] > 1:
+        if module_column > 1 or uniqueness["host"] > 1:
             console.error(
-                'Cannot plot benchmarks for more than one GROMACS module '
-                'and/or host.')
+                "Cannot plot benchmarks for more than one GROMACS module "
+                "and/or host."
+            )
 
         df = pd.read_csv(output_name)
         ax = plot_over_group(df, plot_cores=False, ax=ax)
