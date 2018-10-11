@@ -69,7 +69,7 @@ setup(
     install_requires=[
         'numpy>=1.8',
         'mdsynthesis',
-        'click',
+        'click==6.7',
         'jinja2',
         'pandas',
         'matplotlib',
