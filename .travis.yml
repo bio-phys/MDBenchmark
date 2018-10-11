@@ -72,6 +72,7 @@ jobs:
       language: generic
       name: "Python 2.7"
       env: PYTHON_VERSION=2.7
+      install: pip install . mdbenchmark -v
 
 install:
   - $UPGRADE_PIP
