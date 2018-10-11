@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
+
 import matplotlib.pyplot as plt
 import mdsynthesis as mds
 import numpy as np
@@ -107,9 +108,21 @@ def analyze(directory, plot, ncores, output_name):
             "mdbenchmark plot",
         )
 
-        fig = Figure()
-        FigureCanvas(fig)
-        ax = fig.add_subplot(111)
+        # We only support plotting of benchmark systems from equal hosts /
+        # with equal settings
+        uniqueness = df.apply(lambda x: x.nunique())
+
+        # Backwards compatibility to older versions.
+        if "module" in uniqueness:
+            module_column = uniqueness["module"]
+        else:
+            module_column = uniqueness["gromacs"]
+
+        if module_column > 1 or uniqueness["host"] > 1:
+            console.error(
+                "Cannot plot benchmarks for more than one GROMACS module "
+                "and/or host."
+            )
 
         df = pd.read_csv(output_name)
         ax = plot_over_group(df, plot_cores=False, ax=ax)

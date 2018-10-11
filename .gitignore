@@ -11,6 +11,10 @@ dist/
 **/runtimes.csv
 **/runtimes.pdf
 
+# Documentation
+docs/_build/
+docs/.doctrees/
+
 # Ignore local Pipfile
 Pipfile
 Pipfile.lock
