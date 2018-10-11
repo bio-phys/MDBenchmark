@@ -64,7 +64,7 @@ jobs:
       name: "Documentation"
       install:
         - $UPGRADE_PIP
-        - pip install click sphinx-click
+        - pip install . sphinx-click
       script: python setup.py build_sphinx
     - stage: "macOS - Unit tests"
       language: generic
