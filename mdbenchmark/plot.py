@@ -44,7 +44,7 @@ def plot_projection(df, selection, color, ax=None):
         lin_func(df[selection].values, slope, intercept),
         ls="--",
         color=color,
-        alpha=.5,
+        alpha=0.5,
     )
     return ax
 
