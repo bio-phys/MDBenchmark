@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -44,7 +45,7 @@ def plot_projection(df, selection, color, ax=None):
         lin_func(df[selection].values, slope, intercept),
         ls="--",
         color=color,
-        alpha=.5,
+        alpha=0.5,
     )
     return ax
 
@@ -157,7 +158,7 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
 )
 @click.option(
     "--module-name",
-    "-h",
+    "-m",
     multiple=True,
     help="Name of the MD engine module(s) to plot.",
 )

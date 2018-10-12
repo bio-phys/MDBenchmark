@@ -27,7 +27,7 @@ reformat:
 	black setup.py mdbenchmark/
 
 reformat-check:
-	black --check setup.py mdbenchmark/
+	black --check setup.py mdbenchmark/ docs/
 
 flake8:
 	flake8 mdbenchmark/
