@@ -408,6 +408,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
         output = (
             "Could not find template for host 'minerva'.\n"
             "Available host templates:\n"
+            "cobra\n"
             "draco\n"
             "hydra\n"
         )
@@ -461,7 +462,7 @@ def test_print_known_hosts(ctx_mock, capsys):
     print_known_hosts(ctx_mock, None, True)
     out, err = capsys.readouterr()
 
-    assert out == "Available host templates:\ndraco\nhydra\n"
+    assert out == "Available host templates:\ncobra\ndraco\nhydra\n"
 
 
 def test_validate_generate_name(ctx_mock):
