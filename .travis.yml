@@ -72,7 +72,11 @@ jobs:
       language: generic
       name: "Python 2.7"
       env: PYTHON_VERSION=2.7
-      install: pip install . mdbenchmark -v
+      install:
+        - git clone git://github.com/astropy/ci-helpers.git
+        - source ci-helpers/travis/setup_conda.sh
+        - pip install -e .
+      script: $MAIN_CMD $SETUP_CMD
 
 install:
   - $UPGRADE_PIP
