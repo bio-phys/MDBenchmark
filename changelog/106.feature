@@ -1,0 +1,1 @@
+Added ``--template`` and ``-t`` option to ``mdbenchmark generate``, to specify a job template. The ``--host`` option still works.

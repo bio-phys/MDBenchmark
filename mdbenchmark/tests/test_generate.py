@@ -165,7 +165,7 @@ def test_generate_simple_input_with_cpu_gpu(
             [
                 "generate",
                 "--module={}".format(module),
-                "--host=draco",
+                "--template=draco",
                 "--max-nodes=4",
                 "--gpu",
                 "--name=protein",
@@ -203,7 +203,7 @@ def test_generate_simple_input_with_working_validation(
             [
                 "generate",
                 "--module={}".format(module),
-                "--host=draco",
+                "--template=draco",
                 "--max-nodes=4",
                 "--gpu",
                 "--no-cpu",
