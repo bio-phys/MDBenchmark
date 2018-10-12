@@ -22,6 +22,7 @@ import subprocess
 from glob import glob
 
 import click
+
 import mdsynthesis as mds
 
 from . import console
@@ -60,14 +61,14 @@ def get_batch_command():
     is_flag=True,
 )
 def submit(directory, force_restart):
-    """Submit benchmarks to queuing system.
+    """Submit generated benchmarks to a queuing system.
 
-    benchmarks are searched recursively starting from the directory specified
-    in `--directory`.
+    Benchmarks are searched recursively starting from the directory specified
+    in `--directory`. If the option is not specified, the working directory
+    will be used.
 
-    Checks whether benchmark folders were already generated, exits otherwise.
-    Only runs benchmarks that were not already started. Can be overwritten with
-    `--force`.
+    Benchmarks will not be submitted, if they were already started. This
+    behaviour can be overwritten with `--force`.
     """
     bundle = mds.discover(directory)
 

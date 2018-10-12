@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
+
 import datreant.core as dtr
 
 from . import console, mdengines, utils
@@ -144,7 +145,7 @@ def validate_hosts(ctx, param, host=None):
     "-t",
     "--template",
     "--host",
-    help="Name of the job template.",
+    help="Name of the host template.",
     default=None,
     callback=validate_hosts,
 )
@@ -171,7 +172,7 @@ def validate_hosts(ctx, param, host=None):
 )
 @click.option(
     "--list-hosts",
-    help="Show available job templates.",
+    help="Show available host templates.",
     is_flag=True,
     is_eager=True,
     callback=print_known_hosts,
@@ -184,7 +185,26 @@ def validate_hosts(ctx, param, host=None):
     is_flag=True,
 )
 def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_validation):
-    """Generate benchmarks simulations from the CLI."""
+    """Generate benchmarks for molecular dynamics simulations.
+
+    Requires the `--name` option to be provided an existing file, e.g.,
+    `protein.tpr` for GROMACS and `protein.namd`, `protein.pdb` and
+    `protein.psf` for NAMD. The filename `protein` will then be used as the job
+    name.
+
+    The specified module name will be validated and searched on the current
+    system. To skip this check, use the `--skip-validation` option.
+
+    Benchmarks will be generated for CPUs per default (`--cpu`), but can also
+    be generated for GPUs (`--gpu`) at the same time or without CPUs
+    (`--no-cpu`).
+
+    The hostname of the current system will be used to look for benchmark
+    templates, but can be overwritten with the `--template` option. Templates
+    for the MPCDF clusters `cobra`, `draco` and `hydra` are provided with the
+    package. All available templates can be listed with the `--list-hosts`
+    option.
+    """
     # Validate the CPU and GPU flags
     validate_cpu_gpu_flags(cpu, gpu)
 

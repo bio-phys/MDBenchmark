@@ -44,21 +44,41 @@ plt.switch_backend("agg")
     show_default=True,
 )
 @click.option(
-    "-p", "--plot", is_flag=True, help="Generate a plot of finished benchmarks."
+    "-p",
+    "--plot",
+    is_flag=True,
+    help="DEPRECATED. Please use 'mdbenchmark plot'.\nGenerate a plot of finished benchmarks.",
 )
 @click.option(
     "--ncores",
+    "--number-cores",
+    "ncores",
     type=int,
     default=None,
-    help="Number of cores per node. If not given it will be parsed from the "
-    "benchmarks log file.",
+    help="Number of cores per node. If not given it will be parsed from the benchmarks' log file.",
     show_default=True,
 )
 @click.option(
-    "-o", "--output-name", default=None, help="Name of the output CSV file.", type=str
+    "-o",
+    "--output-name",
+    default=None,
+    help="Filename for the CSV file containing benchmark results.",
+    type=str,
 )
 def analyze(directory, plot, ncores, output_name):
-    """Analyze finished benchmarks."""
+    """Analyze benchmarks and print the performance results.
+
+    Benchmarks are searched recursively starting from the directory specified
+    in `--directory`. If the option is not specified, the working directory
+    will be used.
+
+    Benchmarks that have not started yet or finished without printing the
+    performance result, will be marked accordingly.
+
+    The benchmark performance results can be saved in a CSV file with the
+    `--output-name` option and a custom filename. To plot the results use
+    `mdbenchmark plot`.
+    """
     bundle = mds.discover(directory)
 
     df = pd.DataFrame(
@@ -103,10 +123,7 @@ def analyze(directory, plot, ncores, output_name):
     df.to_csv(output_name)
 
     if plot:
-        console.warn(
-            "This feature is deprecated. Please use '{}' in the future.",
-            "mdbenchmark plot",
-        )
+        console.warn("'--plot' has been deprecated, use '{}'.", "mdbenchmark plot")
 
         fig = Figure()
         FigureCanvas(fig)
