@@ -55,7 +55,7 @@ def test_get_possible_hosts():
     """
     hosts = utils.get_possible_hosts()
     assert isinstance(hosts, list)
-    assert len(hosts) == 2
+    assert len(hosts) == 3
 
 
 def test_print_possible_hosts(capsys):
@@ -63,7 +63,7 @@ def test_print_possible_hosts(capsys):
     utils.print_possible_hosts()
     out, err = capsys.readouterr()
 
-    assert out == "Available host templates:\ndraco\nhydra\n"
+    assert out == "Available host templates:\ncobra\ndraco\nhydra\n"
 
 
 def test_guess_host():
