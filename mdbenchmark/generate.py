@@ -141,7 +141,12 @@ def validate_hosts(ctx, param, host=None):
     callback=validate_module,
 )
 @click.option(
-    "--host", help="Name of the job template.", default=None, callback=validate_hosts
+    "-t",
+    "--template",
+    "--host",
+    help="Name of the job template.",
+    default=None,
+    callback=validate_hosts,
 )
 @click.option(
     "--min-nodes",
