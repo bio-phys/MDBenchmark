@@ -54,7 +54,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
                 "--csv={}".format(data["test.csv"]),
                 "--gpu",
                 "--output-name=testpng",
-                "--output-type=png",
+                "--output-format=png",
             ],
         )
 
@@ -83,9 +83,9 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
-                "--host-name={}".format(host),
+                "--host={}".format(host),
                 "--output-name=testpng",
-                "--output-type=png",
+                "--output-format=png",
             ],
         )
 
@@ -123,7 +123,7 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
-                "--module-name={}".format(module),
+                "--module={}".format(module),
                 "--output-name=testpng",
             ],
         )
@@ -161,7 +161,7 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
                 "plot",
                 "--csv={}".format(data["test.csv"]),
                 "--output-name=testfile",
-                "--output-type={}".format(output_type),
+                "--output-format={}".format(output_type),
             ],
         )
         assert result.output == output

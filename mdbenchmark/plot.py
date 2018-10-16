@@ -147,36 +147,63 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
 
 @cli.command()
 @click.option("--csv", help="Name of CSV file to plot.", multiple=True)
-@click.option("--output-name", "-o", help="Name of output file.")
+@click.option("-o", "--output-name", help="Filename for the generated plot.")
 @click.option(
-    "--output-type",
-    "-t",
-    help="File extension for output file.",
+    "-f",
+    "--output-format",
+    help="File format for the generated plot.",
     type=click.Choice(["png", "pdf", "svg", "ps"]),
     show_default=True,
     default="png",
 )
 @click.option(
-    "--module-name",
     "-m",
+    "--module",
+    "module",
     multiple=True,
     help="Name of the MD engine module(s) to plot.",
 )
-@click.option("--host-name", "-h", multiple=True, help="Name of hosts to plot.")
 @click.option(
-    "--gpu/--no-gpu", help="Plot data of GPU runs.", show_default=True, default=True
+    "-t",
+    "--template",
+    "--host",
+    "template",
+    multiple=True,
+    help="Name of host templates to plot.",
 )
 @click.option(
-    "--cpu/--no-cpu", help="Plot data of CPU runs.", show_default=True, default=True
+    "-g/-ng",
+    "--gpu/--no-gpu",
+    help="Plot data of GPU benchmarks.",
+    show_default=True,
+    default=True,
+)
+@click.option(
+    "-c/-nc",
+    "--cpu/--no-cpu",
+    help="Plot data of CPU benchmarks.",
+    show_default=True,
+    default=True,
 )
 @click.option(
     "--plot-cores",
-    help="Plot performance per core instead of nodes.",
+    help="Plot performance per core instead performance per node.",
     show_default=True,
     is_flag=True,
 )
-def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_cores):
-    """Generate plots from csv files"""
+def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores):
+    """Generate plots showing the benchmark performance.
+
+    To generate a plot, you must first run `mdbenchmark analyze` and generate a
+    CSV file. Use this CSV file as the value for the `--csv` option in this
+    command.
+
+    You can customize the filename and file format of the generated plot with
+    the `--output-name` and `--format` option, respectively.
+
+    To only plot specific benchmarks, make use of the `--module`, `--template`,
+    `--cpu/--no-cpu` and `--gpu/--no-gpu` options.
+    """
 
     if not csv:
         raise click.BadParameter(
@@ -185,7 +212,7 @@ def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_c
 
     df = pd.concat([pd.read_csv(c, index_col=0) for c in csv]).dropna()
 
-    df = filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu)
+    df = filter_dataframe_for_plotting(df, template, module, gpu, cpu)
 
     fig = Figure()
     FigureCanvas(fig)
@@ -196,15 +223,15 @@ def plot(csv, output_name, output_type, host_name, module_name, gpu, cpu, plot_c
 
     if output_name is None and len(csv) == 1:
         csv_string = csv[0].split(".")[0]
-        output_name = "{}.{}".format(csv_string, output_type)
+        output_name = "{}.{}".format(csv_string, output_format)
     elif output_name is None and len(csv) != 1:
-        output_name = generate_output_name(output_type)
-    elif not output_name.endswith(".{}".format(output_type)):
-        output_name = "{}.{}".format(output_name, output_type)
+        output_name = generate_output_name(output_format)
+    elif not output_name.endswith(".{}".format(output_format)):
+        output_name = "{}.{}".format(output_name, output_format)
     # tight alone does not consider the legend if it is outside the plot.
     # therefore i add it manually as extra artist. This way we don't get problems
     # with the variability of individual lines which are to be plotted
     fig.savefig(
-        output_name, type=output_type, bbox_extra_artists=(lgd,), bbox_inches="tight"
+        output_name, type=output_format, bbox_extra_artists=(lgd,), bbox_inches="tight"
     )
     console.info("Your file was saved as '{}' in the working directory.", output_name)
