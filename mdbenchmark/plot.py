@@ -22,6 +22,7 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib import rcParams as mpl_rcParams
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -191,8 +192,27 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     show_default=True,
     is_flag=True,
 )
-@click.option("--dpi", help="Dots per inch (DPI) for generated plot.", default=300, show_default=True)
-def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores, dpi):
+@click.option(
+    "--font-size", help="Font size for generated plot.", default=16, show_default=True
+)
+@click.option(
+    "--dpi",
+    help="Dots per inch (DPI) for generated plot.",
+    default=300,
+    show_default=True,
+)
+def plot(
+    csv,
+    output_name,
+    output_format,
+    template,
+    module,
+    gpu,
+    cpu,
+    plot_cores,
+    font_size,
+    dpi,
+):
     """Generate plots showing the benchmark performance.
 
     To generate a plot, you must first run `mdbenchmark analyze` and generate a
@@ -215,6 +235,7 @@ def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores
 
     df = filter_dataframe_for_plotting(df, template, module, gpu, cpu)
 
+    mpl_rcParams["font.size"] = font_size
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
