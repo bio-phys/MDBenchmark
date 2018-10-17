@@ -96,7 +96,13 @@ def plot_over_group(df, plot_cores, ax=None):
     groupby = ["gpu", "module", "host"]
     gb = df.groupby(groupby)
     for key, df in gb:
-        label = " ".join(["{}={}".format(n, v) for n, v in zip(groupby, key)])
+        template = key[2]
+        module = key[1]
+        pu = "GPU" if key[0] else "CPU"
+
+        label = "{template} - {module} on {pu}s".format(
+            template=template, module=module, pu=pu
+        )
         plot_line(df=df, selection=selection, ax=ax, label=label)
 
     # style axes
