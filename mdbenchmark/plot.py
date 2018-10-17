@@ -232,6 +232,13 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     default=300,
     show_default=True,
 )
+@click.option(
+    "--watermark/--no-watermark",
+    help="Puts a watermark in the top left corner of the generated plot.",
+    default=True,
+    show_default=True,
+    is_flag=True,
+)
 def plot(
     csv,
     output_name,
@@ -243,6 +250,7 @@ def plot(
     plot_cores,
     font_size,
     dpi,
+    watermark,
 ):
     """Generate plots showing the benchmark performance.
 
@@ -255,6 +263,10 @@ def plot(
 
     To only plot specific benchmarks, make use of the `--module`, `--template`,
     `--cpu/--no-cpu` and `--gpu/--no-gpu` options.
+
+    A small watermark will be added to the top left corner of every plot, to
+    spread the usage of MDBenchmark. You can remove the watermark with the
+    `--no-watermark` option.
     """
 
     if not csv:
@@ -288,6 +300,10 @@ def plot(
     yticks = np.arange(0, max_y + (max_y * 0.25), yticks_steps)
     ax.set_yticks(yticks)
     ax.set_ylim(0, max_y + (max_y * 0.25))
+
+    # Add watermark
+    if watermark:
+        ax.text(0.025, 0.925, "MDBenchmark", transform=ax.transAxes, alpha=0.3)
 
     lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
     plt.tight_layout()
