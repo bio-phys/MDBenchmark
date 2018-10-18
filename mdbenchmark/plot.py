@@ -233,6 +233,9 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     show_default=True,
 )
 @click.option(
+    "--xtick-step", help="Override the step for xticks in the generated plot.", type=int
+)
+@click.option(
     "--watermark/--no-watermark",
     help="Puts a watermark in the top left corner of the generated plot.",
     default=True,
@@ -250,6 +253,7 @@ def plot(
     plot_cores,
     font_size,
     dpi,
+    xtick_step,
     watermark,
 ):
     """Generate plots showing the benchmark performance.
