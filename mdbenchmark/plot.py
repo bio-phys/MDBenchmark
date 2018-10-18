@@ -33,6 +33,31 @@ from .utils import calc_slope_intercept, generate_output_name, lin_func
 plt.switch_backend("agg")
 
 
+def get_xsteps(size, min_x, plot_cores, xtick_step):
+    """Return the step size needed for a reasonable xtick spacing.
+
+    Default step size is 1. If benchmarks>=18 are plotted, the step size is
+    increased to 2. If we are plotting the number of cores, we increase the
+    step size to 3, if the number of benchmarks>10 or the number of
+    cores/node>=100.
+
+    The user setting `xtick_step` overrides all previous settings.
+    """
+    step = 1
+
+    # Increase step size if we plot many nodes at once
+    if size >= 18:
+        step = 2
+    # Make sure we fit all xticks for a reasonable number of cores
+    if plot_cores and ((size > 10) or (min_x >= 100)):
+        step = 3
+    # Ignore all above logic and set value specified by user
+    if xtick_step:
+        step = xtick_step
+
+    return step
+
+
 def plot_projection(df, selection, color, ax=None):
     if ax is None:
         ax = plt.gca()
@@ -240,6 +265,17 @@ def plot(
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
     ax = plot_over_group(df, plot_cores, ax=ax)
+
+    # Update xticks
+    selection = "ncores" if plot_cores else "nodes"
+    min_x = df[selection].min() if plot_cores else 1
+    max_x = df[selection].max()
+    xticks_steps = min_x
+    xticks = np.arange(min_x, max_x + min_x, xticks_steps)
+    step = get_xsteps(xticks.size, min_x, plot_cores, xtick_step)
+
+    ax.set_xticks(xticks[::step])
+
     # Update yticks
     max_y = df["ns/day"].max() or 50
     yticks_steps = ((max_y + 1) / 10).astype(int)
