@@ -191,7 +191,8 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     show_default=True,
     is_flag=True,
 )
-def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores):
+@click.option("--dpi", help="Dots per inch (DPI) for generated plot.", default=300, show_default=True)
+def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores, dpi):
     """Generate plots showing the benchmark performance.
 
     To generate a plot, you must first run `mdbenchmark analyze` and generate a
@@ -232,6 +233,10 @@ def plot(csv, output_name, output_format, template, module, gpu, cpu, plot_cores
     # therefore i add it manually as extra artist. This way we don't get problems
     # with the variability of individual lines which are to be plotted
     fig.savefig(
-        output_name, type=output_format, bbox_extra_artists=(lgd,), bbox_inches="tight"
+        output_name,
+        type=output_format,
+        bbox_extra_artists=(lgd,),
+        bbox_inches="tight",
+        dpi=dpi,
     )
     console.info("Your file was saved as '{}' in the working directory.", output_name)
