@@ -240,6 +240,13 @@ def plot(
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
     ax = plot_over_group(df, plot_cores, ax=ax)
+    # Update yticks
+    max_y = df["ns/day"].max() or 50
+    yticks_steps = ((max_y + 1) / 10).astype(int)
+    yticks = np.arange(0, max_y + (max_y * 0.25), yticks_steps)
+    ax.set_yticks(yticks)
+    ax.set_ylim(0, max_y + (max_y * 0.25))
+
     lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
     plt.tight_layout()
 
