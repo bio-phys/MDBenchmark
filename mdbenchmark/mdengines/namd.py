@@ -22,7 +22,6 @@ import re
 from glob import glob
 from shutil import copyfile
 
-import mdsynthesis as mds
 import numpy as np
 
 from .. import console

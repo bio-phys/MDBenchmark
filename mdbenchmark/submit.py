@@ -23,7 +23,7 @@ from glob import glob
 
 import click
 
-import mdsynthesis as mds
+import datreant as dtr
 import numpy as np
 import pandas as pd
 
@@ -31,7 +31,8 @@ from . import console
 from .cli import cli
 from .mdengines import detect_md_engine
 from .mdengines.utils import cleanup_before_restart
-from .utils import DataFrameFromBundle, ConsolidateDataFrame, PrintDataFrame
+from .migrations import mds_to_dtr
+from .utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}
@@ -77,7 +78,10 @@ def submit(directory, force_restart, yes):
     Only runs benchmarks that were not already started. Can be overwritten with
     `--force`.
     """
-    bundle = mds.discover(directory)
+    # Migrate from MDBenchmark<2 to MDBenchmark=>2
+    mds_to_dtr.migrate_to_datreant(directory)
+
+    bundle = dtr.discover(directory)
 
     # Exit if no bundles were found in the current directory.
     if not bundle:

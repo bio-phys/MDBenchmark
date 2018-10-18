@@ -19,9 +19,8 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
+import datreant as dtr
 import pandas as pd
-import datreant.core as dtr
-import mdsynthesis as mds
 from mdbenchmark.utils import PrintDataFrame, ConsolidateDataFrame, DataFrameFromBundle
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
@@ -73,7 +72,7 @@ def test_analyze_namd(cli_runner, tmpdir, data):
             cli.cli, ["analyze", "--directory={}".format(data["analyze-files-namd"])]
         )
 
-        bundle = mds.discover(data["analyze-files-namd"])
+        bundle = dtr.discover(data["analyze-files-namd"])
         df = DataFrameFromBundle(bundle)
         test_output = PrintDataFrame(df, False) + "\n"
 
@@ -92,7 +91,7 @@ show a question mark instead of a float in the corresponding cell.
             ["analyze", "--directory={}".format(data["analyze-files-w-errors"])],
         )
 
-        bundle = mds.discover(data["analyze-files-w-errors"])
+        bundle = dtr.discover(data["analyze-files-w-errors"])
         df = DataFrameFromBundle(bundle)
         test_output = PrintDataFrame(df, False) + "\n"
 
@@ -111,7 +110,7 @@ def test_analyze_plot(cli_runner, tmpdir, data):
             ],
         )
 
-        bundle = mds.discover(data["analyze-files-gromacs"])
+        bundle = dtr.discover(data["analyze-files-gromacs"])
         df = DataFrameFromBundle(bundle)
         test_output = PrintDataFrame(df, False) + "\n"
 

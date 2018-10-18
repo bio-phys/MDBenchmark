@@ -22,7 +22,7 @@ import re
 from glob import glob
 from shutil import copyfile
 
-import mdsynthesis as mds
+import datreant as dtr
 import numpy as np
 
 from .. import console
@@ -135,7 +135,8 @@ def cleanup_before_restart(engine, sim):
     whitelist = [re.compile(fname) for fname in whitelist]
 
     files_found = []
-    for fname in sim.leaves:
+
+    for fname in sim.leaves():
         keep = False
         for wl in whitelist:
             if wl.match(str(fname)):
@@ -153,8 +154,8 @@ def write_benchmark(
     engine, base_directory, template, nodes, gpu, module, name, host, time
 ):
     """Generate a benchmark folder with the respective Sim object."""
-    # Create the `mds.Sim` object
-    sim = mds.Sim(base_directory["{}/".format(nodes)])
+    # Create the `dtr.Treant` object
+    sim = dtr.Treant(base_directory["{}/".format(nodes)])
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(name=name, sim=sim)
