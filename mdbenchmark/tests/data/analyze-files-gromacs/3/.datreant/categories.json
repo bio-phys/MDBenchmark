@@ -1,0 +1,1 @@
+{"name": "bench", "started": true, "module": "gromacs/2016.3", "host": "draco", "time": 15, "gpu": false, "nodes": 3}
