@@ -1,0 +1,1 @@
+Replaced ``mdsynthesis`` with ``datreant`` and upgraded to the new ``datreant>=1.0`` format.
