@@ -74,7 +74,7 @@ jobs:
 
 install:
   - $UPGRADE_PIP
-  - pip install . mdbenchmark -v $PYTEST_COV
+  - pip install . -v $PYTEST_COV
 
 script:
   - pytest $CODECOV
