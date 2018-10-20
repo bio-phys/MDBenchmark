@@ -22,12 +22,18 @@ import multiprocessing as mp
 import os
 import socket
 import sys
+from tabulate import tabulate
 
 import click
 import numpy as np
+import datreant.core as dtr
+import mdsynthesis as mds
+import pandas as pd
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from jinja2.exceptions import TemplateNotFound
+
+from .mdengines import detect_md_engine, utils
 
 from . import console
 from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
@@ -125,3 +131,97 @@ def generate_output_name(extension):
     date_time = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
     out = "{}.{}".format(date_time, extension)
     return out
+
+
+def DataFrameFromBundle(bundle):
+    """Generates a DataFrame from a datreant bundle."""
+    df = pd.DataFrame(
+        columns=["module", "nodes", "ns/day", "run time [min]", "gpu", "host", "ncores"]
+    )
+
+    for i, sim in enumerate(bundle):
+        # older versions wrote a version category. This ensures backwards compatibility
+        if "module" in sim.categories:
+            module = sim.categories["module"]
+        else:
+            module = sim.categories["version"]
+        # call the engine specific analysis functions
+        engine = detect_md_engine(module)
+        df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
+
+    if df.empty:
+        console.error("There is no data for the given path.")
+
+    # Sort values by `nodes`
+    df = df.sort_values(
+        ["host", "module", "run time [min]", "gpu", "nodes"]
+    ).reset_index(drop=True)
+
+    df = df.replace(np.nan, "?")
+    df.to_csv("output-from-datatframetobundel.csv")
+    return df
+
+
+def ConsolidateDataFrame(df):
+    """Edits a DataFrame and consolidates the output.
+       Requires the previously generated DataFrame.
+       Returns a newly formatted DataFrame.
+    """
+    df_short = pd.DataFrame(
+        columns=["module", "nodes", "run time [min]", "host", "gpu"]
+    )
+
+    groupby = ["module", "host", "gpu"]
+    gb = df.groupby(groupby)
+
+    i = 0
+    for key, df in gb:
+
+        node_print_output = []
+        node_groups = group_consecutives(df["nodes"].tolist())
+
+        for node_g in node_groups:
+            if len(node_g) == 1:
+                node_print_output.append(node_g[0])
+            else:
+                node_print_output.append(str(node_g[0]) + "-" + str(node_g[-1]))
+
+        values = ", ".join(str(v) for v in node_print_output)
+        df_short.loc[i] = (key[0], values, df["run time [min]"].iloc[0], key[1], key[2])
+        i += 1
+
+    # df_short.to_csv("output-from-datatframetobundel-short.csv")
+    return df_short
+
+
+def PrintDataFrame(df, printdf=True):
+    """Print a nicely formatted shortened DataFrame."""
+    tab = tabulate(df, headers="keys", tablefmt="psql", showindex=False)
+    if printdf is True:
+        print(tab)
+    else:
+        return tab
+
+
+def group_consecutives(vals, step=1):
+    """Return list of consecutive lists of numbers from vals (number list).
+       This list hast to be at least ordered such that N+1 > N.
+       Adapted from code found on stack overflow.
+       Question Thread:
+       https://stackoverflow.com/questions/7352684/
+       Solved by:
+       https://stackoverflow.com/users/308066/dkamins
+    """
+
+    run = []
+    result = [run]
+    expect = None
+    for v in vals:
+        if (v == expect) or (expect is None):
+            run.append(v)
+        else:
+            run = [v]
+            result.append(run)
+        expect = v + step
+
+    return result
