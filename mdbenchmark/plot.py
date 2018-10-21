@@ -65,14 +65,12 @@ def plot_projection(df, selection, color, ax=None):
         (df[selection].iloc[0], df["ns/day"].iloc[0]),
         (df[selection].iloc[1], df["ns/day"].iloc[1]),
     )
+    xstep = df[selection].iloc[1] - df[selection].iloc[0]
+    xmax = df[selection].iloc[-1] + xstep
+    x = df[selection]
+    x = pd.concat([pd.DataFrame({0: [0]}), x, pd.DataFrame({0: [xmax]})])
     # avoid a label and use values instead of pd.Series
-    ax.plot(
-        df[selection],
-        lin_func(df[selection].values, slope, intercept),
-        ls="--",
-        color=color,
-        alpha=0.5,
-    )
+    ax.plot(x, lin_func(x.values, slope, intercept), ls="--", color=color, alpha=0.5)
     return ax
 
 
@@ -297,6 +295,8 @@ def plot(
     step = get_xsteps(xticks.size, min_x, plot_cores, xtick_step)
 
     ax.set_xticks(xticks[::step])
+    xdiff = min_x * 0.5 * step
+    ax.set_xlim(min_x - xdiff, max_x + xdiff)
 
     # Update yticks
     max_y = df["ns/day"].max() or 50
