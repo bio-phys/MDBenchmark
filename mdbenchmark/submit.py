@@ -88,8 +88,6 @@ def submit(directory, force_restart, yes):
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, "?")
     df_to_print = df.drop(columns=["ns/day", "ncores"])
-    # with pd.option_context("display.max_rows", None):
-    #    print(df_to_print)
     console.info("{}", "Benchmark Summary:")
     df_short = ConsolidateDataFrame(df_to_print)
     PrintDataFrame(df_short)

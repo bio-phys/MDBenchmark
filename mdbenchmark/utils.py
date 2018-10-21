@@ -190,7 +190,6 @@ def ConsolidateDataFrame(df):
         df_short.loc[i] = (key[0], values, df["run time [min]"].iloc[0], key[1], key[2])
         i += 1
 
-    # df_short.to_csv("output-from-datatframetobundel-short.csv")
     return df_short
 
 
