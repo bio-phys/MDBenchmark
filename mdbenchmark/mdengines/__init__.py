@@ -22,10 +22,10 @@ from collections import defaultdict
 
 import six
 
-from . import gromacs, namd
+from . import gromacs, namd, lammps
 from .. import console
 
-SUPPORTED_ENGINES = {"gromacs": gromacs, "namd": namd}
+SUPPORTED_ENGINES = {"gromacs": gromacs, "namd": namd, "lammps": lammps}
 
 
 def detect_md_engine(modulename):
@@ -63,6 +63,7 @@ def prepare_module_name(module, skip_validation=False):
                 "--skip-validation",
                 "gromacs/dummy",
                 "namd/dummy",
+                "lammps/dummy"
             )
         console.error("We were not able to determine the module name.")
 
@@ -120,7 +121,7 @@ def normalize_modules(modules, skip_validation):
         if detect_md_engine(engine_name) is None:
             console.error(
                 "There is currently no support for '{}'. "
-                "Supported MD engines are: gromacs, namd.",
+                "Supported MD engines are: gromacs, namd, lammps.",
                 engine_name,
             )
 

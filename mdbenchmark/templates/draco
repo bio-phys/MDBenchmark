@@ -37,4 +37,6 @@ module load {{ module }}
 srun gmx_mpi mdrun -v -maxh {{ time / 60 }} -deffnm {{ name }}
 {%- elif mdengine == "namd" %}
 srun namd2 {{ name }}.namd
+{%- elif mdengine == "lammps" %}
+srun lmp_mpi -v f tmp.out -l my.log -sc none -i in.alloy
 {%- endif %}

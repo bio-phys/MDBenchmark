@@ -23,4 +23,6 @@ module load cuda
 poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
 {%- elif mdengine == "namd" %}
 poe namd2 {{ name }}.namd
+{%- elif mdengine == "lammps" %}
+poe lmp_mpi -v f tmp.out -l my.log -sc none -i {{ name }}.in
 {%- endif %}

@@ -31,7 +31,11 @@ NAMD_WARNING = (
     "Parameter paths must be absolute. Only crude file checks are performed! "
     "If you use the {} option make sure you use the GPU compatible NAMD module!"
 )
-
+LAMMPS_WARNING = (
+    "LAMMPS support is experimental."
+    "All input files must be in the same directory and have the same base name!"
+    "We hope you know what you're doing..."
+)
 
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
@@ -215,9 +219,11 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_vali
     # click does the validation for us
     template = utils.retrieve_host_template(host)
 
-    # Warn the user that NAMD support is still experimental.
+    # Warn the user that NAMD and LAMMPS support is still experimental.
     if any(["namd" in m for m in module]):
         console.warn(NAMD_WARNING, "--gpu")
+    if any(["lammps" in m for m in module]):
+        console.warn(LAMMPS_WARNING)
 
     module = mdengines.normalize_modules(module, skip_validation)
 
