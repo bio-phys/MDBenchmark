@@ -1,0 +1,90 @@
+# LAMMPS input script for standardized atomistic simulations
+# Created by emc_setup.pl v2.2.12, July 28, 2017 as part of EMC
+# on Mon Mar  5 16:29:28 CET 2018
+
+# Variable definitions
+
+variable	project		index	"bulk"	# project name
+variable	source		index	.	# data directory
+variable	params		index	.	# parameter directory
+variable	temperature	index	300		# system temperature
+variable	tdamp		index	100.0		# temperature damping
+variable	dielectric	index	1		# medium dielectric
+variable	kappa		index	4		# electrostatics kappa
+variable	cutoff		index	9.5		# standard cutoff
+variable	charge_cutoff	index	9.5		# charge cutoff
+variable	precision	index	0.001		# kspace precision
+variable	lseed		index	723853		# langevin seed
+variable	vseed		index	1486234		# velocity init seed
+variable	tequil		index	1000		# equilibration time
+variable	trun		index	5000  		# run time
+variable	frestart	index	0		# 0: equil, 1: restart
+variable	dtrestart	index	100000		# delta restart time
+variable	dtdump		index	100		# delta dump time
+variable	dtthermo	index	1000		# delta thermo time
+variable	timestep	index	1		# integration time step
+variable	tfreq		index	10		# profile sampling freq
+variable	nsample		index	1000		# profile conf sampling
+variable	dtime		equal	${tfreq}*${nsample}	# profile dtime
+variable	restart		index	${params}/${project}.restart
+
+if "${frestart} != 0" then &
+"variable	data		index	${restart}" &
+else &
+"variable	data		index	${params}/${project}.data" &
+
+# LAMMPS atomistic input script
+
+echo		screen
+units		real
+atom_style	full
+
+# Interaction potential definition
+
+pair_style	lj/class2/coul/long ${cutoff} ${charge_cutoff}
+bond_style	harmonic
+special_bonds	lj/coul 0 0 1
+if "${frestart} != 0" then "read_restart ${data}" else "read_data ${data}"
+include		${params}/${project}.params
+
+# Integration conditions (check)
+
+timestep	${timestep}
+kspace_style	pppm/cg ${precision}
+dielectric	${dielectric}
+fix		mom all momentum 100 linear 1 1 1 angular
+
+# Equilibration
+
+thermo		${dtthermo}
+if "${frestart} != 0" then "jump SELF simulate"
+velocity	all create ${temperature} ${vseed} &
+		dist gaussian rot yes mom yes sum yes
+fix		temp all langevin ${temperature} ${temperature} ${tdamp} &
+		${lseed}
+fix		int all nve/limit 0.1
+run		${tequil}
+unfix		temp
+unfix		int
+write_restart	${project}.restart2
+
+# Simulation
+
+label		simulate
+fix		temp all langevin ${temperature} ${temperature} ${tdamp} &
+		${lseed}
+fix		int all nve
+
+# System sampling: pressure
+
+fix		press all ave/time ${tfreq} ${nsample} ${dtime} &
+		c_thermo_temp &
+		c_thermo_press[1] c_thermo_press[2] c_thermo_press[3] &
+		c_thermo_press[4] c_thermo_press[5] c_thermo_press[6] &
+		file ${project}.pressure
+
+# Run conditions
+
+restart		${dtrestart} ${project}.restart1 ${project}.restart2
+dump		1 all custom ${dtdump} ${project}.dump id type x y z
+run		${trun}
