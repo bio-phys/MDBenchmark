@@ -20,19 +20,18 @@
 import os
 
 import click
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
-from numpy.testing import assert_equal
-from pandas.testing import assert_frame_equal
-
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
-
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+from numpy.testing import assert_equal
+from pandas.testing import assert_frame_equal
 
 
 @pytest.mark.parametrize(
@@ -321,7 +320,7 @@ def test_plot_plot_line(capsys, cli_runner, tmpdir, data):
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, ax=ax)
+    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)
 
 
 def test_plot_plot_line_singlepoint(capsys, cli_runner, tmpdir, data):
@@ -334,4 +333,4 @@ def test_plot_plot_line_singlepoint(capsys, cli_runner, tmpdir, data):
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, ax=ax)
+    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)

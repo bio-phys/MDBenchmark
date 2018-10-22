@@ -74,20 +74,20 @@ def plot_projection(df, selection, color, ax=None):
     return ax
 
 
-def plot_line(df, selection, label, ax=None):
+def plot_line(df, selection, label, fit, ax=None):
     if ax is None:
         ax = plt.gca()
 
     p = ax.plot(selection, "ns/day", ".-", data=df, ms="10", label=label)
     color = p[0].get_color()
 
-    if len(df[selection]) > 1:
+    if fit and (len(df[selection]) > 1):
         plot_projection(df=df, selection=selection, color=color, ax=ax)
 
     return ax
 
 
-def plot_over_group(df, plot_cores, ax=None):
+def plot_over_group(df, plot_cores, fit, ax=None):
     # plot all lines
     selection = "ncores" if plot_cores else "nodes"
 
@@ -101,7 +101,7 @@ def plot_over_group(df, plot_cores, ax=None):
         label = "{template} - {module} on {pu}s".format(
             template=template, module=module, pu=pu
         )
-        plot_line(df=df, selection=selection, ax=ax, label=label)
+        plot_line(df=df, selection=selection, ax=ax, fit=fit, label=label)
 
     # style axes
     xlabel = "cores" if plot_cores else "nodes"
@@ -222,6 +222,12 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     is_flag=True,
 )
 @click.option(
+    "--fit/--no-fit",
+    help="Fit a line through the first two data points, indicating linear scaling.",
+    show_default=True,
+    default=True,
+)
+@click.option(
     "--font-size", help="Font size for generated plot.", default=16, show_default=True
 )
 @click.option(
@@ -249,6 +255,7 @@ def plot(
     gpu,
     cpu,
     plot_cores,
+    fit,
     font_size,
     dpi,
     xtick_step,
@@ -261,7 +268,9 @@ def plot(
     command.
 
     You can customize the filename and file format of the generated plot with
-    the `--output-name` and `--format` option, respectively.
+    the `--output-name` and `--format` option, respectively. Per default, a fit
+    will be plotted through the first data points of each benchmark group. To
+    disable the fit, use the `--no-fit` option.
 
     To only plot specific benchmarks, make use of the `--module`, `--template`,
     `--cpu/--no-cpu` and `--gpu/--no-gpu` options.
@@ -284,7 +293,7 @@ def plot(
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    ax = plot_over_group(df, plot_cores, ax=ax)
+    ax = plot_over_group(df=df, plot_cores=plot_cores, fit=fit, ax=ax)
 
     # Update xticks
     selection = "ncores" if plot_cores else "nodes"
