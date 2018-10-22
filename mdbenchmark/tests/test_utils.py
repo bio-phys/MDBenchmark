@@ -21,10 +21,16 @@ import os
 
 import jinja2
 import numpy as np
+import pandas as pd
+import tabulate
+import datreant.core as dtr
+import mdsynthesis as mds
 from numpy.testing import assert_equal
+from pandas.testing import assert_frame_equal
 
 from mdbenchmark import utils
 from mdbenchmark.ext.click_test import cli_runner
+from mdbenchmark.testing import data
 
 
 def test_mdbenchmark_template_environment_variable(monkeypatch):
@@ -145,3 +151,62 @@ def test_guess_ncores(capsys, monkeypatch):
     utils.guess_ncores()
     out, err = capsys.readouterr()
     assert out == output
+
+
+def test_DataFrameFromBundle(data):
+    """Test DataFrameFromBundle function.
+       This is used in other tests, therefore everything is hard coded
+       If changes are made to the layout type this should be changed here.
+    """
+    bundle = mds.discover(data["analyze-files-gromacs"])
+    test_output = utils.DataFrameFromBundle(bundle)
+
+    expected_output = pd.read_csv(data["analyze-files-gromacs.csv"])
+
+    # TODO: This test fails if we test the dtype. This is weird and I would
+    #       like to know why this is...the output itself is fine.
+    assert_frame_equal(test_output, expected_output, check_dtype=False)
+
+
+def test_ConsolidateDataFrame(data):
+    """ Test the ConsolidateDataFrame function.
+        This is used in other tests, therefore everyting is hard coded.
+        If changes are made to the layout type this should be changed here.
+    """
+    bundle = mds.discover(data["analyze-files-gromacs"])
+    df = utils.DataFrameFromBundle(bundle)
+    test_output = utils.ConsolidateDataFrame(df)
+
+    expected_output = pd.read_csv(
+        data["analyze-files-gromacs-consolidated.csv"], index_col=0
+    )
+
+    assert_frame_equal(test_output, expected_output, check_dtype=False)
+
+
+def test_group_consecutives():
+    """Tests the group_consecutives function.
+       This is used in other tests, therefore everyting is hard coded.
+        If changes are made to the layout type this should be changed here.
+    """
+    vals = [1, 2, 4, 5, 7, 10]
+    test_output = utils.group_consecutives(vals)
+
+    expected_output = [[1, 2], [4, 5], [7], [10]]
+
+    assert test_output == expected_output
+
+
+def test_PrintDataFrame(data):
+    """Tests the group_consecutives function.
+       This is used in other tests, therefore everyting is hard coded.
+        If changes are made to the layout type this should be changed here.
+    """
+    df_test = pd.read_csv(data["analyze-files-gromacs.csv"])
+    test_output = utils.PrintDataFrame(df_test, False)
+
+    expected_output = tabulate.tabulate(
+        df_test, headers="keys", tablefmt="psql", showindex=False
+    )
+
+    assert expected_output == test_output

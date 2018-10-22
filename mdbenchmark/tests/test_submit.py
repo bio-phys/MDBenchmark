@@ -18,7 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
-
+import pandas as pd
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
@@ -53,21 +54,31 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
         # an non-existent path.
-        result = cli_runner.invoke(cli.cli, ["submit", "--directory=look_here/"])
+        result = cli_runner.invoke(
+            cli.cli, ["submit", "--directory=look_here/"], "--yes"
+        )
         assert result.exit_code == 1
         assert result.output == "ERROR No benchmarks found.\n"
 
         # Test that we get an error if we try to start benchmarks that were
         # already started once.
         result = cli_runner.invoke(
-            cli.cli, ["submit", "--directory={}".format(data["analyze-files-gromacs"])]
+            cli.cli,
+            ["submit", "--directory={}".format(data["analyze-files-gromacs"]), "--yes"],
         )
+        df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
+        s = PrintDataFrame(df, False)
+
+        test = (
+            "Benchmark Summary:\n"
+            + s
+            + "\nThe above benchmarks will be submitted.\n"
+            + "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
+        )
+        # print(test)
+        # print(result.output)
         assert result.exit_code == 1
-        assert (
-            result.output == "ERROR All generated benchmarks were already "
-            "started once. You can force a restart with "
-            "--force.\n"
-        )
+        assert result.output == test
 
         # Test that we can force restart already run benchmarks.
         # Monkeypatch a few functions
@@ -77,18 +88,71 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         monkeypatch.setattr(
             "mdbenchmark.submit.cleanup_before_restart", lambda engine, sim: True
         )
+
         output = (
-            "Submitting a total of 5 benchmarks.\n"
-            "Submitted all benchmarks. Run mdbenchmark analyze once "
-            "they are finished to get the results.\n"
+            "Benchmark Summary:\n"
+            + s
+            + "\nThe above benchmarks will be submitted.\n"
+            + "Submitting a total of 5 benchmarks.\n"
+            + "Submitted all benchmarks. Run mdbenchmark analyze once they are finished to get the results.\n"
         )
+
         result = cli_runner.invoke(
             cli.cli,
             [
                 "submit",
                 "--directory={}".format(data["analyze-files-gromacs"]),
                 "--force",
+                "--yes",
             ],
         )
         assert result.exit_code == 0
+        assert result.output == output
+
+
+def test_submit_test_prompt_no(cli_runner, tmpdir, data):
+    """Test whether prompt answer no works."""
+    with tmpdir.as_cwd():
+
+        result = cli_runner.invoke(
+            cli.cli,
+            ["submit", "--directory={}".format(data["analyze-files-gromacs"])],
+            input="n\n",
+        )
+
+        df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
+        s = PrintDataFrame(df, False)
+
+        output = (
+            "Benchmark Summary:\n"
+            + s
+            + "\nThe above benchmarks will be submitted. Continue? [y/N]: n\n"
+            + "ERROR Exiting. No benchmarks submitted.\n"
+        )
+
+        assert result.exit_code == 1
+        assert result.output == output
+
+
+def test_submit_test_prompt_yes(cli_runner, tmpdir, data):
+    """Test whether promt answer no works."""
+    with tmpdir.as_cwd():
+
+        result = cli_runner.invoke(
+            cli.cli,
+            ["submit", "--directory={}".format(data["analyze-files-gromacs"])],
+            input="y\n",
+        )
+
+        df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
+        s = PrintDataFrame(df, False)
+
+        output = (
+            "Benchmark Summary:\n"
+            + s
+            + "\nThe above benchmarks will be submitted. Continue? [y/N]: y\n"
+            + "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
+        )
+
+        assert result.exit_code == 1
         assert result.output == output

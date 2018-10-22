@@ -30,7 +30,7 @@ from . import console
 from .cli import cli
 from .mdengines import detect_md_engine, utils
 from .plot import plot_over_group
-from .utils import generate_output_name
+from .utils import generate_output_name, DataFrameFromBundle, PrintDataFrame
 
 plt.switch_backend("agg")
 
@@ -81,22 +81,7 @@ def analyze(directory, plot, ncores, output_name):
     """
     bundle = mds.discover(directory)
 
-    df = pd.DataFrame(
-        columns=["module", "nodes", "ns/day", "run time [min]", "gpu", "host", "ncores"]
-    )
-
-    for i, sim in enumerate(bundle):
-        # older versions wrote a version category. This ensures backwards compatibility
-        if "module" in sim.categories:
-            module = sim.categories["module"]
-        else:
-            module = sim.categories["version"]
-        # call the engine specific analysis functions
-        engine = detect_md_engine(module)
-        df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
-
-    if df.empty:
-        console.error("There is no data for the given path.")
+    df = DataFrameFromBundle(bundle)
 
     if df.isnull().values.any():
         console.warn(
@@ -105,15 +90,9 @@ def analyze(directory, plot, ncores, output_name):
             "were not started yet."
         )
 
-    # Sort values by `nodes`
-    df = df.sort_values(
-        ["host", "module", "run time [min]", "gpu", "nodes"]
-    ).reset_index(drop=True)
-
     # Reformat NaN values nicely into question marks.
-    df_to_print = df.replace(np.nan, "?")
-    with pd.option_context("display.max_rows", None):
-        print(df_to_print)
+    # move this to the bundle function!
+    PrintDataFrame(df)
 
     # here we determine which output name to use.
     if output_name is None:
