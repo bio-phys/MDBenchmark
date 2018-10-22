@@ -20,10 +20,12 @@
 import click
 
 import datreant.core as dtr
-
+import mdsynthesis as mds
+import pandas as pd
 from . import console, mdengines, utils
 from .cli import cli
 from .mdengines.utils import write_benchmark
+from .utils import DataFrameFromBundle, ConsolidateDataFrame, PrintDataFrame
 
 NAMD_WARNING = (
     "NAMD support is experimental. "
@@ -188,7 +190,12 @@ def validate_hosts(ctx, param, host=None):
     default=False,
     is_flag=True,
 )
-def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_validation):
+@click.option(
+    "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
+)
+def generate(
+    name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_validation, yes
+):
     """Generate benchmarks for molecular dynamics simulations.
 
     Requires the `--name` option to be provided an existing file, e.g.,
@@ -232,6 +239,21 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_vali
     if not module:
         console.error("No requested modules available!")
 
+    df_overview = pd.DataFrame(
+        columns=[
+            "name",
+            "base_directory",
+            "template",
+            "engine",
+            "module",
+            "nodes",
+            "run time [min]",
+            "gpu",
+            "host",
+        ]
+    )
+
+    i = 1
     for m in module:
         # Here we detect the MD engine (supported: GROMACS and NAMD).
         engine = mdengines.detect_md_engine(m)
@@ -245,7 +267,6 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_vali
                 continue
 
             directory = "{}_{}".format(host, m)
-
             gpu = False
             gpu_string = ""
             if pu == "gpu":
@@ -254,27 +275,45 @@ def generate(name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_vali
                 gpu_string = " with GPUs"
 
             console.info("Creating benchmark system for {}.", m + gpu_string)
-            number_of_benchmarks = len(module) * (max_nodes + 1 - min_nodes)
-            run_time_each = "{} minutes".format(time)
-            console.info(
-                "Creating a total of {} benchmarks, with a run time of {} each.",
-                number_of_benchmarks,
-                run_time_each,
-            )
 
             base_directory = dtr.Tree(directory)
-            for n in range(min_nodes, max_nodes + 1):
-                write_benchmark(
-                    engine=engine,
-                    base_directory=base_directory,
-                    template=template,
-                    nodes=n,
-                    gpu=gpu,
-                    module=m,
-                    name=name,
-                    host=host,
-                    time=time,
-                )
+
+            for nodes in range(min_nodes, max_nodes + 1):
+                df_overview.loc[i] = [
+                    name,
+                    base_directory,
+                    template,
+                    engine,
+                    m,
+                    nodes,
+                    time,
+                    gpu,
+                    host,
+                ]
+                i += 1
+
+        console.info("{}", "Benchmark Summary:")
+
+        df_short = ConsolidateDataFrame(df_overview)
+        PrintDataFrame(df_short)
+
+    if yes:
+        console.info("Generating the above benchmarks.")
+    elif not click.confirm("The above benchmarks will be generated. Continue?"):
+        console.error("Exiting. No benchmarks generated.")
+
+    for index, row in df_overview.iterrows():
+        write_benchmark(
+            engine=row["engine"],
+            base_directory=row["base_directory"],
+            template=row["template"],
+            nodes=row["nodes"],
+            gpu=row["gpu"],
+            module=row["module"],
+            name=row["name"],
+            host=row["host"],
+            time=row["run time [min]"],
+        )
 
     # Provide some output for the user
     console.info(

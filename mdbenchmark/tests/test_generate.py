@@ -20,9 +20,13 @@
 import os
 
 import pytest
+import pandas as pd
 from click import exceptions
+import datreant.core as dtr
+import mdsynthesis as mds
 
 from mdbenchmark import cli
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, ConsolidateDataFrame
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.generate import (
     NAMD_WARNING,
@@ -68,11 +72,21 @@ def generate_output_create():
         if gpu:
             gpu_string = "{} with GPUs"
 
-        return (
-            "Creating benchmark system for {}.\n"
-            "Creating a total of {} benchmarks, with a run time of {}"
-            " minutes each.\n".format(gpu_string, n_benchmarks, runtime)
-        )
+        return "Creating benchmark system for {}.\n".format(gpu_string)
+
+    return _output
+
+
+@pytest.fixture
+def generate_output_table():
+    def _output(short=False):
+        title = "Benchmark Summary:\n"
+        bundle = mds.discover()
+        df = DataFrameFromBundle(bundle)
+        if short:
+            df = ConsolidateDataFrame(df)
+
+        return title + PrintDataFrame(df, False) + "\n"
 
     return _output
 
@@ -80,19 +94,23 @@ def generate_output_create():
 @pytest.fixture
 def generate_output_finish():
     return (
+        "Generating the above benchmarks.\n"
         "Finished generating all benchmarks.\nYou can"
         " now submit the jobs with mdbenchmark submit.\n"
     )
 
 
 @pytest.fixture
-def generate_output(generate_output_create, generate_output_finish):
+def generate_output(
+    generate_output_create, generate_output_table, generate_output_finish
+):
     def _output(gpu=True, n_benchmarks=4, runtime=15):
         create_string = generate_output_create(
             gpu=gpu, n_benchmarks=n_benchmarks, runtime=runtime
         )
+        table_string = generate_output_table(short=True)
         finish_string = generate_output_finish
-        return create_string + finish_string
+        return create_string + table_string + finish_string
 
     return _output
 
@@ -107,15 +125,6 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions, 
         for ext in extensions:
             open("protein.{}".format(ext), "a").close()
 
-        output = generate_output().format(module)
-        output = (
-            "WARNING Cannot locate modules available on this host. "
-            "Not performing module name validation.\n" + output
-        )
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
-
-        # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(
             cli.cli,
             [
@@ -126,8 +135,20 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions, 
                 "--gpu",
                 "--no-cpu",
                 "--name=protein",
+                "--yes",
             ],
         )
+
+        output = generate_output().format(module)
+        output = (
+            "WARNING Cannot locate modules available on this host. "
+            "Not performing module name validation.\n" + output
+        )
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        # Test that we get a warning, if no module name validation is performed.
+
         assert result.exit_code == 0
         assert result.output == output
 
@@ -140,6 +161,7 @@ def test_generate_simple_input_with_cpu_gpu(
     cli_runner,
     generate_output_create,
     generate_output_finish,
+    generate_output_table,
     module,
     extensions,
     tmpdir,
@@ -149,17 +171,6 @@ def test_generate_simple_input_with_cpu_gpu(
         for ext in extensions:
             open("protein.{}".format(ext), "a").close()
 
-        output = generate_output_create(gpu=False).format(module)
-        output = (
-            "WARNING Cannot locate modules available on this host. "
-            "Not performing module name validation.\n" + output
-        )
-        output += generate_output_create(gpu=True).format(module)
-        output += generate_output_finish
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
-
-        # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(
             cli.cli,
             [
@@ -169,8 +180,23 @@ def test_generate_simple_input_with_cpu_gpu(
                 "--max-nodes=4",
                 "--gpu",
                 "--name=protein",
+                "--yes",
             ],
         )
+
+        output = generate_output_create(gpu=False).format(module)
+        output = (
+            "WARNING Cannot locate modules available on this host. "
+            "Not performing module name validation.\n" + output
+        )
+        output += generate_output_create(gpu=True).format(module)
+        output += generate_output_table(True)
+        output += generate_output_finish
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        # Test that we get a warning, if no module name validation is performed.
+
         assert result.exit_code == 0
         assert result.output == output
 
@@ -187,17 +213,6 @@ def test_generate_simple_input_with_working_validation(
         for ext in extensions:
             open("protein.{}".format(ext), "a").close()
 
-        output = generate_output().format(module)
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
-
-        # monkeypatch the output of the available modules
-        monkeypatch.setattr(
-            "mdbenchmark.mdengines.get_available_modules",
-            lambda: {"gromacs": ["2016"], "namd": ["11"]},
-        )
-
-        # Test that we get a warning, if no module name validation is performed.
         result = cli_runner.invoke(
             cli.cli,
             [
@@ -208,8 +223,25 @@ def test_generate_simple_input_with_working_validation(
                 "--gpu",
                 "--no-cpu",
                 "--name=protein",
+                "--yes",
             ],
         )
+
+        output = generate_output().format(module)
+        output = (
+            "WARNING Cannot locate modules available on this host. Not performing module name validation.\n"
+            + output
+        )
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + output
+
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr(
+            "mdbenchmark.mdengines.get_available_modules",
+            lambda: {"gromacs": ["2016"], "namd": ["11"]},
+        )
+
+        # Test that we get a warning, if no module name validation is performed.
         assert result.exit_code == 0
         assert result.output == output
 
@@ -232,11 +264,6 @@ def test_generate_skip_validation(
             lambda: {"gromacs": ["2016"], "namd": ["11"]},
         )
 
-        output = generate_output().format(module)
-        output = "WARNING Not performing module name validation.\n" + output
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
-
         result = cli_runner.invoke(
             cli.cli,
             [
@@ -248,8 +275,15 @@ def test_generate_skip_validation(
                 "--no-cpu",
                 "--name=protein",
                 "--skip-validation",
+                "--yes",
             ],
         )
+
+        output = generate_output().format(module)
+        output = "WARNING Not performing module name validation.\n" + output
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + output
+
         assert result.exit_code == 0
         assert result.output == output
 
@@ -280,6 +314,7 @@ def test_generate_unsupported_engine(cli_runner, monkeypatch, tmpdir):
                 "--module=doesnotexist/version",
                 "--host=draco",
                 "--name=protein",
+                "--yes",
             ],
         )
         assert result.exit_code == 1
@@ -308,16 +343,6 @@ def test_generate_odd_number_of_nodes(
         for ext in extensions:
             open("protein.{}".format(ext), "a").close()
 
-        output = (
-            "Creating benchmark system for {} with GPUs.\n"
-            "Creating a total of 3 benchmarks, with a run time of 15 minutes each.\n"
-            "Finished generating all benchmarks.\n"
-            "You can now submit the jobs with mdbenchmark submit.\n".format(module)
-        )
-
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
-
         monkeypatch.setattr(
             "mdbenchmark.mdengines.get_available_modules",
             lambda: {"gromacs": ["2016"], "namd": ["11"]},
@@ -334,8 +359,28 @@ def test_generate_odd_number_of_nodes(
                 "--gpu",
                 "--no-cpu",
                 "--name=protein",
+                "--yes",
             ],
         )
+
+        output1 = "Creating benchmark system for {} with GPUs.\n".format(module)
+
+        bundle = mds.discover()
+        df = DataFrameFromBundle(bundle)
+        df = ConsolidateDataFrame(df)
+        test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+
+        output2 = (
+            "Generating the above benchmarks.\n"
+            "Finished generating all benchmarks.\n"
+            "You can now submit the jobs with mdbenchmark submit.\n"
+        )
+
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + output1 + test_output + output2
+        else:
+            output = output1 + test_output + output2
+
         assert result.exit_code == 0
         assert result.output == output
         assert os.path.exists("draco_{}".format(engine))
@@ -359,7 +404,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test that we get an error when not supplying a file name
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--module=gromacs/2016", "--host=draco"]
+            cli.cli, ["generate", "--module=gromacs/2016", "--host=draco", "--yes"]
         )
         output = (
             "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
@@ -368,7 +413,8 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if the TPR file does not exist
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--module=gromacs/2016", "--host=draco", "--name=md"]
+            cli.cli,
+            ["generate", "--module=gromacs/2016", "--host=draco", "--name=md", "--yes"],
         )
         output = (
             "ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n"
@@ -390,6 +436,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
                 "--name=protein",
                 "--min-nodes=6",
                 "--max-nodes=4",
+                "--yes",
             ],
         )
         output = (
@@ -403,7 +450,13 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
         # Test error message if we pass an invalid template name
         result = cli_runner.invoke(
             cli.cli,
-            ["generate", "--module=gromacs/2016", "--host=minerva", "--name=protein"],
+            [
+                "generate",
+                "--module=gromacs/2016",
+                "--host=minerva",
+                "--name=protein",
+                "--yes",
+            ],
         )
         output = (
             "Could not find template for host 'minerva'.\n"
@@ -417,7 +470,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if we do not pass any module name
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--host=draco", "--name=protein"]
+            cli.cli, ["generate", "--host=draco", "--name=protein", "--yes"]
         )
         output = (
             "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
@@ -440,18 +493,27 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
         )
 
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--module=namd/123", "--host=draco", "--name=md"]
+            cli.cli,
+            ["generate", "--module=namd/123", "--host=draco", "--name=md", "--yes"],
         )
-        output = (
+        output1 = (
             "WARNING NAMD support is experimental. "
             "All input files must be in the current directory. "
             "Parameter paths must be absolute. Only crude file checks are performed! "
             "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n"
             "Creating benchmark system for namd/123.\n"
-            "Creating a total of 5 benchmarks, with a run time of 15 "
-            "minutes each.\nFinished generating all benchmarks.\nYou can "
+        )
+        bundle = mds.discover()
+        df = DataFrameFromBundle(bundle)
+        df = ConsolidateDataFrame(df)
+        test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+
+        output2 = (
+            "Generating the above benchmarks.\n"
+            "Finished generating all benchmarks.\nYou can "
             "now submit the jobs with mdbenchmark submit.\n"
         )
+        output = output1 + test_output + output2
 
         assert result.exit_code == 0
         assert result.output == output
@@ -542,3 +604,65 @@ def test_validate_generate_host(ctx_mock):
 
     # Test success of existent hostname
     assert validate_hosts(ctx_mock, None, host="draco") == "draco"
+
+
+def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
+    """Test whether promt answer yes works."""
+    with tmpdir.as_cwd():
+        open("protein.tpr", "a").close()
+
+        result = cli_runner.invoke(
+            cli.cli,
+            [
+                "generate",
+                "--module=gromacs/2016",
+                "--host=draco",
+                "--max-nodes=4",
+                "--gpu",
+                "--no-cpu",
+                "--name=protein",
+            ],
+            input="y\n",
+        )
+        output1 = (
+            "WARNING Cannot locate modules available on this host. Not performing module name validation.\n"
+            "Creating benchmark system for gromacs/2016 with GPUs.\n"
+        )
+        bundle = mds.discover()
+        df = DataFrameFromBundle(bundle)
+        df = ConsolidateDataFrame(df)
+        output2 = (
+            "The above benchmarks will be generated. Continue? [y/N]: y\n"
+            "Finished generating all benchmarks.\n"
+            "You can now submit the jobs with mdbenchmark submit.\n"
+        )
+        mid = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+        output = output1 + mid + output2
+        # Test that we get a warning, if no module name validation is performed.
+
+        assert result.exit_code == 0
+        assert result.output == output
+
+
+def test_generate_test_prompt_no(cli_runner, tmpdir, generate_output):
+    """Test whether promt answer no works."""
+    with tmpdir.as_cwd():
+        open("protein.tpr", "a").close()
+
+        result = cli_runner.invoke(
+            cli.cli,
+            [
+                "generate",
+                "--module=gromacs/2016",
+                "--host=draco",
+                "--max-nodes=4",
+                "--gpu",
+                "--no-cpu",
+                "--name=protein",
+            ],
+            input="n\n",
+        )
+
+        bundle = mds.discover()
+        assert result.exit_code == 1
+        assert len(bundle) == 0

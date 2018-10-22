@@ -78,6 +78,7 @@ setup(
         "matplotlib>=2.2.3,<3.0",  # matplotlib 3.0 does not support Python 2
         "python-Levenshtein",
         "xdg<2",  # xdg 2 does not support Python 2
+        "tabulate==0.8.2",
     ],
     package_data={"mdbenchmark": ["templates/*"]},
     entry_points={"console_scripts": ["mdbenchmark=mdbenchmark.cli:cli"]},
