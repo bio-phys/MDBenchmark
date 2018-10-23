@@ -45,29 +45,6 @@ def prepare_benchmark(name, *args, **kwargs):
     return name
 
 
-def analyze_lammps_file(fh):
-    """ Check whether the LAMMPS config file has any relative imports or variables
-    """
-    lines = fh.readlines()
-
-    for line in lines:
-        # Continue if we do not need to do anything with the current line
-        if (
-            ("parameters" not in line)
-            and ("coordinates" not in line)
-            and ("structure" not in line)
-        ):
-            continue
-
-        path = line.split()[1]
-        if "$" in path:
-            console.error("Variable Substitutions are not allowed in NAMD files!")
-        if ".." in path:
-            console.error("Relative file paths are not allowed in NAMD files!")
-        if "/" not in path or ("/" in path and not path.startswith("/")):
-            console.error("No absolute path detected in NAMD file!")
-
-
 def check_input_file_exists(name):
     """Check and append the correct file extensions for the LAMMPS module."""
     # Check whether the needed files are there.
