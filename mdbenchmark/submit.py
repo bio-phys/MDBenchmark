@@ -69,14 +69,14 @@ def submit(directory, force_restart, yes):
     """Submit benchmarks to queuing system.
 
     Benchmarks are searched recursively starting from the directory specified
-    in `--directory`. If the option is not specified, the working directory
+    in ``--directory``. If the option is not specified, the working directory
     will be used.
 
-    Requests a user prompt. Using `--yes` flag skips this step.
+    Requests a user prompt. Using ``--yes`` flag skips this step.
 
     Checks whether benchmark folders were already generated, exits otherwise.
     Only runs benchmarks that were not already started. Can be overwritten with
-    `--force`.
+    ``--force``.
     """
     # Migrate from MDBenchmark<2 to MDBenchmark=>2
     mds_to_dtr.migrate_to_datreant(directory)

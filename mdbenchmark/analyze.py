@@ -69,15 +69,15 @@ def analyze(directory, plot, ncores, save_csv):
     """Analyze benchmarks and print the performance results.
 
     Benchmarks are searched recursively starting from the directory specified
-    in `--directory`. If the option is not specified, the working directory
+    in ``--directory``. If the option is not specified, the working directory
     will be used.
 
     Benchmarks that have not started yet or finished without printing the
     performance result, will be marked accordingly.
 
     The benchmark performance results can be saved in a CSV file with the
-    `--output-name` option and a custom filename. To plot the results use
-    `mdbenchmark plot`.
+    ``--output-name`` option and a custom filename. To plot the results use
+    ``mdbenchmark plot``.
     """
 
     # Migrate from MDBenchmark<2 to MDBenchmark=>2

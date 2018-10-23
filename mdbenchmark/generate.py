@@ -209,22 +209,22 @@ def generate(
 ):
     """Generate benchmarks for molecular dynamics simulations.
 
-    Requires the `--name` option to be provided an existing file, e.g.,
-    `protein.tpr` for GROMACS and `protein.namd`, `protein.pdb` and
-    `protein.psf` for NAMD. The filename `protein` will then be used as the job
-    name.
+    Requires the ``--name`` option to be provided an existing file, e.g.,
+    ``protein.tpr`` for GROMACS and ``protein.namd``, ``protein.pdb`` and
+    ``protein.psf`` for NAMD. The filename ``protein`` will then be used as the job
+    name, or can be overwritten with the ``--job-name`` option.
 
     The specified module name will be validated and searched on the current
-    system. To skip this check, use the `--skip-validation` option.
+    system. To skip this check, use the ``--skip-validation`` option.
 
-    Benchmarks will be generated for CPUs per default (`--cpu`), but can also
-    be generated for GPUs (`--gpu`) at the same time or without CPUs
-    (`--no-cpu`).
+    Benchmarks will be generated for CPUs per default (``--cpu``), but can also
+    be generated for GPUs (``--gpu``) at the same time or without CPUs
+    (``--no-cpu``).
 
     The hostname of the current system will be used to look for benchmark
-    templates, but can be overwritten with the `--template` option. Templates
-    for the MPCDF clusters `cobra`, `draco` and `hydra` are provided with the
-    package. All available templates can be listed with the `--list-hosts`
+    templates, but can be overwritten with the ``--template`` option. Templates
+    for the MPCDF clusters ``cobra``, ``draco`` and ``hydra`` are provided with the
+    package. All available templates can be listed with the ``--list-hosts``
     option.
     """
     # Validate the CPU and GPU flags
