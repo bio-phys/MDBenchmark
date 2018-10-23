@@ -20,10 +20,8 @@
 import os
 from glob import glob
 
-import datreant.core as dtr
-import mdsynthesis as mds
+import datreant as dtr
 import pytest
-
 from mdbenchmark.mdengines import gromacs, namd, utils
 from mdbenchmark.utils import retrieve_host_template
 
@@ -38,7 +36,7 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
         for ext in extensions:
             open("md.{}".format(ext), "a").close()
 
-        sim = mds.Sim("./{}".format(engine))
+        sim = dtr.Treant("./{}".format(engine))
         name = engine.prepare_benchmark(input_name, sim=sim)
 
         assert name == "md"

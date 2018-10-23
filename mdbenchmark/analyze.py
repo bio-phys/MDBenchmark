@@ -19,8 +19,8 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
+import datreant as dtr
 import matplotlib.pyplot as plt
-import mdsynthesis as mds
 import numpy as np
 import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -29,6 +29,7 @@ from matplotlib.figure import Figure
 from . import console
 from .cli import cli
 from .mdengines import detect_md_engine, utils
+from .migrations import mds_to_dtr
 from .plot import plot_over_group
 from .utils import generate_output_name, DataFrameFromBundle, PrintDataFrame
 
@@ -79,7 +80,11 @@ def analyze(directory, plot, ncores, output_name):
     `--output-name` option and a custom filename. To plot the results use
     `mdbenchmark plot`.
     """
-    bundle = mds.discover(directory)
+
+    # Migrate from MDBenchmark<2 to MDBenchmark=>2
+    mds_to_dtr.migrate_to_datreant(directory)
+
+    bundle = dtr.discover(directory)
 
     df = DataFrameFromBundle(bundle)
 

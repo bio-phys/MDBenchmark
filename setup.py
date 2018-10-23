@@ -71,7 +71,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "numpy>=1.8",
-        "mdsynthesis==0.6.1",
+        "datreant>=1.0.0",
         "click==6.7",  # v7.0 introduced some changes that broke our tests.
         "jinja2",
         "pandas",

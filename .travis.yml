@@ -9,13 +9,13 @@ branches:
 cache:
   - pip: true
   - directories:
-    - $PIP_CACHE_DIR
+      - $PIP_CACHE_DIR
 
 env:
   global:
     - MAIN_CMD="pytest"
     - SETUP_CMD="mdbenchmark -v"
-    - CONDA_DEPENDENCIES="mdsynthesis jinja2 click pandas matplotlib xdg<2"
+    - CONDA_DEPENDENCIES="datreant jinja2 click==6.7 pandas matplotlib xdg<2"
     - CONDA_CHANNELS="conda-forge"
     - NUMPY_VERSION=stable
     - PIP_CACHE_DIR=$HOME/.cache/pip
@@ -30,11 +30,9 @@ jobs:
       env:
         - CODECOV="--cov mdbenchmark"
         - PYTEST_COV="pytest-cov codecov"
-    -
-      name: "Python 3.5"
+    - name: "Python 3.5"
       python: "3.5"
-    -
-      name: "Python 2.7"
+    - name: "Python 2.7"
       python: "2.7"
 
     - stage: "Linting and formatting"
@@ -43,26 +41,22 @@ jobs:
         - $UPGRADE_PIP
         - pip install black
       script: make reformat-check
-    -
-      name: "Linting with flake8"
+    - name: "Linting with flake8"
       install:
         - $UPGRADE_PIP
         - pip install flake8
       script: make flake8
-    -
-      name: "Sorting with isort"
+    - name: "Sorting with isort"
       install:
         - $UPGRADE_PIP
         - pip install isort
       script: make isort
-    -
-      name: "Lint reStructuredText"
+    - name: "Lint reStructuredText"
       install:
         - $UPGRADE_PIP
         - pip install restructuredtext_lint
       script: make rst-lint
-    -
-      name: "Try to build documentation"
+    - name: "Try to build documentation"
       install:
         - $UPGRADE_PIP
         - pip install . sphinx-click
@@ -80,7 +74,7 @@ jobs:
 
 install:
   - $UPGRADE_PIP
-  - pip install . mdbenchmark -v $PYTEST_COV
+  - pip install . -v $PYTEST_COV
 
 script:
   - pytest $CODECOV

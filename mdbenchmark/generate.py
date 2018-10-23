@@ -19,13 +19,13 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
-import datreant.core as dtr
-import mdsynthesis as mds
+import datreant as dtr
 import pandas as pd
+
 from . import console, mdengines, utils
 from .cli import cli
 from .mdengines.utils import write_benchmark
-from .utils import DataFrameFromBundle, ConsolidateDataFrame, PrintDataFrame
+from .utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 NAMD_WARNING = (
     "NAMD support is experimental. "

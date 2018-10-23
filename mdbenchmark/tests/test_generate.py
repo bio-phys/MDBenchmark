@@ -22,9 +22,8 @@ import os
 import pytest
 import pandas as pd
 from click import exceptions
-import datreant.core as dtr
-import mdsynthesis as mds
 
+import datreant as dtr
 from mdbenchmark import cli
 from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, ConsolidateDataFrame
 from mdbenchmark.ext.click_test import cli_runner
@@ -81,7 +80,7 @@ def generate_output_create():
 def generate_output_table():
     def _output(short=False):
         title = "Benchmark Summary:\n"
-        bundle = mds.discover()
+        bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
         if short:
             df = ConsolidateDataFrame(df)
@@ -365,7 +364,7 @@ def test_generate_odd_number_of_nodes(
 
         output1 = "Creating benchmark system for {} with GPUs.\n".format(module)
 
-        bundle = mds.discover()
+        bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
         df = ConsolidateDataFrame(df)
         test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
@@ -503,7 +502,7 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
             "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n"
             "Creating benchmark system for namd/123.\n"
         )
-        bundle = mds.discover()
+        bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
         df = ConsolidateDataFrame(df)
         test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
@@ -628,7 +627,7 @@ def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
             "WARNING Cannot locate modules available on this host. Not performing module name validation.\n"
             "Creating benchmark system for gromacs/2016 with GPUs.\n"
         )
-        bundle = mds.discover()
+        bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
         df = ConsolidateDataFrame(df)
         output2 = (
@@ -663,6 +662,6 @@ def test_generate_test_prompt_no(cli_runner, tmpdir, generate_output):
             input="n\n",
         )
 
-        bundle = mds.discover()
+        bundle = dtr.discover()
         assert result.exit_code == 1
         assert len(bundle) == 0

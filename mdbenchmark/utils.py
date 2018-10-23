@@ -25,9 +25,8 @@ import sys
 from tabulate import tabulate
 
 import click
+import datreant as dtr
 import numpy as np
-import datreant.core as dtr
-import mdsynthesis as mds
 import pandas as pd
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader

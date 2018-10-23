@@ -19,12 +19,11 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
+import datreant as dtr
 import jinja2
 import numpy as np
 import pandas as pd
 import tabulate
-import datreant.core as dtr
-import mdsynthesis as mds
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
@@ -158,7 +157,7 @@ def test_DataFrameFromBundle(data):
        This is used in other tests, therefore everything is hard coded
        If changes are made to the layout type this should be changed here.
     """
-    bundle = mds.discover(data["analyze-files-gromacs"])
+    bundle = dtr.discover(data["analyze-files-gromacs"])
     test_output = utils.DataFrameFromBundle(bundle)
 
     expected_output = pd.read_csv(data["analyze-files-gromacs.csv"])
@@ -173,7 +172,7 @@ def test_ConsolidateDataFrame(data):
         This is used in other tests, therefore everyting is hard coded.
         If changes are made to the layout type this should be changed here.
     """
-    bundle = mds.discover(data["analyze-files-gromacs"])
+    bundle = dtr.discover(data["analyze-files-gromacs"])
     df = utils.DataFrameFromBundle(bundle)
     test_output = utils.ConsolidateDataFrame(df)
 

@@ -20,7 +20,7 @@ Create a virtual environment
 
 If you are using ``conda``, you can easily create a `conda environment`_::
 
-    $ conda create -n benchmark -c conda-forge mdsynthesis click
+    $ conda create -n benchmark -c conda-forge python=3
     $ source activate benchmark
 
 Make sure to activate the environment, before trying to install the package.
