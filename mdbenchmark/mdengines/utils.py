@@ -31,6 +31,7 @@ from .namd import analyze_namd_file
 FILES_TO_KEEP = {
     "gromacs": [".*/bench\.job", ".*\.tpr", ".*\.mdp"],
     "namd": [".*/bench\.job", ".*\.namd", ".*\.psf", ".*\.pdb"],
+    "lammps": [".*/bench\.job", ".*\.in"],
 }
 
 PARSE_ENGINE = {
@@ -48,6 +49,13 @@ PARSE_ENGINE = {
         "ncores_return": lambda line: int(line.split()[3]),
         "analyze": "*out*",
     },
+    "lammps": {
+        "performance": "Performance",
+        "performance_return": lambda line: 1 / float(line.split()[1]),
+        "ncores": "Loop",
+        "ncores_return": lambda line: int(line.split()[5]),
+        "analyze": "*log*",
+    }
 }
 
 

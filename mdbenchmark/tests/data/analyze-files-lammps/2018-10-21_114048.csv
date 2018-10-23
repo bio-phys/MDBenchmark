@@ -1,0 +1,6 @@
+,module,nodes,ns/day,run time [min],gpu,host,ncores
+0,lammps/2016,1,0.26371308016877637,15,False,draco,1
+1,lammps/2016,2,,15,False,draco,
+2,lammps/2016,3,,15,False,draco,
+3,lammps/2016,4,,15,False,draco,
+4,lammps/2016,5,,15,False,draco,

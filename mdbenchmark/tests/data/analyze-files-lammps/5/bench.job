@@ -1,0 +1,25 @@
+#!/bin/bash -l
+# Standard output and error:
+#SBATCH -o ./bulk.out.%j
+#SBATCH -e ./bulk.err.%j
+# Initial working directory:
+#SBATCH -D ./
+# Job Name:
+#SBATCH -J bulk
+#
+# Queue (Partition):
+#SBATCH --partition=express
+#
+# Number of nodes and MPI tasks per node:
+#SBATCH --nodes=5
+#SBATCH --ntasks-per-node=32
+# Wall clock limit:
+#SBATCH --time=00:20:00
+
+module purge
+module load impi
+module load cuda
+module load lammps/2016
+
+# Run lammps/2016 for 15 minutes
+srun lmp_mpi -v f tmp.out -l my.log -sc none -i in.alloy
