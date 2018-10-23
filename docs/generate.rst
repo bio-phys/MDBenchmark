@@ -91,22 +91,22 @@ simply use the ``--host`` option::
 
   mdbenchmark generate --host my_job_template
 
-Running on graphics processing units (GPUs)
--------------------------------------------
-
+Running on CPUs or GPUs
+-----------------------
+Depending on your cluster you might want to run your simulations on GPU nodes
+or CPU only nodes. You can choose this with ``--cpu/--no-cpu`` or ``--gpu/--no-gpu`` flag.
+By default mdbenchmark generate only runs on cpus but GPUs can be easily added.
 The default template for the MPCDF cluster ``draco`` showcases the ability to
 run benchmarks on GPUs. Generation of these benchmarks is possible with the
 ``-g`` or ``--gpu`` option::
 
   mdbenchmark generate --gpu
 
-.. note::
+This generates benchmarks for both GPU and CPU partitions. If you only want to run on
+GPUs this is easily achived by envoking::
 
-   When generating benchmarks for GPUs, MDBenchmark will also generate the
-   equivalent benchmark for CPUs. If you only want to benchmark on GPUs, you can
-   either delete the CPU folder or not submit these benchmarks. This behavior
-   will be changed in the upcoming version 2.0, where you can choose not to
-   generate CPU benchmarks.
+   mdbenchmark generate --gpu --no-cpu
+
 
 Limiting the run time of benchmarks
 -----------------------------------
@@ -120,6 +120,17 @@ HPCs. To change the run time per benchmark, simply use the ``--time`` option::
   mdbenchmark generate --time 5
 
 This would run all benchmarks for a total of five minutes.
+
+Mix and Match
+-------------
+
+All the above detailed commands can be used in any order and combined to
+generate a large  set of desired benchmarks.
+One can also generate them separately by invoking mdbenchmark for instance once
+for each module one wishes to use.
+Since under the hood a flexible data management system is used submitting and analyzing
+them collectively is no problem. We use the highly versatile datreant library.
+
 
 .. _modules: https://linux.die.net/man/1/module
 .. _draco: https://www.mpcdf.mpg.de/services/computing/draco

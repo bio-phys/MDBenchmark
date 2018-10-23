@@ -7,4 +7,5 @@ pandas==0.23.4
 datreant==1.0.2
 xdg==1.0.7
 jinja2==2.10
+tabulate==0.8.2
 -e .

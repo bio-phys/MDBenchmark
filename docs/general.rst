@@ -1,11 +1,12 @@
 Basic usage of MDBenchmark
 ==========================
 
-Usage of MDBenchmark can be broken down into three points:
+Usage of MDBenchmark can be broken down into four points:
 
 1. ``generate``
 2. ``submit``
 3. ``analyze``
+4. ``plot``
 
 We first generate benchmarks from an input file, e.g., ``.tpr`` in GROMACS.
 Afterwards we submit all generated benchmarks to the queuing system of your HPC.

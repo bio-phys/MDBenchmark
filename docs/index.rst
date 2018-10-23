@@ -78,12 +78,18 @@ After generation benchmarks can be submitted::
   mdbenchmark submit
 
 Now, you can also monitor the status of your benchmark with ``mdbenchmark``.
-This will show you the performance of all runs that have finished::
+This will show you the performance of all runs that have finished. If you only wish to view
+the data you can omit the ``--save-csv`` flag ::
 
-  mdbenchmark analyze
+  mdbenchmark analyze --save-csv data.csv
 
-Plotting of the current results can be achieved with ``mdbenchmark analyze
---plot``.
+Finally, you can plot the data from your ``data.csv`` file with::
+
+  mdbenchmark plot --csv data.csv
+
+
+In older versions (1.x.x), plotting of the results can be achieved with ``mdbenchmark analyze
+--plot``. This, however, is deprecated and will be discontinued in a future release.
 
 Content
 =======
@@ -96,6 +102,7 @@ Content
    generate
    submit
    analyze
+   plot
    jobtemplates
 
 Usage reference
