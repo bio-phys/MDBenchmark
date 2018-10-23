@@ -28,16 +28,27 @@ from mdbenchmark.utils import retrieve_host_template
 
 @pytest.mark.parametrize(
     "engine, input_name, extensions",
-    [(gromacs, "md.tpr", ["tpr"]), (namd, "md.namd", ["namd", "pdb", "psf"])],
+    [
+        (gromacs, "md.tpr", ["tpr"]),
+        (namd, "md.namd", ["namd", "pdb", "psf"]),
+        (gromacs, "../md.tpr", ["tpr"]),
+        (namd, "../md.namd", ["namd", "pdb", "psf"]),
+    ],
 )
 def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
     """Test that the preparation functions of all supported MD engines work."""
     with tmpdir.as_cwd():
         for ext in extensions:
-            open("md.{}".format(ext), "a").close()
+            filename = "md.{}".format(ext)
+            if input_name.startswith("../"):
+                filename = "../md.{}".format(ext)
+            open(filename, "a").close()
 
+        relative_path, filename = os.path.split(input_name)
         sim = dtr.Treant("./{}".format(engine))
-        name = engine.prepare_benchmark(input_name, sim=sim)
+        name = engine.prepare_benchmark(
+            name=filename, relative_path=relative_path, sim=sim
+        )
 
         assert name == "md"
         for ext in extensions:
@@ -73,6 +84,7 @@ def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, 
             module=module,
             name=input_name,
             job_name=job_name,
+            relative_path=".",
             host=host,
             time=15,
         )
