@@ -60,13 +60,12 @@ plt.switch_backend("agg")
     show_default=True,
 )
 @click.option(
-    "-o",
-    "--output-name",
+    "-s",
+    "--save-csv",
     default=None,
     help="Filename for the CSV file containing benchmark results.",
-    type=str,
 )
-def analyze(directory, plot, ncores, output_name):
+def analyze(directory, plot, ncores, save_csv):
     """Analyze benchmarks and print the performance results.
 
     Benchmarks are searched recursively starting from the directory specified
@@ -99,12 +98,9 @@ def analyze(directory, plot, ncores, output_name):
     # move this to the bundle function!
     PrintDataFrame(df)
 
-    # here we determine which output name to use.
-    if output_name is None:
-        output_name = generate_output_name("csv")
-    if ".csv" not in output_name:
-        output_name = "{}.csv".format(output_name)
-    df.to_csv(output_name)
+    if save_csv is not None and not save_csv.endswith(".csv"):
+        save_csv = "{}.csv".format(save_csv)
+    df.to_csv(save_csv)
 
     if plot:
         console.warn("'--plot' has been deprecated, use '{}'.", "mdbenchmark plot")
@@ -113,7 +109,7 @@ def analyze(directory, plot, ncores, output_name):
         FigureCanvas(fig)
         ax = fig.add_subplot(111)
 
-        df = pd.read_csv(output_name)
+        df = pd.read_csv(save_csv)
         ax = plot_over_group(df, plot_cores=False, ax=ax)
         lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
 
