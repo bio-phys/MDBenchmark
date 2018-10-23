@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import os.path
+
 import click
 
 import datreant as dtr
@@ -312,6 +314,7 @@ def generate(
         console.error("Exiting. No benchmarks generated.")
 
     for index, row in df_overview.iterrows():
+        relative_path, file_basename = os.path.split(row["name"])
         write_benchmark(
             engine=row["engine"],
             base_directory=row["base_directory"],
@@ -319,7 +322,8 @@ def generate(
             nodes=row["nodes"],
             gpu=row["gpu"],
             module=row["module"],
-            name=row["name"],
+            name=file_basename,
+            relative_path=relative_path,
             job_name=row["job_name"],
             host=row["host"],
             time=row["run time [min]"],

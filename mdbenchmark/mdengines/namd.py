@@ -29,7 +29,7 @@ from .. import console
 NAME = "namd"
 
 
-def prepare_benchmark(name, *args, **kwargs):
+def prepare_benchmark(name, relative_path, *args, **kwargs):
     sim = kwargs["sim"]
 
     if name.endswith(".namd"):
@@ -39,13 +39,17 @@ def prepare_benchmark(name, *args, **kwargs):
     psf = "{}.psf".format(name)
     pdb = "{}.pdb".format(name)
 
-    with open(namd) as fh:
+    namd_relpath = os.path.join(relative_path, namd)
+    psf_relpath = os.path.join(relative_path, psf)
+    pdb_relpath = os.path.join(relative_path, pdb)
+
+    with open(namd_relpath) as fh:
         analyze_namd_file(fh)
         fh.seek(0)
 
-    copyfile(namd, sim[namd].relpath)
-    copyfile(psf, sim[psf].relpath)
-    copyfile(pdb, sim[pdb].relpath)
+    copyfile(namd_relpath, sim[namd].relpath)
+    copyfile(psf_relpath, sim[psf].relpath)
+    copyfile(pdb_relpath, sim[pdb].relpath)
 
     return name
 
@@ -78,7 +82,7 @@ def check_input_file_exists(name):
     # Check whether the needed files are there.
     for extension in ["namd", "psf", "pdb"]:
         if name.endswith(".{}".format(extension)):
-            name = name[: -2 + len(extension)]
+            name = name[: -1 - len(extension)]
 
         fn = "{}.{}".format(name, extension)
         if not os.path.exists(fn):
