@@ -38,7 +38,9 @@ def prepare_benchmark(name, *args, **kwargs):
         full_filename = name
         name = name[:-3]
 
-    copyfile(full_filename, sim[full_filename].relpath)
+    input_file_list = glob("{}*".format(name))
+    for fn in input_file_list:
+        copyfile(full_filename, sim[fn].relpath)
 
     return name
 
@@ -79,5 +81,7 @@ def check_input_file_exists(name):
             "File {} does not exist, but is needed for LAMMPS benchmarks.", infile
         )
 
+    input_files = glob("{}*".format(fn))
+    console.info("The following files will be used to generate the benchmarks:\n {}", ", ".join(input_files))
 
     return True

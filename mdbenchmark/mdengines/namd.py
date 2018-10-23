@@ -77,6 +77,7 @@ def analyze_namd_file(fh):
 def check_input_file_exists(name):
     """Check and append the correct file extensions for the NAMD module."""
     # Check whether the needed files are there.
+    input_files = []
     for extension in ["namd", "psf", "pdb"]:
         if name.endswith(".{}".format(extension)):
             name = name[: -2 + len(extension)]
@@ -86,5 +87,8 @@ def check_input_file_exists(name):
             console.error(
                 "File {} does not exist, but is needed for NAMD benchmarks.", fn
             )
+        input_files.append(fn)
+
+    console.info("The following files will be used to generate the benchmarks: {}", ", ".join(input_files))
 
     return True
