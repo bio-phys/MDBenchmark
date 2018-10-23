@@ -21,23 +21,23 @@ GROMACS
 -------
 
 Assuming your TPR file is called ``protein.tpr`` and you want to run benchmarks
-with the module ``gromacs/2016.4-plumed2.3``, run the following command:
+with the module ``gromacs/2018.3``, run the following command:
 
 .. code::
 
-    mdbenchmark generate --name protein --module gromacs/2016.4-plumed2.3
+    mdbenchmark generate --name protein --module gromacs/2018.3
 
 To run benchmarks on GPUs simply add the ``--gpu`` flag:
 
 .. code::
 
-    mdbenchmark generate --name protein --module gromacs/2016.4-plumed2.3 --gpu
+    mdbenchmark generate --name protein --module gromacs/2018.3 --gpu
 
 You can also create benchmarks for different versions of GROMACS:
 
 .. code::
 
-    mdbenchmark generate --name protein --module gromacs/2016.4-plumed2.3 --module gromacs/2018.2 --gpu
+    mdbenchmark generate --name protein --module gromacs/2018.3 --module gromacs/2016.4 --gpu
 
 
 NAMD
@@ -82,10 +82,25 @@ Usage with multiple modules
 
 You can use this feature to compare multiple versions of one MD engine or
 different MD engines with each other. Note that the base name for the GROMACS
-and NAMD files (see above) must to be the same, e.g., `protein.tpr` and
-`protein.namd`.
+and NAMD files (see above) must to be the same, e.g., ``protein.tpr`` and
+``protein.namd``::
 
-  mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2016.4
+    mdbenchmark generate --name protein --module namd/2.12 --module gromacs/2018.3
+
+Steps after benchmark generation
+--------------------------------
+
+After you have generated your benchmarks, you can submit them to your queuing system::
+
+    mdbenchmark submit
+
+When benchmarks have finished, you can retrieve the performance results::
+
+    mdbenchmark analyze
+
+Finally, you can plot your benchmarks. For this you need to save your performance results to a CSV file via ``mdbenchmark analyze --save-csv results.csv`` and invoke the ``plot`` command on this file::
+
+    mdbenchmark plot --csv results.csv
 
 .. _GROMACS: http://www.gromacs.org/
 .. _NAMD: https://www.ks.uiuc.edu/Research/namd/

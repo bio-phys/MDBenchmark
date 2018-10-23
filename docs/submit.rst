@@ -15,9 +15,8 @@ current directory, use::
 
 .. note::
 
-   ``mdbenchmark submit`` will currently submit all benchmarks in the current
-   folder and its subdirectory without confirmation. Use the ``--directory``
-   option to limit this behavior.
+   ``mdbenchmark submit`` will ask for your confirmation, before submitting any benchmarks to the queing system. To skip the confirmation use the ``--yes``
+   option.
 
 Submitting specific benchmarks separately
 -----------------------------------------
@@ -26,7 +25,7 @@ If you do not want to submit all benchmark systems at once, you can submit them
 separately with the ``--directory`` option. Simply define the relative path to
 the given directory::
 
-  mdbenchmark submit --directory draco_gromacs/2016.4-plumed2.3
+  mdbenchmark submit --directory draco_gromacs/2018.3
 
 Force submitting jobs that were already submitted once
 ------------------------------------------------------

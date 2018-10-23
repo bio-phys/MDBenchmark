@@ -1,128 +1,121 @@
 Plotting of benchmarks
 ======================
 
-After generating a csv file with ``mdbenchmark analyze`` you can plot the results
-using the plot subcommand::
-
-  mdbenchmark plot
+After generating a CSV file with ``mdbenchmark analyze`` you can plot the results. In the following we describe how to use ``mdbenchmark plot``.
 
 .. note::
-   Make sure you wrote a file using ``mdbenchmark analyze`` with the
-   ``--save-csv`` flag. Previous versions automatically generated this file. This is
+   Make sure you wrote a CSV file using ``mdbenchmark analyze --save-csv``. Versions before ``2.0`` generated this file automatically, but this is
    no longer the default behavior.
-
-In the following we describe how you can use the options for mdbenchmark plot.
-An input using ``--csv``  will always be required.
-
-Further descriptions can be found when calling::
-
-   mdbenchmark plot --help
 
 Plotting a single CSV
 ---------------------
 
-When calling MDBenchmark with a csv both all data contained in the csv file will be
-plotted irrespect of GPU or CPU data.
-MDBenchmark will discern individual runs for you. If you prepared your data with
-``mdbenchmark analyze`` you should be able to run::
+You can plot your benchmarks from a single CSV file, if you saved the data beforehand::
 
    mdbenchmark plot --csv data.csv
-
 
 Plotting multiple CSV files
 ---------------------------
 
-MDBenchmark also offers the option to plot multiple csv files in one plot.
-To do this simply specify the ``--csv`` option multiple times.::
+It is also possible to create one plot from multiple CSV files. To do this simply call the ``--csv`` option multiple times.::
 
    mdbenchmark plot --csv data1.csv --csv data2.csv
 
-MDBenchmark will plot all available data from the runs detailed in these ``.csv`` files
-in one plot. These can further be filterd using the filtering options detailed below.
-These are applied to the data in all csv files collectively.
-
-Filtering selections
---------------------
-
-To filter your data from one or multiple ``.csv`` files you can use several commands.
-There are many options to combine these functionalites to achieve the plots you like.
-This can be useful to compare or highlight specific performance.
-
-CPU/GPU filtering
-~~~~~~~~~~~~~~~~~
-
-By default both GPU and CPU data will be plotted. Either can be excluded using either::
-
-   mdbenchmark plot --no-gpu
-
-or::
-
-   mdbenchmark plot --no-cpu
-
-This way data can be filtered for this tag in the ``.csv`` file. This flag can be combined
-with any further
-
-
-Module and Template filtering
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You might only want to compare data for one specific cluster or a specific MD engine
-or settings for a template which you defined yourself to compare how changes in
-calling your MD engine might impact performance.
-
-.. note::
-   Both ``--template`` and ``--host`` may be used interchangeably. With this nomenclature
-   we want to point out that one might either want to plot data from different clusters
-   which are different hosts or potentially runs with different custom templates from the same cluster.
-   Templates would then only differ from each other in the detailed run setting and may be added by hand.
-
-These flags can be invoked any number of times to either select a specific number of modules
-or templates/hosts or a subset of these::
-
-   mdbenchmark plot --module gromacs/2018.2 --module gromacs/2016.4
-
-This selection plots all data with GPU and CPU of the two modules ``gromacs/2018.2``
-and ``gromacs/2016.4`` which are present in any input ``.csv`` files.
-
-Another example of usage where a number of templates are compared. Assuming we want to compare
-the performance of ``namd/12`` with ``gromacs/2016.4`` on CPUs only running on the cluster draco
-we would invoke the following options on our input ``.csv``::
-
-   mdbenchmark plot --module namd/12 --module gromacs/2016.4 --no-gpu --template draco
-
-Changing axis labels from nodes to cores
-----------------------------------------
-
-To change the label for the x-axis which by default shows the number of nodes you can use::
-
-   mdbenchmark plot --plot-cores
-
-This changes the label to number of cores specified in the csv file. If inhomogeneous
-cluster types are used this can lead to issues.
-
+This will plot all data from the benchmark results found in the given files. These can be filtered using the options detailed below. All filters are applied to data in all CSV files collectively.
 
 Output options and file formats
 -------------------------------
 
-You can set the output name for the generate plot using the ``--ouput-name`` flag.
-By default mdbenchmark will use a datetime string to label to name your file. This ensures
-that no older data is accidentally overwritten.
-The custom name is given by envoking::
+You can set the output name for the generate plot using the ``--ouput-name`` option. If no name is given, the current date and time will be used as a file name. To generate a plot with the filename ``my_benchmark_plot``, simply run::
 
-   mdbenchmark plot --output-name plot_file
+   mdbenchmark plot --output-name my_benchmark_plot
 
-You can set a filetype here or specify it using a flag.
-``--output-format`` supports the formats ``png, pdf, svg, ps`` as which you can save
-the generated plot.
+You can also specify a filetype with the ``--output-format`` option. If the option is not specified, a PNG file will be generated.
+Supports file formats are ``png``, ``pdf``, ``svg`` and ``ps``. To set the file format to PDF, run::
 
-   mdbenchmark plot --output-format png
+   mdbenchmark plot --output-format pdf
 
-As noted the above flags can all be used in any combination to generate custom plot combination.
-The reader expects ``.csv`` files which are formatted such that they reflect the output
-as it is generated by ``mdbenchmark analyze``.
+Filter what to plot
+-------------------
 
+To filter your data from the given CSV file(s) you can use the following commands. These can be combined as you like.
+
+Exclude CPU or GPU benchmarks from plots
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+By default both GPU and CPU data will be plotted. To create a plot without the GPU benchmarks run::
+
+   mdbenchmark plot --no-gpu
+
+To create a plot without CPU benchmarks run::
+
+   mdbenchmark plot --no-cpu
+
+Filter by MD engine
+~~~~~~~~~~~~~~~~~~~
+
+If you have run benchmarks for different MD engines, but want to only plot a subset of these, you can do so with the ``--module`` option. For example, if you wanted to plot all benchmarks for the two modules ``gromacs/2018.3`` and ``gromacs/2016.4``, run:: 
+
+   mdbenchmark plot --module gromacs/2018.3 --module gromacs/2016.4
+
+Filter by job template
+~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to filter your benchmarks by the job template that was used for any given benchmark with the ``--template`` option. To only plot benchmarks that were run with the ``draco`` job template, run::
+
+   mdbenchmark plot --template draco
 
 .. note::
-   In older versions plotting was achieved by using `mdbenchmark analyze --plot``.
-   This feature is deprecated and will be discontinued in newer versions.
-   Moreover, this older version is also limited in terms of functionality.
+   Both ``--template`` and ``--host`` may be used interchangeably. While some users might think of job templates as one specific template for their  cluster, others might think of them as a bundle of templates with different settings for the same cluster. Either view is correct, and thus we provide both options, but prefer ``--template``.
+
+Changing axis labels from nodes to cores
+----------------------------------------
+
+To change the x-axis label from number of nodes to number of cores you can run::
+
+   mdbenchmark plot --plot-cores
+
+Hiding the linear fit
+---------------------
+
+To create a plot without any linear fit, use the ``--no-fit`` option::
+
+  mdbenchmark plot --no-fit
+
+Changing font size
+------------------
+
+Font size can be adjusted with the ``--font-size`` option. The default is ``16pt``::
+
+  mdbenchmark plot --font-size 16
+
+Adjusting plot resolution (DPI)
+-------------------------------
+
+The plot resolution can be changed with the ``--dpi`` option. The default ist ``300``::
+
+  mdbenchmark plot --dpi 300
+
+Customizing ticks on the x-axis
+-------------------------------
+
+It is possible to change the frequence of ticks on the x-axis. To do this, call the ``--xtick-step`` option::
+
+  mdbenchmark plot --xtick-step 1
+
+The default value for ``--xtick-step`` depends on the data you want to plot:
+
+- ``--xtick-step=1``, if you plot less than 19 benchmarks
+- ``--xtick-step=2``, if you plot more than 18 benchmarks
+- ``--xtick-step=3`` if you plot the number of cores and, more than 10 benchmarks or the first number of cores is bigger than 100
+
+Removing the watermark
+----------------------
+
+By default a small watermark will be placed in the top left corner of every plot. To disable this, use the ``--no-watermark`` option::
+
+  mdbenchmark plot --no-watermark
+
+You are free to use your plots with and without the watermark, whereever you like, but we kindly ask you to cite our `latest DOI`_ from Zenodo. In this way, more people will notice MDBenchmark and start optimizing their use of high performance computing resources.
+
+.. _latest DOI: https://zenodo.org/record/1156082
