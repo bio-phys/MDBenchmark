@@ -1,11 +1,11 @@
 #!/bin/bash -l
 # Standard output and error:
-#SBATCH -o ./{{ name }}.out.%j
-#SBATCH -e ./{{ name }}.err.%j
+#SBATCH -o ./{{ job_name }}.out.%j
+#SBATCH -e ./{{ job_name }}.err.%j
 # Initial working directory:
 #SBATCH -D ./
 # Job Name:
-#SBATCH -J {{ name }}
+#SBATCH -J {{ job_name }}
 #
 # Queue (Partition):
 {%- if (time <= 30) and (n_nodes <= 32) %}

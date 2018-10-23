@@ -151,7 +151,7 @@ def cleanup_before_restart(engine, sim):
 
 
 def write_benchmark(
-    engine, base_directory, template, nodes, gpu, module, name, host, time
+    engine, base_directory, template, nodes, gpu, module, name, job_name, host, time
 ):
     """Generate a benchmark folder with the respective Sim object."""
     # Create the `dtr.Treant` object
@@ -159,6 +159,8 @@ def write_benchmark(
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(name=name, sim=sim)
+    if job_name is None:
+        job_name = name
 
     # Add categories to the `Sim` object
     sim.categories = {
@@ -178,6 +180,7 @@ def write_benchmark(
     # Create benchmark job script
     script = template.render(
         name=name,
+        job_name=job_name,
         gpu=gpu,
         module=module,
         mdengine=engine.NAME,
