@@ -29,8 +29,8 @@ from .. import console
 from .namd import analyze_namd_file
 
 FILES_TO_KEEP = {
-    "gromacs": [".*/bench\.job", ".*\.tpr", ".*\.mdp"],
-    "namd": [".*/bench\.job", ".*\.namd", ".*\.psf", ".*\.pdb"],
+    "gromacs": [".*/bench.job", ".*.tpr", ".*.mdp"],
+    "namd": [".*/bench.job", ".*.namd", ".*.psf", ".*.pdb"],
 }
 
 PARSE_ENGINE = {
