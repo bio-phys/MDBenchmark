@@ -157,7 +157,6 @@ def DataFrameFromBundle(bundle):
     ).reset_index(drop=True)
 
     df = df.replace(np.nan, "?")
-    df.to_csv("output-from-datatframetobundel.csv")
     return df
 
 
