@@ -286,10 +286,10 @@ def generate(
                 ]
                 i += 1
 
-        console.info("{}", "Benchmark Summary:")
+    console.info("{}", "Benchmark Summary:")
 
-        df_short = ConsolidateDataFrame(df_overview)
-        PrintDataFrame(df_short)
+    df_short = ConsolidateDataFrame(df_overview)
+    PrintDataFrame(df_short)
 
     if yes:
         console.info("Generating the above benchmarks.")
