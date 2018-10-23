@@ -11,6 +11,8 @@
 {%- if gpu %}
 #SBATCH --partition=gpu
 #SBATCH --constraint='gpu'
+#SBATCH --gres=gpu:2
+
 {%- else %}
 {%- if time is lessthan 30 or time is equalto 30 %}
 #SBATCH --partition=express
@@ -28,6 +30,7 @@
 #SBATCH --time={{ formatted_time }}
 
 module purge
+module load intel
 module load impi
 module load cuda
 module load {{ module }}
