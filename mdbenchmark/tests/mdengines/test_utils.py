@@ -51,8 +51,8 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
         (namd, "namd/2.12", "md.namd", ["namd", "pdb", "psf"]),
     ],
 )
-@pytest.mark.parametrize("gpu", (True, False))
-def test_write_benchmark(engine, gpu, module, input_name, extensions, tmpdir):
+@pytest.mark.parametrize("gpu,job_name", ((True, "gpu_job"), (False, None)))
+def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, tmpdir):
     """Test that the write_benchmark works as expected."""
     host = "draco"
     base_dirname = "{}_{}".format(host, engine)
@@ -65,8 +65,19 @@ def test_write_benchmark(engine, gpu, module, input_name, extensions, tmpdir):
 
         template = retrieve_host_template("draco")
         utils.write_benchmark(
-            engine, base_directory, template, nodes, gpu, module, input_name, host, 15
+            engine=engine,
+            base_directory=base_directory,
+            template=template,
+            nodes=nodes,
+            gpu=gpu,
+            module=module,
+            name=input_name,
+            job_name=job_name,
+            host=host,
+            time=15,
         )
+
+        expected_job_name = "md" if job_name is None else job_name
 
         assert os.path.exists(base_dirname)
         assert os.path.exists(
@@ -78,7 +89,7 @@ def test_write_benchmark(engine, gpu, module, input_name, extensions, tmpdir):
         ) as f:
             for line in f:
                 if "#SBATCH -J" in line:
-                    assert line == "#SBATCH -J {}\n".format("md")
+                    assert line == "#SBATCH -J {}\n".format(expected_job_name)
                 if "--partition=" in line:
                     if gpu:
                         assert line == "#SBATCH --partition=gpu\n"

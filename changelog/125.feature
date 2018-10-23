@@ -1,0 +1,1 @@
+Added ``mdbenchmark generate --job-name`` to change the job name submitted to the queuing system.

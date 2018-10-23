@@ -187,10 +187,23 @@ def validate_hosts(ctx, param, host=None):
     is_flag=True,
 )
 @click.option(
+    "--job-name", help="Give an optional to the generated benchmarks.", default=None
+)
+@click.option(
     "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
 )
 def generate(
-    name, cpu, gpu, module, host, min_nodes, max_nodes, time, skip_validation, yes
+    name,
+    cpu,
+    gpu,
+    module,
+    host,
+    min_nodes,
+    max_nodes,
+    time,
+    skip_validation,
+    job_name,
+    yes,
 ):
     """Generate benchmarks for molecular dynamics simulations.
 
@@ -236,6 +249,7 @@ def generate(
     df_overview = pd.DataFrame(
         columns=[
             "name",
+            "job_name",
             "base_directory",
             "template",
             "engine",
@@ -275,6 +289,7 @@ def generate(
             for nodes in range(min_nodes, max_nodes + 1):
                 df_overview.loc[i] = [
                     name,
+                    job_name,
                     base_directory,
                     template,
                     engine,
@@ -305,6 +320,7 @@ def generate(
             gpu=row["gpu"],
             module=row["module"],
             name=row["name"],
+            job_name=row["job_name"],
             host=row["host"],
             time=row["run time [min]"],
         )
