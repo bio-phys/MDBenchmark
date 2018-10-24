@@ -19,6 +19,11 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import warnings
 
+from .migrations import mds_to_dtr
+
+# Check that the Python environment is correctly setup
+mds_to_dtr.ensure_correct_environment()
+
 # Get rid of the h5py FutureWarning
 with warnings.catch_warnings():
     warnings.filterwarnings(
