@@ -31,7 +31,7 @@ from .. import console
 NAME = "gromacs"
 
 
-def prepare_benchmark(name, *args, **kwargs):
+def prepare_benchmark(name, relative_path, *args, **kwargs):
     sim = kwargs["sim"]
 
     full_filename = name + ".tpr"
@@ -39,7 +39,9 @@ def prepare_benchmark(name, *args, **kwargs):
         full_filename = name
         name = name[:-4]
 
-    copyfile(full_filename, sim[full_filename].relpath)
+    filepath = os.path.join(relative_path, full_filename)
+
+    copyfile(filepath, sim[full_filename].relpath)
 
     return name
 
