@@ -31,7 +31,7 @@ from .cli import cli
 from .mdengines import detect_md_engine, utils
 from .migrations import mds_to_dtr
 from .plot import plot_over_group
-from .utils import generate_output_name, DataFrameFromBundle, PrintDataFrame
+from .utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
 
 plt.switch_backend("agg")
 
@@ -110,7 +110,12 @@ def analyze(directory, plot, ncores, save_csv):
         ax = fig.add_subplot(111)
 
         df = pd.read_csv(save_csv)
-        ax = plot_over_group(df, plot_cores=False, ax=ax)
+        if ncores:
+            console.warn(
+                "Ignoring your value from '{}' and parsing number of cores from log files.",
+                "--number-cores/-ncores",
+            )
+        ax = plot_over_group(df, plot_cores=ncores, fit=True, ax=ax)
         lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
 
         fig.tight_layout()

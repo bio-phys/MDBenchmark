@@ -55,7 +55,7 @@ def prepare_module_name(module, skip_validation=False):
     """
     try:
         basename, version = module.split("/")
-    except (ValueError, AttributeError) as e:
+    except (ValueError, AttributeError):
         if skip_validation:
             console.error(
                 "Although you are using the {} option, you have to provide a valid "
