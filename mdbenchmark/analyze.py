@@ -56,7 +56,7 @@ plt.switch_backend("agg")
     "ncores",
     type=int,
     default=None,
-    help="Number of cores per node. If not given it will be parsed from the benchmarks' log file.",
+    help="DEPRECATED. Please use 'mdbenchmark plot'.\nNumber of cores per node. If not given it will be parsed from the benchmarks' log file.",
     show_default=True,
 )
 @click.option(
