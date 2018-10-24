@@ -110,7 +110,7 @@ def analyze(directory, plot, ncores, save_csv):
         ax = fig.add_subplot(111)
 
         df = pd.read_csv(save_csv)
-        ax = plot_over_group(df, plot_cores=ncores, ax=ax)
+        ax = plot_over_group(df, plot_cores=ncores, fit=True, ax=ax)
         lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
 
         fig.tight_layout()
