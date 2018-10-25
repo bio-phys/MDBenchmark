@@ -94,6 +94,7 @@ Content
    :maxdepth: 2
 
    install
+   upgrading
    general
    generate
    submit

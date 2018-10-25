@@ -19,6 +19,8 @@ while users of the Anaconda distribution know them as `conda environment`_.
 We recommend to install the package inside a `conda environment`_, while the
 other ways are also supported.
 
+.. _conda-install:
+
 Install via ``conda``
 ---------------------
 
