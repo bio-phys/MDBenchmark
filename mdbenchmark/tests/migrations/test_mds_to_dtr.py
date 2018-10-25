@@ -25,6 +25,19 @@ import pytest
 from mdbenchmark.migrations import mds_to_dtr
 
 
+def test_ensure_correct_environment(capsys, monkeypatch):
+    # A working environment should not yield any errors
+    mds_to_dtr.ensure_correct_environment()
+
+    # Mock an installed `datreant<1.0`
+    monkeypatch.delattr("datreant.__version__")
+    with pytest.raises(SystemExit):
+        mds_to_dtr.ensure_correct_environment()
+        out, err = capsys.readouterr()
+
+        assert out == mds_to_dtr.MIGRATION_WARNING.format("datreant.core")
+
+
 def create_file(bundle, path, filename):
     data = {
         "mdsynthesis": {},
