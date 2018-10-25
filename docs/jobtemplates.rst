@@ -3,7 +3,7 @@ Defining host templates
 
 You can create your own host templates in addition to the ones shipped with the
 MDBenchmark. We use the ``jinja2`` Python package for these host templates.
-Please refer to the `official Jinja2 documentation <http://jinja.pocoo.org/>`
+Please refer to the `official Jinja2 documentation <http://jinja.pocoo.org/>`_
 for further information on formatting and functionality.
 
 To be detected automatically, a template file must have the same filename as
@@ -27,7 +27,7 @@ This example shows a HPC running SGE with 30 CPUs per node.
   #$ -j y
   ### change to currend work dir
   #$ -cwd
-  #$ -N {{ name }}
+  #$ -N {{ job_name }}
   # Number of nodes and MPI tasks per node:
   #$ -pe impi_hydra {{ 30 * n_nodes }}
   #$ -l h_rt={{ formatted_time }}
@@ -49,12 +49,12 @@ Slurm.
 
   #!/bin/bash -l
   # Standard output and error:
-  #SBATCH -o ./{{ name }}.out.%j
-  #SBATCH -e ./{{ name }}.err.%j
+  #SBATCH -o ./{{ job_name }}.out.%j
+  #SBATCH -e ./{{ job_name }}.err.%j
   # Initial working directory:
   #SBATCH -D ./
   # Job Name:
-  #SBATCH -J {{ name }}
+  #SBATCH -J {{ job_name }}
   #
   # Queue (Partition):
   {%- if gpu %}
@@ -94,8 +94,8 @@ Here is an example job template for the MPG cluster ``hydra`` (LoadLeveler).
 
     # @ shell=/bin/bash
     #
-    # @ error = {{ name }}.err.$(jobid)
-    # @ output = {{ name }}.out.$(jobid)
+    # @ error = {{ job_name }}.err.$(jobid)
+    # @ output = {{ job_name }}.out.$(jobid)
     # @ job_type = parallel
     # @ node_usage = not_shared
     # @ node = {{ n_nodes }}
@@ -123,6 +123,8 @@ MDBenchmark passes the following variables to each template:
 | Value          | Description                                                         |
 +================+=====================================================================+
 | name           | Name of the TPR file                                                |
++----------------+---------------------------------------------------------------------+
+| job_name       | Job name as specified by the user, if not specified same as name    |
 +----------------+---------------------------------------------------------------------+
 | gpu            | Boolean that is true, if GPUs are requested                         |
 +----------------+---------------------------------------------------------------------+

@@ -263,21 +263,21 @@ def plot(
 ):
     """Generate plots showing the benchmark performance.
 
-    To generate a plot, you must first run `mdbenchmark analyze` and generate a
-    CSV file. Use this CSV file as the value for the `--csv` option in this
+    To generate a plot, you must first run ``mdbenchmark analyze`` and generate a
+    CSV file. Use this CSV file as the value for the ``--csv`` option in this
     command.
 
     You can customize the filename and file format of the generated plot with
-    the `--output-name` and `--format` option, respectively. Per default, a fit
+    the ``--output-name`` and ``--output-format`` option, respectively. Per default, a fit
     will be plotted through the first data points of each benchmark group. To
-    disable the fit, use the `--no-fit` option.
+    disable the fit, use the ``--no-fit`` option.
 
-    To only plot specific benchmarks, make use of the `--module`, `--template`,
-    `--cpu/--no-cpu` and `--gpu/--no-gpu` options.
+    To only plot specific benchmarks, make use of the ``--module``, ``--template``,
+    ``--cpu/--no-cpu`` and ``--gpu/--no-gpu`` options.
 
     A small watermark will be added to the top left corner of every plot, to
     spread the usage of MDBenchmark. You can remove the watermark with the
-    `--no-watermark` option.
+    ``--no-watermark`` option.
     """
 
     if not csv:
