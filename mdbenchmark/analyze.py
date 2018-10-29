@@ -76,7 +76,7 @@ def analyze(directory, plot, ncores, save_csv):
     performance result, will be marked accordingly.
 
     The benchmark performance results can be saved in a CSV file with the
-    ``--output-name`` option and a custom filename. To plot the results use
+    ``--save-csv`` option and a custom filename. To plot the results use
     ``mdbenchmark plot``.
     """
 
