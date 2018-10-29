@@ -31,14 +31,12 @@ jobs:
       env:
         - CODECOV="--cov mdbenchmark"
         - PYTEST_COV="pytest-cov codecov"
-    -
-      name: "Python 3.7"
+    - name: "Python 3.7"
       language: python
       python: 3.7
       dist: xenial
       sudo: true
-    -
-      name: "Python 3.5"
+    - name: "Python 3.5"
       python: "3.5"
     - name: "Python 2.7"
       python: "2.7"
