@@ -68,10 +68,10 @@ Usage
 -----
 
 Now that the package is installed, you can generate benchmarks for your system.
-Assuming you want to benchmark a GROMACS 2018.2 simulation on up to 5 nodes,
+Assuming you want to benchmark a GROMACS 2018.3 simulation on up to 5 nodes,
 with the TPR file called ``md.tpr``, run the following command::
 
-  mdbenchmark generate -n md --module gromacs/2018.2 --max-nodes 5
+  mdbenchmark generate -n md --module gromacs/2018.3 --max-nodes 5
 
 After generation benchmarks can be submitted::
 

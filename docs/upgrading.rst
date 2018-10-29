@@ -14,10 +14,8 @@ Version 2.0.0
 
 .. note::
 
-  **TL;DR:** You need to uninstall the unneeded ``datreant.core``,
-   ``datreant.data`` and ``mdsynthesis`` Python packages. Or just get rid of the
-   current environment, e.g., ``conda env remove -n benchmark`` if you are using
-   ``conda``, and :ref:`create it from scratch <conda-install>`.
+  **TL;DR:**
+  You need to uninstall the unneeded ``datreant.core``, ``datreant.data`` and ``mdsynthesis`` Python packages. Or just get rid of the current environment, e.g., ``conda env remove -n benchmark`` if you are using ``conda``, and :ref:`create it from scratch <conda-install>`.
 
 Starting from version 2.0.0, MDBenchmark migrated to a different dependency,
 than it used before. While the specialized |mdsynthesis|_ package was used in
