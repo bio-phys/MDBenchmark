@@ -6,8 +6,21 @@ as possible, we are sometimes forced to break things along the way. This page
 gives some guidelines on how to migrate to specific versions of MDBenchmark, if
 you have been using a different version before.
 
-Upgrading from version
-----------------------
+To update from a previous MDBenchmark version to a new release, run the
+following, if you are using ``conda`` and your `conda environment`_ is called
+``benchmark``::
+
+  conda update -n benchmark mdbenchmark
+
+and if you use ``pip``, run::
+
+  pip install mdbenchmark --upgrade
+
+Refer to our :doc:`installation guide <install>`, if you need help with
+conda/virtual environments.
+
+Migrating to a newer version
+----------------------------
 
 Version 2.0.0
 ~~~~~~~~~~~~~
@@ -54,6 +67,8 @@ If you are using ``pip`` simply run::
 
   pip uninstall datreant.core datreant.data mdsynthesis
 
+.. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html
+.. _instalation guide:
 .. |mdsynthesis| replace:: ``mdsynthesis``
 .. _mdsynthesis: https://mdsynthesis.readthedocs.io/en/master/
 .. |datreant| replace:: ``datreant``
