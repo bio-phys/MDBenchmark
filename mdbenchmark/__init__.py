@@ -17,29 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import warnings
-
+from . import analyze, generate, plot, submit
 from .migrations import mds_to_dtr
 
 # Check that the Python environment is correctly setup
 mds_to_dtr.ensure_correct_environment()
 
-# Get rid of the h5py FutureWarning
-with warnings.catch_warnings():
-    warnings.filterwarnings(
-        message=".*Conversion of the second.*",
-        action="ignore",
-        category=FutureWarning,
-        module="h5py",
-    )
-
-    warnings.filterwarnings(
-        message=".*No module named 'duecredit'.*",
-        action="ignore",
-        category=UserWarning,
-        module="MDAnalysis",
-    )
-
-    from . import analyze, generate, submit, plot
-
-    __version__ = "1.3.3"
+__version__ = "1.3.3"
