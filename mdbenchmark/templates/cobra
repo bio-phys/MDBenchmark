@@ -1,0 +1,44 @@
+#!/bin/bash -l
+# Standard output and error:
+#SBATCH -o ./{{ job_name }}.out.%j
+#SBATCH -e ./{{ job_name }}.err.%j
+# Initial working directory:
+#SBATCH -D ./
+# Job Name:
+#SBATCH -J {{ job_name }}
+#
+# Queue (Partition):
+{%- if (time <= 30) and (n_nodes <= 32) %}
+#SBATCH --partition=express
+{%- elif (n_nodes <= 32) %}
+#SBATCH --partition=medium
+{%- elif (n_nodes <= 64) %}
+#SBATCH --partition=n0064
+{%- elif (n_nodes <= 128) %}
+#SBATCH --partition=n0128
+{%- elif (n_nodes <= 265) %}
+#SBATCH --partition=n0265
+{%- elif (n_nodes <= 512) %}
+#SBATCH --partition=n0512
+{%- else %}
+#SBATCH --partition=n0620
+{%- endif %}
+#
+# Number of nodes and MPI tasks per node:
+#SBATCH --nodes={{ n_nodes }}
+#SBATCH --ntasks-per-node=40
+# Wall clock limit:
+#SBATCH --time={{ formatted_time }}
+
+module purge
+module load intel
+module load impi
+module load cuda
+module load {{ module }}
+
+# Run {{ module }} for {{ time  }} minutes
+{%- if mdengine == "gromacs" %}
+srun gmx_mpi mdrun -v -maxh {{ time / 60 }} -deffnm {{ name }}
+{%- elif mdengine == "namd" %}
+srun namd2 {{ name }}.namd
+{%- endif %}

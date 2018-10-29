@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017 Max Linke & Michael Gecht and contributors
+# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -22,31 +22,34 @@ import re
 from glob import glob
 from shutil import copyfile
 
-import mdsynthesis as mds
 import numpy as np
 
 from .. import console
 
-NAME = 'namd'
+NAME = "namd"
 
 
-def prepare_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
+def prepare_benchmark(name, relative_path, *args, **kwargs):
+    sim = kwargs["sim"]
 
-    if name.endswith('.namd'):
+    if name.endswith(".namd"):
         name = name[:-5]
 
-    namd = '{}.namd'.format(name)
-    psf = '{}.psf'.format(name)
-    pdb = '{}.pdb'.format(name)
+    namd = "{}.namd".format(name)
+    psf = "{}.psf".format(name)
+    pdb = "{}.pdb".format(name)
 
-    with open(namd) as fh:
+    namd_relpath = os.path.join(relative_path, namd)
+    psf_relpath = os.path.join(relative_path, psf)
+    pdb_relpath = os.path.join(relative_path, pdb)
+
+    with open(namd_relpath) as fh:
         analyze_namd_file(fh)
         fh.seek(0)
 
-    copyfile(namd, sim[namd].relpath)
-    copyfile(psf, sim[psf].relpath)
-    copyfile(pdb, sim[pdb].relpath)
+    copyfile(namd_relpath, sim[namd].relpath)
+    copyfile(psf_relpath, sim[psf].relpath)
+    copyfile(pdb_relpath, sim[pdb].relpath)
 
     return name
 
@@ -58,31 +61,33 @@ def analyze_namd_file(fh):
 
     for line in lines:
         # Continue if we do not need to do anything with the current line
-        if ('parameters' not in line) and ('coordinates' not in line) and (
-                'structure' not in line):
+        if (
+            ("parameters" not in line)
+            and ("coordinates" not in line)
+            and ("structure" not in line)
+        ):
             continue
 
         path = line.split()[1]
-        if '$' in path:
-            console.error(
-                'Variable Substitutions are not allowed in NAMD files!')
-        if '..' in path:
-            console.error('Relative file paths are not allowed in NAMD files!')
-        if '/' not in path or ('/' in path and not path.startswith('/')):
-            console.error('No absolute path detected in NAMD file!')
+        if "$" in path:
+            console.error("Variable Substitutions are not allowed in NAMD files!")
+        if ".." in path:
+            console.error("Relative file paths are not allowed in NAMD files!")
+        if "/" not in path or ("/" in path and not path.startswith("/")):
+            console.error("No absolute path detected in NAMD file!")
 
 
 def check_input_file_exists(name):
     """Check and append the correct file extensions for the NAMD module."""
     # Check whether the needed files are there.
-    for extension in ['namd', 'psf', 'pdb']:
-        if name.endswith('.{}'.format(extension)):
-            name = name[:-2 + len(extension)]
+    for extension in ["namd", "psf", "pdb"]:
+        if name.endswith(".{}".format(extension)):
+            name = name[: -1 - len(extension)]
 
-        fn = '{}.{}'.format(name, extension)
+        fn = "{}.{}".format(name, extension)
         if not os.path.exists(fn):
             console.error(
-                "File {} does not exist, but is needed for NAMD benchmarks.",
-                fn)
+                "File {} does not exist, but is needed for NAMD benchmarks.", fn
+            )
 
     return True

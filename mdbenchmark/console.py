@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017 Max Linke & Michael Gecht and contributors
+# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -23,16 +23,18 @@ import click
 import six
 
 
-def console_wrapper(message,
-                    prefix=None,
-                    filehandler=None,
-                    args=None,
-                    bold=True,
-                    fg=None,
-                    bg=None,
-                    underline=None,
-                    blink=None,
-                    **kwargs):
+def console_wrapper(
+    message,
+    prefix=None,
+    filehandler=None,
+    args=None,
+    bold=True,
+    fg=None,
+    bg=None,
+    underline=None,
+    blink=None,
+    **kwargs
+):
     """Wrapper to consolidate all click.echo() calls.
 
     Parameters
@@ -68,23 +70,19 @@ def console_wrapper(message,
         args = []
 
     if prefix is not None:
-        message = '{} {}'.format(prefix, message)
+        message = "{} {}".format(prefix, message)
 
     if args:
         args = [
             click.style(
-                str(arg),
-                bold=bold,
-                fg=fg,
-                bg=bg,
-                underline=underline,
-                blink=blink) for arg in args
+                str(arg), bold=bold, fg=fg, bg=bg, underline=underline, blink=blink
+            )
+            for arg in args
         ]
 
     if kwargs:
         kwargs = {
-            k: click.style(
-                str(v), bold=bold, fg=fg, bg=bg, underline=underline)
+            k: click.style(str(v), bold=bold, fg=fg, bg=bg, underline=underline)
             for k, v in six.iteritems(kwargs)
         }
 
@@ -92,8 +90,9 @@ def console_wrapper(message,
         click.echo(message.format(*args, **kwargs), file=filehandler)
     except IndexError:
         raise ValueError(
-            'Number of placeholders do not correspond to the number of curly brackets '
-            'inside the string.')
+            "Number of placeholders do not correspond to the number of curly brackets "
+            "inside the string."
+        )
 
 
 def info(message, *args, **kwargs):
@@ -103,14 +102,14 @@ def info(message, *args, **kwargs):
 
 def warn(message, *args, **kwargs):
     """Output a warning to the users console."""
-    prefix = click.style('WARNING', fg='yellow', bold=True)
+    prefix = click.style("WARNING", fg="yellow", bold=True)
 
     console_wrapper(message, prefix=prefix, args=args, **kwargs)
 
 
 def error(message, *args, **kwargs):
     """Output an error to the users console and stop execution of the script."""
-    prefix = click.style('ERROR', fg='red', bold=True)
+    prefix = click.style("ERROR", fg="red", bold=True)
 
     console_wrapper(message=message, prefix=prefix, args=args, **kwargs)
     sys.exit(1)

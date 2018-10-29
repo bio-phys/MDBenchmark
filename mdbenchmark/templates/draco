@@ -1,16 +1,18 @@
 #!/bin/bash -l
 # Standard output and error:
-#SBATCH -o ./{{ name }}.out.%j
-#SBATCH -e ./{{ name }}.err.%j
+#SBATCH -o ./{{ job_name }}.out.%j
+#SBATCH -e ./{{ job_name }}.err.%j
 # Initial working directory:
 #SBATCH -D ./
 # Job Name:
-#SBATCH -J {{ name }}
+#SBATCH -J {{ job_name }}
 #
 # Queue (Partition):
 {%- if gpu %}
 #SBATCH --partition=gpu
 #SBATCH --constraint='gpu'
+#SBATCH --gres=gpu:2
+
 {%- else %}
 {%- if time is lessthan 30 or time is equalto 30 %}
 #SBATCH --partition=express
@@ -28,6 +30,7 @@
 #SBATCH --time={{ formatted_time }}
 
 module purge
+module load intel
 module load impi
 module load cuda
 module load {{ module }}

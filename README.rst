@@ -11,13 +11,13 @@
 .. image:: https://img.shields.io/pypi/l/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
-.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=master
+.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
     :target: https://travis-ci.org/bio-phys/MDBenchmark
 
 .. image:: https://readthedocs.org/projects/mdbenchmark/badge/?version=latest&style=flat
     :target: https://mdbenchmark.readthedocs.io/en/latest/
 
-.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/bio-phys/MDBenchmark
 
 .. image:: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
@@ -69,19 +69,20 @@ pipenv
 
 After installation MDBenchmark is accessible on your command-line via ``mdbenchmark``::
 
-  $ mdbenchmark
-  Usage: mdbenchmark [OPTIONS] COMMAND [ARGS]...
+    $ mdbenchmark
+    Usage: mdbenchmark [OPTIONS] COMMAND [ARGS]...
 
-    Generate and run benchmark jobs for GROMACS simulations.
+    Generate, run and analyze benchmarks of molecular dynamics simulations.
 
-  Options:
+    Options:
     --version  Show the version and exit.
     --help     Show this message and exit.
 
-  Commands:
-    analyze   analyze finished benchmark.
-    generate  Generate benchmark queuing jobs.
-    submit    Start benchmark simulations.
+    Commands:
+    analyze   Analyze benchmarks and print the performance...
+    generate  Generate benchmarks for molecular dynamics...
+    plot      Generate plots showing the benchmark...
+    submit    Submit benchmarks to queuing system.
 
 Features
 ========
@@ -100,14 +101,14 @@ The following shows a short usage reference for MDBenchmark. Please consult the
 Benchmark generation
 --------------------
 
-Assuming you want to benchmark GROMACS version 2016.4 and your TPR file is
+Assuming you want to benchmark GROMACS version 2018.3 and your TPR file is
 called ``protein.tpr``, run the following command::
 
-  mdbenchmark generate --name protein --module gromacs/2016.4
+  mdbenchmark generate --name protein --module gromacs/2018.3
 
 To run benchmarks on GPUs simply add the ``--gpu`` flag::
 
-  mdbenchmark generate --name protein --module gromacs/2016.4 --gpu
+  mdbenchmark generate --name protein --module gromacs/2018.3 --gpu
 
 Benchmark submission
 --------------------
@@ -120,27 +121,13 @@ Benchmark analysis
 ------------------
 
 As soon as the benchmarks have been submitted you can run the analysis via
-``mdbenchmark analysis``. When at least one system has finished, the script will
-produce a ``.csv`` output file or a plot for direct usage (via the ``--plot``
-option).
+``mdbenchmark analyze``. Systems that have not finished yet will be marked with a question mark (``?``). You can save the performance results to a CSV file and subsequently create a plot from the data::
 
-**Note:** The plotting function currently only allows to plot a CPU and GPU
-benchmark from the *same* module. This will be fixed in an upcoming version and
-is already implemented in the `develop
-<https://github.com/bio-phys/MDBenchmark/tree/develop>`_ branch. If you want to
-compare different modules with each other, either use the ``--directory`` option
-to generate separate plots or create your own plot from the provided CSV file.
-
-.. code::
-
-    $ mdbenchmark analyze
-                       gromacs  nodes  ns/day  run time [min]    gpu        host  ncores
-    0  gromacs/5.1.4-plumed2.3      1  10.878              15  False       draco      32
-    1  gromacs/5.1.4-plumed2.3      2   21.38              15  False       draco      64
-    2  gromacs/5.1.4-plumed2.3      3  34.033              15  False       draco      96
-    3  gromacs/5.1.4-plumed2.3      4  40.274              15  False       draco     128
-    4  gromacs/5.1.4-plumed2.3      5   51.71              15  False       draco     160
-
+    # Print performance results to console and save them to a file called results.csv 
+    mdbenchmark analyze --save-csv results.csv
+    
+    # Create a plot from the results present in the file results.csv
+    mdbenchmark plot --csv results.csv
 
 Contributing
 ============

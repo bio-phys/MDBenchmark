@@ -25,6 +25,6 @@ def _cat_proc_cpuinfo_grep_query_sort_uniq(query):
     with open("/proc/cpuinfo") as fp:
         for line_raw in fp:
             if line_raw.startswith(query):
-                line = line_raw.replace('\t', '').strip('\n')
+                line = line_raw.replace("\t", "").strip("\n")
                 items_seen.add(line)
     return items_seen

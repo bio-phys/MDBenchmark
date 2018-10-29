@@ -68,22 +68,24 @@ Usage
 -----
 
 Now that the package is installed, you can generate benchmarks for your system.
-Assuming you want to benchmark a GROMACS 2018.2 simulation on up to 5 nodes,
+Assuming you want to benchmark a GROMACS 2018.3 simulation on up to 5 nodes,
 with the TPR file called ``md.tpr``, run the following command::
 
-  mdbenchmark generate -n md --module gromacs/2018.2 --max-nodes 5
+  mdbenchmark generate -n md --module gromacs/2018.3 --max-nodes 5
 
 After generation benchmarks can be submitted::
 
   mdbenchmark submit
 
 Now, you can also monitor the status of your benchmark with ``mdbenchmark``.
-This will show you the performance of all runs that have finished::
+This will show you the performance of all runs that have finished. If you only wish to view
+the data you can omit the ``--save-csv`` flag::
 
-  mdbenchmark analyze
+  mdbenchmark analyze --save-csv data.csv
 
-Plotting of the current results can be achieved with ``mdbenchmark analyze
---plot``.
+Finally, you can plot the data from your ``data.csv`` file with::
+
+  mdbenchmark plot --csv data.csv
 
 Content
 =======
@@ -92,10 +94,12 @@ Content
    :maxdepth: 2
 
    install
+   upgrading
    general
    generate
    submit
    analyze
+   plot
    jobtemplates
 
 Usage reference

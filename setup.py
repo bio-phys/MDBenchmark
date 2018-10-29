@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017 Max Linke & Michael Gecht and contributors
+# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -26,57 +26,63 @@ from setuptools import find_packages, setup
 
 # modified from https://stackoverflow.com/a/41110107/2207958
 def get_property(prop, project):
-    with open(project + '/__init__.py') as fh:
-        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop),
-                           fh.read())
+    with open(project + "/__init__.py") as fh:
+        result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), fh.read())
     return result.group(1)
 
 
 # Import the README and use it as the long-description.
 here = os.path.abspath(os.path.dirname(__file__))
-with io.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = '\n' + f.read()
+with io.open(os.path.join(here, "README.rst"), encoding="utf-8") as f:
+    long_description = "\n" + f.read()
 
 CLASSIFIERS = [
-    'Development Status :: 5 - Production/Stable', 'Environment :: Console',
-    'Intended Audience :: Science/Research',
-    'License :: OSI Approved :: GNU General Public License (GPL)',
-    'Operating System :: MacOS :: MacOS X', 'Operating System :: POSIX',
-    'Programming Language :: Python', 'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
-    'Programming Language :: Python :: 3.6', 'Topic :: Scientific/Engineering',
-    'Topic :: Scientific/Engineering :: Bio-Informatics',
-    'Topic :: Scientific/Engineering :: Chemistry',
-    'Topic :: Scientific/Engineering :: Physics',
-    'Topic :: System :: Benchmark'
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License (GPL)",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: System :: Benchmark",
 ]
 
-project_name = 'mdbenchmark'
+project_name = "mdbenchmark"
 setup(
     name=project_name,
-    version=get_property('__version__', project_name),
-    description='Benchmark molecular dynamics simulations',
+    version=get_property("__version__", project_name),
+    description="Benchmark molecular dynamics simulations",
     long_description=long_description,
-    long_description_content_type='text/x-rst',
-    url='https://github.com/bio-phys/MDBenchmark',
-    author='Max Linke, Michael Gecht',
-    license='GPLv3',
+    long_description_content_type="text/x-rst",
+    url="https://github.com/bio-phys/MDBenchmark",
+    author="Max Linke, Michael Gecht",
+    license="GPLv3",
     classifiers=CLASSIFIERS,
-    keywords='benchmark molecular dynamics simulations gromacs namd',
+    keywords="benchmark molecular dynamics simulations gromacs namd",
     packages=find_packages(),
     install_requires=[
-        'numpy>=1.8',
-        'mdsynthesis',
-        'click==6.7',
-        'jinja2',
-        'pandas',
-        'matplotlib',
-        'python-Levenshtein',
-        'xdg<2',
+        "numpy>=1.8",
+        "datreant>=1.0.0",
+        "click==6.7",  # v7.0 introduced some changes that broke our tests.
+        "jinja2",
+        "pandas",
+        "matplotlib>=2.2.3,<3.0",  # matplotlib 3.0 does not support Python 2
+        "python-Levenshtein",
+        "xdg<2",  # xdg 2 does not support Python 2
+        "tabulate==0.8.2",
     ],
-    package_data={'mdbenchmark': ['templates/*']},
-    entry_points={'console_scripts': ['mdbenchmark=mdbenchmark.cli:cli']},
-    tests_require=['pytest'],
-    zip_safe=False)
+    package_data={"mdbenchmark": ["templates/*"]},
+    entry_points={"console_scripts": ["mdbenchmark=mdbenchmark.cli:cli"]},
+    tests_require=["pytest"],
+    zip_safe=False,
+)

@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017 Max Linke & Michael Gecht and contributors
+# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -24,23 +24,24 @@ import re
 from glob import glob
 from shutil import copyfile
 
-import mdsynthesis as mds
 import numpy as np
 
 from .. import console
 
-NAME = 'gromacs'
+NAME = "gromacs"
 
 
-def prepare_benchmark(name, *args, **kwargs):
-    sim = kwargs['sim']
+def prepare_benchmark(name, relative_path, *args, **kwargs):
+    sim = kwargs["sim"]
 
-    full_filename = name + '.tpr'
-    if name.endswith('.tpr'):
+    full_filename = name + ".tpr"
+    if name.endswith(".tpr"):
         full_filename = name
         name = name[:-4]
 
-    copyfile(full_filename, sim[full_filename].relpath)
+    filepath = os.path.join(relative_path, full_filename)
+
+    copyfile(filepath, sim[full_filename].relpath)
 
     return name
 
@@ -48,13 +49,13 @@ def prepare_benchmark(name, *args, **kwargs):
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
     fn = name
-    if fn.endswith('.tpr'):
+    if fn.endswith(".tpr"):
         fn = name[:-4]
 
-    tpr = fn + '.tpr'
+    tpr = fn + ".tpr"
     if not os.path.exists(tpr):
         console.error(
-            "File {} does not exist, but is needed for GROMACS benchmarks.",
-            tpr)
+            "File {} does not exist, but is needed for GROMACS benchmarks.", tpr
+        )
 
     return True
