@@ -1,1 +1,0 @@
-`mdbenchmark generate` now accepts `--cpu` / `--no-cpu` and `--gpu` / `--no-gpu`. The default is `--cpu` and `--no-gpu`.

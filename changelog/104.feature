@@ -1,1 +1,0 @@
-Added template for MPCDF cluster ``cobra``.

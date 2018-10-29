@@ -1,1 +1,0 @@
-Added ``-nc`` and ``-ng`` options to ``mdbenchmark generate``. These are short hand for ``--no-cpu`` and ``--no-gpu``, respectively.
