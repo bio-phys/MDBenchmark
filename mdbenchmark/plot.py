@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd

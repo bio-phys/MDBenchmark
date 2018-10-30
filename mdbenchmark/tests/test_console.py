@@ -17,8 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import pytest
 from six import StringIO
+
+import pytest
 
 from mdbenchmark import console
 

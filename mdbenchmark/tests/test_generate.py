@@ -19,13 +19,12 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-import pytest
+import datreant as dtr
 import pandas as pd
+import pytest
 from click import exceptions
 
-import datreant as dtr
 from mdbenchmark import cli
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, ConsolidateDataFrame
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.generate import (
     NAMD_WARNING,
@@ -37,6 +36,7 @@ from mdbenchmark.generate import (
     validate_number_of_nodes,
 )
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
+from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 DIR_STRUCTURE = {
     "applications": {

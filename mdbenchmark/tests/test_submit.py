@@ -17,15 +17,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import pytest
-import pandas as pd
 import datreant as dtr
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
+import pandas as pd
+import pytest
+
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
 from mdbenchmark.submit import get_batch_command
 from mdbenchmark.testing import data
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 
 
 def test_get_batch_command(capsys, monkeypatch, tmpdir):

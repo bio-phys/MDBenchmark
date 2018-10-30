@@ -22,10 +22,11 @@ import os
 import datreant as dtr
 import numpy as np
 import pandas as pd
-from mdbenchmark.utils import PrintDataFrame, ConsolidateDataFrame, DataFrameFromBundle
+
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data, datafiles
+from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 
 def test_analyze_gromacs(cli_runner, tmpdir, data):

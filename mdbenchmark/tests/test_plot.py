@@ -20,18 +20,18 @@
 import os
 
 import click
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
+from numpy.testing import assert_equal
+from pandas.testing import assert_frame_equal
+
 from mdbenchmark import cli, plot, utils
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
-from numpy.testing import assert_equal
-from pandas.testing import assert_frame_equal
 
 
 @pytest.mark.parametrize(

@@ -20,7 +20,6 @@
 import os.path
 
 import click
-
 import datreant as dtr
 import pandas as pd
 

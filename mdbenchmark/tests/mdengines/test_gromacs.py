@@ -22,6 +22,7 @@ from six.moves import StringIO
 import datreant as dtr
 import numpy as np
 import pytest
+
 from mdbenchmark.mdengines import gromacs, utils
 
 
