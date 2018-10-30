@@ -1,0 +1,14 @@
+,module,nodes,ns/day,run time [min],gpu,host,ncores
+0,gromacs/2016.4-plumed2.3,1,99.102,15,True,hydra,24
+1,gromacs/2016.4-plumed2.3,2,161.454,15,True,hydra,48
+2,gromacs/2016.4-plumed2.3,3,174.379,15,True,hydra,72
+3,gromacs/2016.4-plumed2.3,4,181.614,15,True,hydra,96
+4,gromacs/5.1.4-plumed2.3,2,87.189,15,False,hydra,48
+5,gromacs/5.1.4-plumed2.3,3,127.573,15,False,hydra,72
+6,gromacs/5.1.4-plumed2.3,4,159.016,15,False,hydra,96
+7,gromacs/5.1.4-plumed2.3,1,97.981,15,False,hydra,24
+8,namd/2.12,2,125.945,15,False,draco,48
+9,namd/2.12,3,153.656,15,False,draco,72
+10,namd/2.12,4,143.268,15,True,draco,96
+11,namd/2.12,5,157.94,15,True,draco,120
+12,namd/2.12,6,200,15,True,draco,144

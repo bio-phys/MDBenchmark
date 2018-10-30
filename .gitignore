@@ -1,14 +1,32 @@
-*egg-info
+# Caches
 *.pyc
-.coverage
 .cache/
+.pytest_cache/
+
+# Coverage
+.coverage
+
+# Python building
+*egg-info
 .eggs/
 build/
 dist/
-*.proxy
 
+# VSCode
+.vscode/
+
+# MDBenchmark specifics
 **/runtimes.csv
 **/runtimes.pdf
+*.proxy
+
+# Documentation
+docs/_build/
+docs/.doctrees/
+
+# Documentation
+docs/_build/
+docs/.doctrees/
 
 # Documentation
 docs/_build/

@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017 Max Linke & Michael Gecht and contributors
+# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ import click
 
 
 class AliasedGroup(click.Group):
-    aliases = {'start': 'submit'}
+    aliases = {"start": "submit"}
 
     def get_command(self, ctx, cmd_name):
         rv = click.Group.get_command(self, ctx, cmd_name)
@@ -29,11 +29,11 @@ class AliasedGroup(click.Group):
             return rv
         if cmd_name in self.aliases:
             return click.Group.get_command(self, ctx, self.aliases[cmd_name])
-        ctx.fail('Sub command unknown: {}'.format(cmd_name))
+        ctx.fail("Sub command unknown: {}".format(cmd_name))
 
 
 @click.command(cls=AliasedGroup)
 @click.version_option()
 def cli():
-    """Generate, run and analyze benchmarks of GROMACS simulations."""
+    """Generate, run and analyze benchmarks of molecular dynamics simulations."""
     pass

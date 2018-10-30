@@ -5,7 +5,7 @@ We first need to generate benchmarks with MDBenchmark, before we can run and
 analyze these. All options for benchmark generation are accessible via
 ``mdbenchmark generate``. The options presented in the following text can be
 chained together in no particular order in one single call to ``mdbenchmark
-generate``.
+generate``. Before actually writing any files, you will be promted to confirm the action. You can skip this confirmation with the ``--yes`` option.
 
 Specifying the input file
 -------------------------
@@ -35,18 +35,18 @@ MDBenchmark assumes that your HPC uses the `modules`_ package to manage loading
 of MD engines. When given the name of a supported MD engine, it will try to find
 the specified version::
 
-  mdbenchmark generate --module gromacs/2016.4-plumed2.3
+  mdbenchmark generate --module gromacs/2018.3
 
 It is also possible to specify two or more modules at the same time. MDBenchmark
 will generate the correct number of benchmark systems for the respective MD
 engines, sharing all other given options::
 
-  mdbenchmark generate --module gromacs/2016.4-plumed2.3 --module gromacs/2018.2
+  mdbenchmark generate --module gromacs/2018.3 --module gromacs/2018.2
 
 Also it is possible to mix and match MD engines in a single ``mdbenchmark
 generate`` call, if the base name of the files is the same (see above)::
 
-  mdbenchmark generate --module gromacs/2016.4-plumed2.3 --module namd/2.12
+  mdbenchmark generate --module gromacs/2018.3 --module namd/2.12
 
 
 Skipping module name validation
@@ -91,22 +91,22 @@ simply use the ``--host`` option::
 
   mdbenchmark generate --host my_job_template
 
-Running on graphics processing units (GPUs)
--------------------------------------------
+Running on CPUs or GPUs
+-----------------------
 
+Depending on your setup you might want to run your simulations only on GPUs 
+or CPUs. You can do so with the ``--cpu/--no-cpu`` and ``--gpu/--no-gpu`` flags, ``-c/-nc` and ``-g/-ng` respectively.
+If neither of both options is given, benchmarks will be generated for CPUs only.
 The default template for the MPCDF cluster ``draco`` showcases the ability to
-run benchmarks on GPUs. Generation of these benchmarks is possible with the
-``-g`` or ``--gpu`` option::
+run benchmarks on GPUs::
 
   mdbenchmark generate --gpu
 
-.. note::
+This generates benchmarks for both GPU and CPU partitions. If you only want to run on
+GPUs this is easily achieved with::
 
-   When generating benchmarks for GPUs, MDBenchmark will also generate the
-   equivalent benchmark for CPUs. If you only want to benchmark on GPUs, you can
-   either delete the CPU folder or not submit these benchmarks. This behavior
-   will be changed in the upcoming version 2.0, where you can choose not to
-   generate CPU benchmarks.
+   mdbenchmark generate --gpu --no-cpu
+
 
 Limiting the run time of benchmarks
 -----------------------------------
@@ -120,6 +120,13 @@ HPCs. To change the run time per benchmark, simply use the ``--time`` option::
   mdbenchmark generate --time 5
 
 This would run all benchmarks for a total of five minutes.
+
+Changing the job name
+---------------------
+
+If you want your benchmark jobs to have specific names, use the ``--job-name`` option::
+
+  mdbenchmark generate --job-name my_benchmark
 
 .. _modules: https://linux.die.net/man/1/module
 .. _draco: https://www.mpcdf.mpg.de/services/computing/draco
