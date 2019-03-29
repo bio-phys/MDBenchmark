@@ -23,4 +23,4 @@ from .migrations import mds_to_dtr
 # Check that the Python environment is correctly setup
 mds_to_dtr.ensure_correct_environment()
 
-__version__ = "2.0.0"
+__version__ = "2.0.1-dev"
