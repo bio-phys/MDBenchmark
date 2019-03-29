@@ -35,7 +35,11 @@ def cli_runner(request):
         ...
     """
     init_kwargs = {}
-    marker = request.node.get_marker("runner_setup")
+    try:
+        marker = request.node.get_closest_marker("runner_setup")
+    except AttributeError:
+        marker = request.node.get_marker("runner_setup")
+
     if marker:
         init_kwargs = marker.kwargs
     return CliRunner(**init_kwargs)
