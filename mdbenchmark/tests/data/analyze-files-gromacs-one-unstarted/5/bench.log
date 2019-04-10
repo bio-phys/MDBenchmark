@@ -1,0 +1,105 @@
+Log file opened on Mon Dec 11 09:14:55 2017
+Host: dra0417  pid: 54379  rank ID: 0  number of ranks:  160
+                      :-) GROMACS - gmx mdrun, 2016.3 (-:
+
+                            GROMACS is written by:
+     Emile Apol      Rossen Apostolov  Herman J.C. Berendsen    Par Bjelkmar   
+ Aldert van Buuren   Rudi van Drunen     Anton Feenstra    Gerrit Groenhof  
+ Christoph Junghans   Anca Hamuraru    Vincent Hindriksen Dimitrios Karkoulis
+    Peter Kasson        Jiri Kraus      Carsten Kutzner      Per Larsson    
+  Justin A. Lemkul   Magnus Lundborg   Pieter Meulenhoff    Erik Marklund   
+   Teemu Murtola       Szilard Pall       Sander Pronk      Roland Schulz   
+  Alexey Shvetsov     Michael Shirts     Alfons Sijbers     Peter Tieleman  
+  Teemu Virolainen  Christian Wennberg    Maarten Wolf   
+                           and the project leaders:
+        Mark Abraham, Berk Hess, Erik Lindahl, and David van der Spoel
+
+Copyright (c) 1991-2000, University of Groningen, The Netherlands.
+Copyright (c) 2001-2017, The GROMACS development team at
+Uppsala University, Stockholm University and
+the Royal Institute of Technology, Sweden.
+check out http://www.gromacs.org for more information.
+
+GROMACS is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License
+as published by the Free Software Foundation; either version 2.1
+of the License, or (at your option) any later version.
+
+GROMACS:      gmx mdrun, version 2016.3
+Executable:   /mpcdf/soft/SLES122/HSW/gromacs/2016.3/gcc-5.4_cuda-8.0/impi-2017.3/bin/gmx_mpi
+Data prefix:  /mpcdf/soft/SLES122/HSW/gromacs/2016.3/gcc-5.4_cuda-8.0/impi-2017.3
+Working dir:  /draco/u/malinke/DNA-DDD/1duf_bsc1_150mM_salt_bdna_lukas/box2/draco_gromacs/2016.3/5
+Command line:
+  gmx_mpi mdrun -v -maxh 0.25 -deffnm bench
+
+GROMACS version:    2016.3
+Precision:          single
+Memory model:       64 bit
+MPI library:        MPI
+OpenMP support:     enabled (GMX_OPENMP_MAX_THREADS = 32)
+GPU support:        CUDA
+SIMD instructions:  AVX2_256
+FFT library:        fftw-3.3.6-pl2-fma-sse2-avx-avx2-avx2_128
+RDTSCP usage:       enabled
+TNG support:        enabled
+Hwloc support:      disabled
+Tracing support:    disabled
+Built on:           Tue May 16 13:42:45 CEST 2017
+Built by:           mjr@drav04 [CMAKE]
+Build OS/arch:      Linux 4.4.59-92.17-default x86_64
+Build CPU vendor:   Intel
+Build CPU brand:    Intel(R) Xeon(R) CPU E5-2698 v3 @ 2.30GHz
+Build CPU family:   6   Model: 63   Stepping: 2
+Build CPU features: aes apic avx avx2 clfsh cmov cx8 cx16 f16c fma htt lahf mmx msr nonstop_tsc pcid pclmuldq pdcm pdpe1gb popcnt pse rdrnd rdtscp sse2 sse3 sse4.1 sse4.2 ssse3 tdt x2apic
+C compiler:         /mpcdf/soft/SLES122/common/intel/ps2017.4/impi/2017.3/bin64/mpigcc GNU 5.4.0
+C compiler flags:    -march=core-avx2     -O3 -DNDEBUG -funroll-all-loops -fexcess-precision=fast  
+C++ compiler:       /mpcdf/soft/SLES122/common/intel/ps2017.4/impi/2017.3/bin64/mpigxx GNU 5.4.0
+C++ compiler flags:  -march=core-avx2    -std=c++0x   -O3 -DNDEBUG -funroll-all-loops -fexcess-precision=fast  
+CUDA compiler:      /mpcdf/soft/SLES122/common/cuda/8.0.61/bin/nvcc nvcc: NVIDIA (R) Cuda compiler driver;Copyright (c) 2005-2016 NVIDIA Corporation;Built on Tue_Jan_10_13:22:03_CST_2017;Cuda compilation tools, release 8.0, V8.0.61
+CUDA compiler flags:-gencode;arch=compute_20,code=sm_20;-gencode;arch=compute_30,code=sm_30;-gencode;arch=compute_35,code=sm_35;-gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_52,code=sm_52;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_60,code=compute_60;-gencode;arch=compute_61,code=compute_61;-use_fast_math;;;-Xcompiler;,-march=core-avx2,,,,,,;-Xcompiler;-O3,-DNDEBUG,-funroll-all-loops,-fexcess-precision=fast,,; 
+CUDA driver:        9.0
+CUDA runtime:       0.0
+
+
+NOTE: Error occurred during GPU detection:
+      unknown error
+      Can not use GPU acceleration, will fall back to CPU kernels.
+
+
+Running on 5 nodes with total 160 cores, 320 logical cores, 0 compatible GPUs
+  Cores per node:           32
+  Logical cores per node:   64
+  Compatible GPUs per node:  0
+Hardware detected on host dra0417 (the node of MPI rank 0):
+  CPU info:
+    Vendor: Intel
+    Brand:  Intel(R) Xeon(R) CPU E5-2698 v3 @ 2.30GHz
+    Family: 6   Model: 63   Stepping: 2
+    Features: aes apic avx avx2 clfsh cmov cx8 cx16 f16c fma htt lahf mmx msr nonstop_tsc pcid pclmuldq pdcm pdpe1gb popcnt pse rdrnd rdtscp sse2 sse3 sse4.1 sse4.2 ssse3 tdt x2apic
+    SIMD instructions most likely to fit this hardware: AVX2_256
+    SIMD instructions selected at GROMACS compile time: AVX2_256
+
+  Hardware topology: Basic
+    Sockets, cores, and logical processors:
+      Socket  0: [   0  32] [   1  33] [   2  34] [   3  35] [   4  36] [   5  37] [   6  38] [   7  39] [   8  40] [   9  41] [  10  42] [  11  43] [  12  44] [  13  45] [  14  46] [  15  47]
+      Socket  1: [  16  48] [  17  49] [  18  50] [  19  51] [  20  52] [  21  53] [  22  54] [  23  55] [  24  56] [  25  57] [  26  58] [  27  59] [  28  60] [  29  61] [  30  62] [  31  63]
+
+
+++++ PLEASE READ AND CITE THE FOLLOWING REFERENCE ++++
+M. J. Abraham, T. Murtola, R. Schulz, S. Páll, J. C. Smith, B. Hess, E.
+Lindahl
+GROMACS: High performance molecular simulations through multi-level
+parallelism from laptops to supercomputers
+SoftwareX 1 (2015) pp. 19-25
+-------- -------- --- Thank You --- -------- --------
+
+
+++++ PLEASE READ AND CITE THE FOLLOWING REFERENCE ++++
+S. Páll, M. J. Abraham, C. Kutzner, B. Hess, E. Lindahl
+Tackling Exascale Software Challenges in Molecular Dynamics Simulations with
+GROMACS
+               Core t (s)   Wall t (s)        (%)
+       Time:   285159.888      891.125    32000.0
+                 (ns/day)    (hour/ns)
+Performance:      254.266        0.094
+Finished mdrun on rank 0 Mon Dec 11 09:29:47 2017
