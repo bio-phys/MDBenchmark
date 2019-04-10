@@ -156,7 +156,6 @@ def DataFrameFromBundle(bundle):
         ["host", "module", "run time [min]", "gpu", "nodes"]
     ).reset_index(drop=True)
 
-    df = df.replace(np.nan, "?")
     return df
 
 

@@ -20,6 +20,7 @@
 import os
 
 import datreant as dtr
+import numpy as np
 import pandas as pd
 from mdbenchmark.utils import PrintDataFrame, ConsolidateDataFrame, DataFrameFromBundle
 from mdbenchmark import cli
@@ -37,31 +38,6 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
 
         df = pd.read_csv(data["analyze-files-gromacs.csv"])
         test_output = PrintDataFrame(df, False) + "\n"
-        assert result.exit_code == 0
-        assert result.output == test_output
-
-
-def test_analyze_many_rows(cli_runner, tmpdir, datafiles):
-    """Test that pandas does not limit the number of printed rows."""
-    with tmpdir.as_cwd():
-        open("protein.tpr", "a").close()
-
-        result = cli_runner.invoke(
-            cli.cli,
-            [
-                "generate",
-                "--module=gromacs/2016.3",
-                "--host=draco",
-                "--max-nodes=64",
-                "--name=protein",
-                "--yes",
-            ],
-        )
-        result = cli_runner.invoke(cli.cli, ["analyze", "--directory=draco_gromacs"])
-
-        df = pd.read_csv(datafiles["analyze-many-rows.csv"], index_col=0)
-        test_output = PrintDataFrame(df, False) + "\n"
-
         assert result.exit_code == 0
         assert result.output == test_output
 
@@ -93,6 +69,7 @@ show a question mark instead of a float in the corresponding cell.
 
         bundle = dtr.discover(data["analyze-files-w-errors"])
         df = DataFrameFromBundle(bundle)
+        df = df.replace(np.nan, "?")
         test_output = PrintDataFrame(df, False) + "\n"
 
         assert result.exit_code == 0
