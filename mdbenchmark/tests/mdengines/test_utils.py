@@ -22,6 +22,7 @@ from glob import glob
 
 import datreant as dtr
 import pytest
+
 from mdbenchmark.mdengines import gromacs, namd, utils
 from mdbenchmark.utils import retrieve_host_template
 

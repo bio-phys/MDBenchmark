@@ -22,7 +22,6 @@ import subprocess
 from glob import glob
 
 import click
-
 import datreant as dtr
 import numpy as np
 import pandas as pd

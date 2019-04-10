@@ -56,7 +56,7 @@ jobs:
       install:
         - $UPGRADE_PIP
         - pip install isort
-      script: make isort
+      script: make isort-check
     - name: "Lint reStructuredText"
       install:
         - $UPGRADE_PIP
