@@ -87,20 +87,20 @@ def analyze(directory, plot, ncores, save_csv):
 
     df = DataFrameFromBundle(bundle)
 
+    if save_csv is not None and not save_csv.endswith(".csv"):
+        save_csv = "{}.csv".format(save_csv)
+    df.to_csv(save_csv)
+
+    # Reformat NaN values nicely into question marks.
+    # move this to the bundle function!
+    df = df.replace(np.nan, "?")
     if df.isnull().values.any():
         console.warn(
             "We were not able to gather informations for all systems. "
             "Systems marked with question marks have either crashed or "
             "were not started yet."
         )
-
-    # Reformat NaN values nicely into question marks.
-    # move this to the bundle function!
     PrintDataFrame(df)
-
-    if save_csv is not None and not save_csv.endswith(".csv"):
-        save_csv = "{}.csv".format(save_csv)
-    df.to_csv(save_csv)
 
     if plot:
         console.warn("'--plot' has been deprecated, use '{}'.", "mdbenchmark plot")
