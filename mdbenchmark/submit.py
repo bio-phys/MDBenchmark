@@ -87,21 +87,6 @@ def submit(directory, force_restart, yes):
     if not bundle:
         console.error("No benchmarks found.")
 
-    df = DataFrameFromBundle(bundle)
-
-    # Reformat NaN values nicely into question marks.
-    df_to_print = df.replace(np.nan, "?")
-    df_to_print = df.drop(columns=["ns/day", "ncores"])
-    console.info("{}", "Benchmark Summary:")
-    df_short = ConsolidateDataFrame(df_to_print)
-    PrintDataFrame(df_short)
-
-    # here I add the user promt to confirm the submission of the simulations
-    if yes:
-        console.info("The above benchmarks will be submitted.")
-    elif not click.confirm("The above benchmarks will be submitted. Continue?"):
-        console.error("Exiting. No benchmarks submitted.")
-
     grouped_bundles = bundle.categories.groupby("started")
     try:
         bundles_not_yet_started = grouped_bundles[False]
@@ -113,11 +98,28 @@ def submit(directory, force_restart, yes):
             "You can force a restart with {}.",
             "--force",
         )
+
     # Start all benchmark simulations if a restart was requested. Otherwise
     # only start the ones that were not run yet.
     bundles_to_start = bundle
     if not force_restart:
         bundles_to_start = bundles_not_yet_started
+
+    df = DataFrameFromBundle(bundles_to_start)
+
+    # Reformat NaN values nicely into question marks.
+    df_to_print = df.replace(np.nan, "?")
+    df_to_print = df.drop(columns=["ns/day", "ncores"])
+    console.info("{}", "Benchmark Summary:")
+    df_short = ConsolidateDataFrame(df_to_print)
+    PrintDataFrame(df_short)
+
+    # Ask the user to confirm whether they want to submit the benchmarks
+    if yes:
+        console.info("The above benchmarks will be submitted.")
+    elif not click.confirm("The above benchmarks will be submitted. Continue?"):
+        console.error("Exiting. No benchmarks submitted.")
+
     batch_cmd = get_batch_command()
     console.info("Submitting a total of {} benchmarks.", len(bundles_to_start))
     for sim in bundles_to_start:

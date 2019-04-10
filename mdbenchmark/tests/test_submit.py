@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 import pandas as pd
+import datreant as dtr
 from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 from mdbenchmark import cli
 from mdbenchmark.ext.click_test import cli_runner
@@ -69,16 +70,10 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
         s = PrintDataFrame(df, False)
 
-        test = (
-            "Benchmark Summary:\n"
-            + s
-            + "\nThe above benchmarks will be submitted.\n"
-            + "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
-        )
-        # print(test)
-        # print(result.output)
+        output = "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
+
         assert result.exit_code == 1
-        assert result.output == test
+        assert result.output == output
 
         # Test that we can force restart already run benchmarks.
         # Monkeypatch a few functions
@@ -113,14 +108,16 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
 def test_submit_test_prompt_no(cli_runner, tmpdir, data):
     """Test whether prompt answer no works."""
     with tmpdir.as_cwd():
-
         result = cli_runner.invoke(
             cli.cli,
-            ["submit", "--directory={}".format(data["analyze-files-gromacs"])],
+            [
+                "submit",
+                "--directory={}".format(data["analyze-files-gromacs-one-unstarted"]),
+            ],
             input="n\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
+        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
         s = PrintDataFrame(df, False)
 
         output = (
@@ -134,25 +131,42 @@ def test_submit_test_prompt_no(cli_runner, tmpdir, data):
         assert result.output == output
 
 
-def test_submit_test_prompt_yes(cli_runner, tmpdir, data):
+def test_submit_test_prompt_yes(cli_runner, tmpdir, data, monkeypatch):
     """Test whether promt answer no works."""
     with tmpdir.as_cwd():
+        # Test that we can force restart already run benchmarks.
+        # Monkeypatch a few functions
+        monkeypatch.setattr("subprocess.call", lambda x: True)
+        monkeypatch.setattr("mdbenchmark.submit.get_batch_command", lambda: "sbatch")
+        monkeypatch.setattr("mdbenchmark.submit.detect_md_engine", lambda x: gromacs)
+        monkeypatch.setattr(
+            "mdbenchmark.submit.cleanup_before_restart", lambda engine, sim: True
+        )
 
         result = cli_runner.invoke(
             cli.cli,
-            ["submit", "--directory={}".format(data["analyze-files-gromacs"])],
+            [
+                "submit",
+                "--directory={}".format(data["analyze-files-gromacs-one-unstarted"]),
+            ],
             input="y\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
+        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
         s = PrintDataFrame(df, False)
 
         output = (
             "Benchmark Summary:\n"
             + s
             + "\nThe above benchmarks will be submitted. Continue? [y/N]: y\n"
-            + "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
+            + "Submitting a total of 1 benchmarks.\n"
+            + "Submitted all benchmarks. Run mdbenchmark analyze once they are finished to get the results.\n"
         )
 
-        assert result.exit_code == 1
+        assert result.exit_code == 0
         assert result.output == output
+
+        # Lazy way of resetting the value of `started` to `false`.
+        # TODO: We need to clean up all of our unit tests...
+        treant = dtr.Bundle(data["analyze-files-gromacs-one-unstarted"] + "/1")
+        treant.categories["started"] = False
