@@ -148,6 +148,7 @@ def validate_hosts(ctx, param, host=None):
     "-t",
     "--template",
     "--host",
+    "host",
     help="Name of the host template.",
     default=None,
     callback=validate_hosts,
