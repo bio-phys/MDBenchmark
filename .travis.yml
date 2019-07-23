@@ -16,9 +16,6 @@ env:
   global:
     - MAIN_CMD="pytest"
     - SETUP_CMD="mdbenchmark -v"
-    - CONDA_DEPENDENCIES="datreant jinja2 click>=6.7 pandas matplotlib xdg<2"
-    - CONDA_CHANNELS="conda-forge"
-    - NUMPY_VERSION=stable
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - CODECOV=""
     - PYTEST_COV=""
