@@ -73,13 +73,13 @@ setup(
     install_requires=[
         "numpy>=1.8",
         "datreant>=1.0.0",
-        "click==6.7",  # v7.0 introduced some changes that broke our tests.
+        "click>=6.7",
         "jinja2",
         "pandas",
-        "matplotlib>=2.2.3,<3.0",  # matplotlib 3.0 does not support Python 2
+        "matplotlib>=2.2",
         "python-Levenshtein",
-        "xdg<2",  # xdg 2 does not support Python 2
-        "tabulate==0.8.2",
+        "xdg<2",
+        "tabulate>=0.8",
     ],
     package_data={"mdbenchmark": ["templates/*"]},
     entry_points={"console_scripts": ["mdbenchmark=mdbenchmark.cli:cli"]},
