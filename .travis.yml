@@ -16,9 +16,6 @@ env:
   global:
     - MAIN_CMD="pytest"
     - SETUP_CMD="mdbenchmark -v"
-    - CONDA_DEPENDENCIES="datreant jinja2 click==6.7 pandas matplotlib xdg<2"
-    - CONDA_CHANNELS="conda-forge"
-    - NUMPY_VERSION=stable
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - CODECOV=""
     - PYTEST_COV=""
@@ -69,14 +66,33 @@ jobs:
       script: python setup.py build_sphinx
 
     - stage: "macOS - Unit tests"
-      language: generic
-      name: "Python 2.7"
-      env: PYTHON_VERSION=2.7
+      os: osx
+      language: sh
+      env:
+        - TOXENV=py3
+        - HOMEBREW_NO_INSTALL_CLEANUP=1
+        - HOMEBREW_NO_ANALYTICS=1
+      before_cache:
+        # - brew cleanup
+        - rm -f "$HOME/Library/Caches/pip/log/debug.log"
+      cache:
+        directories:
+          # - "$HOME/Library/Caches/Homebrew"
+          - "$HOME/Library/Caches/pip"
+      addons:
+        homebrew:
+          # update: true
+          packages: python3
+      before_install:
+        - python3 -m pip install --upgrade pip
+        - python3 -m venv --system-site-packages "$HOME/venv"
+        - source "$HOME/venv/bin/activate"
       install:
-        - git clone git://github.com/astropy/ci-helpers.git
-        - source ci-helpers/travis/setup_conda.sh
         - pip install -e .
-      script: $MAIN_CMD $SETUP_CMD
+        - pip install pytest-cov codecov
+        - deactivate
+        - source "$HOME/venv/bin/activate"
+      script: python3 -m $MAIN_CMD $SETUP_CMD
 
 install:
   - $UPGRADE_PIP

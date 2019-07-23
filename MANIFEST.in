@@ -3,3 +3,4 @@ include LICENSE
 include AUTHORS
 include CHANGELOG.rst
 include docs/_static/runtimes.png
+include pyproject.toml
