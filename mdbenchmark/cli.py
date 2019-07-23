@@ -25,6 +25,7 @@ class AliasedGroup(click.Group):
 
     def get_command(self, ctx, cmd_name):
         rv = click.Group.get_command(self, ctx, cmd_name)
+
         if rv is not None:
             return rv
         if cmd_name in self.aliases:
