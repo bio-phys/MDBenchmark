@@ -27,7 +27,8 @@ def test_aliasedgroup_unknown_command(cli_runner):
     result = cli_runner.invoke(cli.cli, ["unknown_command"])
     assert result.exit_code == 2
     output = (
-        "Usage: cli [OPTIONS] COMMAND [ARGS]...\n\n"
+        "Usage: cli [OPTIONS] COMMAND [ARGS]...\n"
+        'Try "cli --help" for help.\n\n'
         "Error: Sub command unknown: unknown_command\n"
     )
     assert result.output == output
