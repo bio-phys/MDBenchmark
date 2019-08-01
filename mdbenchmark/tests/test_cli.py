@@ -24,7 +24,7 @@ from mdbenchmark.ext.click_test import cli_runner
 
 def test_aliasedgroup_unknown_command(cli_runner):
     """Test that we return an error, when invoking an unknown command."""
-    result = cli_runner.invoke(cli.cli, ["unknown_command"])
+    result = cli_runner.invoke(cli, ["unknown_command"])
     assert result.exit_code == 2
     output = (
         "Usage: cli [OPTIONS] COMMAND [ARGS]...\n"
@@ -36,5 +36,5 @@ def test_aliasedgroup_unknown_command(cli_runner):
 
 def test_aliasedgroup_known_alias(cli_runner):
     """Test that we can use all defined aliases."""
-    result = cli_runner.invoke(cli.cli, ["start"])
+    result = cli_runner.invoke(cli, ["start"])
     assert result.exit_code == 1

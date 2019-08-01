@@ -56,16 +56,14 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
         # an non-existent path.
-        result = cli_runner.invoke(
-            cli.cli, ["submit", "--directory=look_here/"], "--yes"
-        )
+        result = cli_runner.invoke(cli, ["submit", "--directory=look_here/"], "--yes")
         assert result.exit_code == 1
         assert result.output == "ERROR No benchmarks found.\n"
 
         # Test that we get an error if we try to start benchmarks that were
         # already started once.
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             ["submit", "--directory={}".format(data["analyze-files-gromacs"]), "--yes"],
         )
         df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
@@ -94,7 +92,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "submit",
                 "--directory={}".format(data["analyze-files-gromacs"]),
@@ -110,7 +108,7 @@ def test_submit_test_prompt_no(cli_runner, tmpdir, data):
     """Test whether prompt answer no works."""
     with tmpdir.as_cwd():
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "submit",
                 "--directory={}".format(data["analyze-files-gromacs-one-unstarted"]),
@@ -145,7 +143,7 @@ def test_submit_test_prompt_yes(cli_runner, tmpdir, data, monkeypatch):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "submit",
                 "--directory={}".format(data["analyze-files-gromacs-one-unstarted"]),

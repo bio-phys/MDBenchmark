@@ -68,7 +68,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -99,7 +99,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -139,7 +139,7 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
             )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -176,7 +176,7 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
             "directory.\n".format(output_type)
         )
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),

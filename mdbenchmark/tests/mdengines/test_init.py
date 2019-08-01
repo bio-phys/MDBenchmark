@@ -172,7 +172,7 @@ def test_validation(capsys, monkeypatch, tmpdir):
 def test_generate_validation(cli_runner, tmpdir, monkeypatch):
     # Test that we get a warning, if the MD engine is unsupported.
     result = cli_runner.invoke(
-        cli.cli, ["generate", "--module=somehpc/123", "--host=draco", "--name=protein"]
+        cli, ["generate", "--module=somehpc/123", "--host=draco", "--name=protein"]
     )
     output = (
         "ERROR There is currently no support for 'somehpc'. "
@@ -199,7 +199,7 @@ def test_generate_validation(cli_runner, tmpdir, monkeypatch):
 
         # Test that we get a warning if we cannot find the requested modules.
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/doesnotexist",
@@ -225,7 +225,7 @@ def test_generate_validation(cli_runner, tmpdir, monkeypatch):
         # Test that the warning also works when specifying several MD engines.
         # Test that we get a warning if we cannot find the requested modules.
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/doesnotexist",
