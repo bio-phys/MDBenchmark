@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -23,10 +23,9 @@ import click
 import datreant as dtr
 import pandas as pd
 
-from . import console, mdengines, utils
-from .cli import cli
-from .mdengines.utils import write_benchmark
-from .utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from .. import console, mdengines, utils
+from ..mdengines.utils import write_benchmark
+from ..utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 NAMD_WARNING = (
     "NAMD support is experimental. "
@@ -69,7 +68,7 @@ def validate_cpu_gpu_flags(cpu, gpu):
 
 def validate_number_of_nodes(min_nodes, max_nodes):
     """Validate that the minimal number of nodes is smaller than the maximal
-        number.
+      number.
     """
     if min_nodes > max_nodes:
         raise click.BadParameter(
@@ -115,86 +114,7 @@ def validate_hosts(ctx, param, host=None):
     return host
 
 
-@cli.command()
-@click.option(
-    "-n",
-    "--name",
-    help="Name of input files. All files must have the same base name.",
-    callback=validate_name,
-)
-@click.option(
-    "-c/-nc",
-    "--cpu/--no-cpu",
-    is_flag=True,
-    help="Use CPUs for benchmark.",
-    default=True,
-    show_default=True,
-)
-@click.option(
-    "-g/-ng",
-    "--gpu/--no-gpu",
-    is_flag=True,
-    help="Use GPUs for benchmark.",
-    show_default=True,
-)
-@click.option(
-    "-m",
-    "--module",
-    help="Name of the MD engine module to use.",
-    multiple=True,
-    callback=validate_module,
-)
-@click.option(
-    "-t",
-    "--template",
-    "--host",
-    "host",
-    help="Name of the host template.",
-    default=None,
-    callback=validate_hosts,
-)
-@click.option(
-    "--min-nodes",
-    help="Minimal number of nodes to request.",
-    default=1,
-    show_default=True,
-    type=int,
-)
-@click.option(
-    "--max-nodes",
-    help="Maximal number of nodes to request.",
-    default=5,
-    show_default=True,
-    type=int,
-)
-@click.option(
-    "--time",
-    help="Run time for benchmark in minutes.",
-    default=15,
-    show_default=True,
-    type=click.IntRange(1, 1440),
-)
-@click.option(
-    "--list-hosts",
-    help="Show available host templates.",
-    is_flag=True,
-    is_eager=True,
-    callback=print_known_hosts,
-    expose_value=False,
-)
-@click.option(
-    "--skip-validation",
-    help="Skip the validation of module names.",
-    default=False,
-    is_flag=True,
-)
-@click.option(
-    "--job-name", help="Give an optional to the generated benchmarks.", default=None
-)
-@click.option(
-    "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
-)
-def generate(
+def do_generate(
     name,
     cpu,
     gpu,
@@ -207,26 +127,7 @@ def generate(
     job_name,
     yes,
 ):
-    """Generate benchmarks for molecular dynamics simulations.
-
-    Requires the ``--name`` option to be provided an existing file, e.g.,
-    ``protein.tpr`` for GROMACS and ``protein.namd``, ``protein.pdb`` and
-    ``protein.psf`` for NAMD. The filename ``protein`` will then be used as the job
-    name, or can be overwritten with the ``--job-name`` option.
-
-    The specified module name will be validated and searched on the current
-    system. To skip this check, use the ``--skip-validation`` option.
-
-    Benchmarks will be generated for CPUs per default (``--cpu``), but can also
-    be generated for GPUs (``--gpu``) at the same time or without CPUs
-    (``--no-cpu``).
-
-    The hostname of the current system will be used to look for benchmark
-    templates, but can be overwritten with the ``--template`` option. Templates
-    for the MPCDF clusters ``cobra``, ``draco`` and ``hydra`` are provided with the
-    package. All available templates can be listed with the ``--list-hosts``
-    option.
-    """
+    """Generate a bunch of benchmarks."""
     # Validate the CPU and GPU flags
     validate_cpu_gpu_flags(cpu, gpu)
 
@@ -313,7 +214,7 @@ def generate(
     elif not click.confirm("The above benchmarks will be generated. Continue?"):
         console.error("Exiting. No benchmarks generated.")
 
-    for index, row in df_overview.iterrows():
+    for _, row in df_overview.iterrows():
         relative_path, file_basename = os.path.split(row["name"])
         write_benchmark(
             engine=row["engine"],
