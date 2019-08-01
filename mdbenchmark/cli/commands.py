@@ -14,3 +14,10 @@ def analyze():
     from .analyze import do_analyze
 
     do_analyze()
+
+@cli.command()
+def generate():
+    """Generate docstring."""
+    from .generate import do_generate
+
+    do_generate()
