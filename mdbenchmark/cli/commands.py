@@ -19,7 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
-from .generate import (
+from .validators import (
     print_known_hosts,
     validate_cpu_gpu_flags,
     validate_hosts,
