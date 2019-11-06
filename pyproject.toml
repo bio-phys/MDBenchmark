@@ -57,6 +57,9 @@ flake8 = "^3.7"
 pylint = ">=1"
 towncrier = "^19.2"
 black = {version = "^19.10b0", python = "^3.6", allows-prereleases = true}
+Sphinx = "^1"
+sphinx-autobuild = "^0.7.1"
+sphinx-click = "^2.3"
 
 [tool.poetry.scripts]
 mdbenchmark = "mdbenchmark:cli"
