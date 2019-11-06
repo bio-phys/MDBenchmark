@@ -20,6 +20,7 @@ jinja2 = "^2.10"
 datreant = "^1.0"
 click = ">=6.7"
 xdg = { version = "^1" }
+tabulate = "^0.8.5"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=5"
