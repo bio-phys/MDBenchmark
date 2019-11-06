@@ -25,9 +25,8 @@ import pytest
 from click import exceptions
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.generate import (
-    NAMD_WARNING,
+from mdbenchmark.cli.generate import NAMD_WARNING
+from mdbenchmark.cli.validators import (
     print_known_hosts,
     validate_cpu_gpu_flags,
     validate_hosts,
@@ -35,6 +34,7 @@ from mdbenchmark.generate import (
     validate_name,
     validate_number_of_nodes,
 )
+from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 

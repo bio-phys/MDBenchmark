@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
+from .options import AliasedGroup
 from .validators import (
     print_known_hosts,
     validate_cpu_gpu_flags,
@@ -27,10 +28,9 @@ from .validators import (
     validate_name,
     validate_number_of_nodes,
 )
-from .options import AliasedGroup
 
 
-@click.command(cls=AliasedGroup)
+@click.group(cls=AliasedGroup)
 @click.version_option()
 def cli():
     """Generate, run and analyze benchmarks of molecular dynamics simulations."""

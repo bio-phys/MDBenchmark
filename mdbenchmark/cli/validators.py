@@ -1,5 +1,8 @@
 import click
 
+from .. import console, utils
+
+
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
     if name is None:

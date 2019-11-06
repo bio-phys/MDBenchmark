@@ -28,8 +28,8 @@ from matplotlib.figure import Figure
 from .. import console
 from ..mdengines import detect_md_engine, utils
 from ..migrations import mds_to_dtr
-from ..plot import plot_over_group
 from ..utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
+from .plot import plot_over_group
 
 plt.switch_backend("agg")
 

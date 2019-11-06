@@ -29,7 +29,8 @@ from matplotlib.figure import Figure
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-from mdbenchmark import cli, plot, utils
+from mdbenchmark import cli, utils
+from mdbenchmark.cli import plot
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
 

@@ -35,6 +35,7 @@ NAMD_WARNING = (
     "If you use the {} option make sure you use the GPU compatible NAMD module!"
 )
 
+
 def do_generate(
     name,
     cpu,
