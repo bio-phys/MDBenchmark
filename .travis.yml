@@ -62,7 +62,7 @@ jobs:
     - name: "Try to build documentation"
       install:
         - $UPGRADE_PIP
-        - pip install . sphinx-click
+        - pip install . sphinx-click sphinx-autobuild
       script:
         - cd docs
         - make build
