@@ -9,6 +9,7 @@ readme = "README.rst"
 homepage = "https://mdbenchmark.org"
 repository = "https://github.com/bio-phys/mdbenchmark"
 documentation = "https://docs.mdbenchmark.org"
+include = ["README.rst", "LICENSE", "AUTHORS", "CHANGELOG.rst", "docs/_static/runtimes.png", "pyproject.toml"]
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.5"
