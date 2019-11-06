@@ -9,7 +9,29 @@ readme = "README.rst"
 homepage = "https://mdbenchmark.org"
 repository = "https://github.com/bio-phys/mdbenchmark"
 documentation = "https://docs.mdbenchmark.org"
-include = ["README.rst", "LICENSE", "AUTHORS", "CHANGELOG.rst", "docs/_static/runtimes.png", "pyproject.toml"]
+
+include = ["README.rst", "LICENSE", "AUTHORS", "CHANGELOG.rst", "docs/_static/runtimes.png", "pyproject.toml", "templates/*"]
+
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License (GPL)",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 2",
+  "Programming Language :: Python :: 2.7",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.5",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Scientific/Engineering :: Chemistry",
+  "Topic :: Scientific/Engineering :: Physics",
+  "Topic :: System :: Benchmark",
+]
 
 [tool.poetry.dependencies]
 python = "~2.7 || ^3.5"
