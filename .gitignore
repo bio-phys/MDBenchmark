@@ -32,3 +32,6 @@ docs/.doctrees/
 # Ignore local Pipfile
 Pipfile
 Pipfile.lock
+
+# Misc
+.DS_Store
