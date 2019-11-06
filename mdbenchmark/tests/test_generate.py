@@ -25,9 +25,8 @@ import pytest
 from click import exceptions
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.generate import (
-    NAMD_WARNING,
+from mdbenchmark.cli.generate import NAMD_WARNING
+from mdbenchmark.cli.validators import (
     print_known_hosts,
     validate_cpu_gpu_flags,
     validate_hosts,
@@ -35,6 +34,7 @@ from mdbenchmark.generate import (
     validate_name,
     validate_number_of_nodes,
 )
+from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
@@ -125,7 +125,7 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions, 
             open("protein.{}".format(ext), "a").close()
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module={}".format(module),
@@ -171,7 +171,7 @@ def test_generate_simple_input_with_cpu_gpu(
             open("protein.{}".format(ext), "a").close()
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module={}".format(module),
@@ -213,7 +213,7 @@ def test_generate_simple_input_with_working_validation(
             open("protein.{}".format(ext), "a").close()
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module={}".format(module),
@@ -264,7 +264,7 @@ def test_generate_skip_validation(
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module={}".format(module),
@@ -307,7 +307,7 @@ def test_generate_unsupported_engine(cli_runner, monkeypatch, tmpdir):
             "Supported MD engines are: {}.\n".format(supported_engines)
         )
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=doesnotexist/version",
@@ -348,7 +348,7 @@ def test_generate_odd_number_of_nodes(
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module={}".format(module),
@@ -403,7 +403,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test that we get an error when not supplying a file name
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--module=gromacs/2016", "--host=draco", "--yes"]
+            cli, ["generate", "--module=gromacs/2016", "--host=draco", "--yes"]
         )
         output = (
             "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
@@ -412,7 +412,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if the TPR file does not exist
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             ["generate", "--module=gromacs/2016", "--host=draco", "--name=md", "--yes"],
         )
         output = (
@@ -427,7 +427,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test that the minimal number of nodes must be bigger than the maximal number
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/2016",
@@ -448,7 +448,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if we pass an invalid template name
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/2016",
@@ -469,7 +469,7 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
 
         # Test error message if we do not pass any module name
         result = cli_runner.invoke(
-            cli.cli, ["generate", "--host=draco", "--name=protein", "--yes"]
+            cli, ["generate", "--host=draco", "--name=protein", "--yes"]
         )
         output = (
             "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
@@ -492,8 +492,7 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
-            ["generate", "--module=namd/123", "--host=draco", "--name=md", "--yes"],
+            cli, ["generate", "--module=namd/123", "--host=draco", "--name=md", "--yes"]
         )
         output1 = (
             "WARNING NAMD support is experimental. "
@@ -611,7 +610,7 @@ def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
         open("protein.tpr", "a").close()
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/2016",
@@ -649,7 +648,7 @@ def test_generate_test_prompt_no(cli_runner, tmpdir, generate_output):
         open("protein.tpr", "a").close()
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "generate",
                 "--module=gromacs/2016",

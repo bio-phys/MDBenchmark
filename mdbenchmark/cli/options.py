@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,13 +17,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from .cli import cli
-from .migrations import mds_to_dtr
+import click
 
-# Check that the Python environment is correctly setup
-mds_to_dtr.ensure_correct_environment()
 
-__version__ = "2.0.1-dev"
+class AliasedGroup(click.Group):
+    aliases = {"start": "submit"}
 
-if __name__ == "__main__":
-    cli()
+    def get_command(self, ctx, cmd_name):
+        rv = click.Group.get_command(self, ctx, cmd_name)
+
+        if rv is not None:
+            return rv
+        if cmd_name in self.aliases:
+            return click.Group.get_command(self, ctx, self.aliases[cmd_name])
+        ctx.fail("Sub command unknown: {}".format(cmd_name))

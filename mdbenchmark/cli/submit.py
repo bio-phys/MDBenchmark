@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -26,12 +26,11 @@ import datreant as dtr
 import numpy as np
 import pandas as pd
 
-from . import console
-from .cli import cli
-from .mdengines import detect_md_engine
-from .mdengines.utils import cleanup_before_restart
-from .migrations import mds_to_dtr
-from .utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from .. import console
+from ..mdengines import detect_md_engine
+from ..mdengines.utils import cleanup_before_restart
+from ..migrations import mds_to_dtr
+from ..utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}
@@ -48,35 +47,8 @@ def get_batch_command():
     )
 
 
-@cli.command()
-@click.option(
-    "-d",
-    "--directory",
-    help="Path in which to look for benchmarks.",
-    default=".",
-    show_default=True,
-)
-@click.option(
-    "-f",
-    "--force",
-    "force_restart",
-    help="Resubmit all benchmarks and delete all previous results.",
-    is_flag=True,
-)
-@click.option("-y", "--yes", is_flag=True, help="Answer all prompts with yes.")
-def submit(directory, force_restart, yes):
-    """Submit benchmarks to queuing system.
-
-    Benchmarks are searched recursively starting from the directory specified
-    in ``--directory``. If the option is not specified, the working directory
-    will be used.
-
-    Requests a user prompt. Using ``--yes`` flag skips this step.
-
-    Checks whether benchmark folders were already generated, exits otherwise.
-    Only runs benchmarks that were not already started. Can be overwritten with
-    ``--force``.
-    """
+def do_submit(directory, force_restart, yes):
+    """Submit the benchmarks."""
     # Migrate from MDBenchmark<2 to MDBenchmark=>2
     mds_to_dtr.migrate_to_datreant(directory)
 

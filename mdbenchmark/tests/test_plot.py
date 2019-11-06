@@ -29,7 +29,8 @@ from matplotlib.figure import Figure
 from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-from mdbenchmark import cli, plot, utils
+from mdbenchmark import cli, utils
+from mdbenchmark.cli import plot
 from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
 
@@ -68,7 +69,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -99,7 +100,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
         )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -139,7 +140,7 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
             )
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),
@@ -176,7 +177,7 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
             "directory.\n".format(output_type)
         )
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "plot",
                 "--csv={}".format(data["test.csv"]),

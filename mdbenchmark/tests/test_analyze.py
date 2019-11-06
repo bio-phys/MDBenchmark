@@ -34,7 +34,7 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
     with tmpdir.as_cwd():
 
         result = cli_runner.invoke(
-            cli.cli, ["analyze", "--directory={}".format(data["analyze-files-gromacs"])]
+            cli, ["analyze", "--directory={}".format(data["analyze-files-gromacs"])]
         )
 
         df = pd.read_csv(data["analyze-files-gromacs.csv"])
@@ -46,7 +46,7 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
 def test_analyze_namd(cli_runner, tmpdir, data):
     with tmpdir.as_cwd():
         result = cli_runner.invoke(
-            cli.cli, ["analyze", "--directory={}".format(data["analyze-files-namd"])]
+            cli, ["analyze", "--directory={}".format(data["analyze-files-namd"])]
         )
 
         bundle = dtr.discover(data["analyze-files-namd"])
@@ -64,8 +64,7 @@ show a question mark instead of a float in the corresponding cell.
     with tmpdir.as_cwd():
 
         result = cli_runner.invoke(
-            cli.cli,
-            ["analyze", "--directory={}".format(data["analyze-files-w-errors"])],
+            cli, ["analyze", "--directory={}".format(data["analyze-files-w-errors"])]
         )
 
         bundle = dtr.discover(data["analyze-files-w-errors"])
@@ -81,7 +80,7 @@ def test_analyze_plot(cli_runner, tmpdir, data):
     with tmpdir.as_cwd():
 
         result = cli_runner.invoke(
-            cli.cli,
+            cli,
             [
                 "analyze",
                 "--directory={}".format(data["analyze-files-gromacs"], "--plot"),
@@ -101,7 +100,7 @@ def test_analyze_console_messages(cli_runner, tmpdir):
     """Test that the CLI for analyze prints all error messages as expected."""
     with tmpdir.as_cwd():
         # Test error message if the TPR file does not exist
-        result = cli_runner.invoke(cli.cli, ["analyze", "--directory=look_here/"])
+        result = cli_runner.invoke(cli, ["analyze", "--directory=look_here/"])
         output = "ERROR There is no data for the given path.\n"
         assert result.exit_code == 1
         assert result.output == output
