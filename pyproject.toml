@@ -44,6 +44,7 @@ datreant = "^1.0"
 click = ">=6.7"
 xdg = { version = "^1" }
 tabulate = "^0.8.5"
+tomlkit = "^0.5.8"
 
 # Optional dependencies to build the documentation using Sphinx
 Sphinx = { version = "^1", optional = true }

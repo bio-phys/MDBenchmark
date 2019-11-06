@@ -5,6 +5,9 @@ from .. import console, utils
 
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
+    # Fetch name from context read in config file
+    name = ctx.params.get("name", name)
+
     if name is None:
         raise click.BadParameter(
             "Please specify the base name of your input files.",
@@ -16,6 +19,9 @@ def validate_name(ctx, param, name=None):
 
 def validate_module(ctx, param, module=None):
     """Validate that we are given a module argument."""
+    # Fetch module from context read in config file
+    module = ctx.params.get("module", module)
+
     if module is None or not module:
         raise click.BadParameter(
             "Please specify which MD engine module to use for the benchmarks.",
@@ -63,6 +69,9 @@ def validate_hosts(ctx, param, host=None):
     templates. If the hostname matches the template name, we continue by
     returning the hostname.
     """
+    # Fetch host from context read in config file
+    host = ctx.params.get("host", host)
+
     if host is None:
         host = utils.guess_host()
         if host is None:
