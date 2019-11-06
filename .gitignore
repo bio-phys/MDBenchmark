@@ -29,9 +29,5 @@ docs/.doctrees/
 docs/_build/
 docs/.doctrees/
 
-# Ignore local Pipfile
-Pipfile
-Pipfile.lock
-
 # Misc
 .DS_Store
