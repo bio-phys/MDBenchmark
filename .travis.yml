@@ -63,7 +63,9 @@ jobs:
       install:
         - $UPGRADE_PIP
         - pip install . sphinx-click
-      script: python setup.py build_sphinx
+      script:
+        - cd docs
+        - make build
 
     - stage: "macOS - Unit tests"
       os: osx
