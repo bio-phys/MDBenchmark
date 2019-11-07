@@ -87,14 +87,16 @@ jobs:
           packages: python3
       before_install:
         - python3 -m pip install --upgrade pip
-        - python3 -m venv --system-site-packages "$HOME/venv"
-        - source "$HOME/venv/bin/activate"
+        - pip install poetry
+        # - python3 -m venv --system-site-packages "$HOME/venv"
+        # - source "$HOME/venv/bin/activate"
       install:
-        - pip install -e .
-        - pip install pytest-cov codecov
-        - deactivate
-        - source "$HOME/venv/bin/activate"
-      script: python3 -m $MAIN_CMD $SETUP_CMD
+        # - pip install -e .
+        - poetry install
+        # - pip install pytest-cov codecov
+        # - deactivate
+        # - source "$HOME/venv/bin/activate"
+      script: poetry run $MAIN_CMD $SETUP_CMD
 
 install:
   - $UPGRADE_PIP
