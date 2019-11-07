@@ -40,32 +40,18 @@ jobs:
 
     - stage: "Linting and formatting"
       name: "Formatting with black"
-      install:
-        - $UPGRADE_PIP
-        - pip install black
-      script: make reformat-check
+      script: poetry run make reformat-check
     - name: "Linting with flake8"
-      install:
-        - $UPGRADE_PIP
-        - pip install flake8
-      script: make flake8
+      script: poetry run make flake8
     - name: "Sorting with isort"
-      install:
-        - $UPGRADE_PIP
-        - pip install isort
-      script: make isort-check
+      script: poetry run make isort-check
     - name: "Lint reStructuredText"
-      install:
-        - $UPGRADE_PIP
-        - pip install restructuredtext_lint
-      script: make rst-lint
+      script: poetry run make rst-lint
     - name: "Try to build documentation"
       install:
-        - $UPGRADE_PIP
-        - pip install . sphinx-click sphinx-autobuild
       script:
         - cd docs
-        - make build
+        - poetry run make build
 
     - stage: "macOS - Unit tests"
       os: osx
@@ -89,12 +75,15 @@ jobs:
         - poetry install
       script: poetry run $MAIN_CMD $SETUP_CMD
 
-install:
+before_install:
   - $UPGRADE_PIP
-  - pip install . $PYTEST_COV
+  - pip install poetry
+
+install:
+  - poetry install
 
 script:
-  - pytest $CODECOV
+  - poetry run pytest $CODECOV
 
 after_success:
   - if [ -z ${CODECOV} ]; then echo "Skipping codecov submit"; else codecov; fi
