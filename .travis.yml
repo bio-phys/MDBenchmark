@@ -48,7 +48,7 @@ jobs:
     - name: "Lint reStructuredText"
       script: poetry run make rst-lint
     - name: "Try to build documentation"
-      install:
+      install: poetry install --extras docs
       script:
         - cd docs
         - poetry run make build
