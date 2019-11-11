@@ -40,30 +40,18 @@ jobs:
 
     - stage: "Linting and formatting"
       name: "Formatting with black"
-      install:
-        - $UPGRADE_PIP
-        - pip install black
-      script: make reformat-check
+      script: poetry run make reformat-check
     - name: "Linting with flake8"
-      install:
-        - $UPGRADE_PIP
-        - pip install flake8
-      script: make flake8
+      script: poetry run make flake8
     - name: "Sorting with isort"
-      install:
-        - $UPGRADE_PIP
-        - pip install isort
-      script: make isort-check
+      script: poetry run make isort-check
     - name: "Lint reStructuredText"
-      install:
-        - $UPGRADE_PIP
-        - pip install restructuredtext_lint
-      script: make rst-lint
+      script: poetry run make rst-lint
     - name: "Try to build documentation"
-      install:
-        - $UPGRADE_PIP
-        - pip install . sphinx-click
-      script: python setup.py build_sphinx
+      install: poetry install --extras docs
+      script:
+        - cd docs
+        - poetry run make build
 
     - stage: "macOS - Unit tests"
       os: osx
@@ -73,33 +61,29 @@ jobs:
         - HOMEBREW_NO_INSTALL_CLEANUP=1
         - HOMEBREW_NO_ANALYTICS=1
       before_cache:
-        # - brew cleanup
         - rm -f "$HOME/Library/Caches/pip/log/debug.log"
       cache:
         directories:
-          # - "$HOME/Library/Caches/Homebrew"
           - "$HOME/Library/Caches/pip"
       addons:
         homebrew:
-          # update: true
           packages: python3
       before_install:
         - python3 -m pip install --upgrade pip
-        - python3 -m venv --system-site-packages "$HOME/venv"
-        - source "$HOME/venv/bin/activate"
+        - pip install poetry
       install:
-        - pip install -e .
-        - pip install pytest-cov codecov
-        - deactivate
-        - source "$HOME/venv/bin/activate"
-      script: python3 -m $MAIN_CMD $SETUP_CMD
+        - poetry install
+      script: poetry run $MAIN_CMD $SETUP_CMD
+
+before_install:
+  - $UPGRADE_PIP
+  - pip install poetry
 
 install:
-  - $UPGRADE_PIP
-  - pip install . $PYTEST_COV
+  - poetry install
 
 script:
-  - pytest $CODECOV
+  - poetry run pytest $CODECOV
 
 after_success:
   - if [ -z ${CODECOV} ]; then echo "Skipping codecov submit"; else codecov; fi

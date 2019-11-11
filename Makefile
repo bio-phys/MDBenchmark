@@ -17,17 +17,14 @@ clean-test:
 	rm -rf htmlcov/
 	rm -rf .pytest_cache/
 
-build: clean
-	python setup.py sdist bdist_wheel --universal
-
 upload: build
 	twine upload dist/*
 
 reformat:
-	black setup.py mdbenchmark/
+	black mdbenchmark/
 
 reformat-check:
-	black --check setup.py mdbenchmark/ docs/
+	black --check mdbenchmark/ docs/
 
 flake8:
 	flake8 mdbenchmark/

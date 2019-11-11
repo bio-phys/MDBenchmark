@@ -14,6 +14,9 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 build:
+	@$(SPHINXBUILD) "$(SOURCEDIR)" "$(BUILDDIR)"
+
+livehtml:
 	@$(SPHINXAUTOBUILD) "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
 
 .PHONY: help build Makefile
