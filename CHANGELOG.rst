@@ -1,3 +1,27 @@
+2.0.1 (2020-03-02)
+==================
+
+Features
+--------
+
+- Add GPUs to cobra template. (`#142 <https://github.com/bio-phys/MDBenchmark/issues/142>`_)
+- Lower startup time of the CLI. (`#153 <https://github.com/bio-phys/MDBenchmark/issues/153>`_)
+
+
+Bugfixes
+--------
+
+- Already submitted benchmarks are now hidden in the summary of ``mdbenchmark submit``. (`#139 <https://github.com/bio-phys/MDBenchmark/issues/139>`_)
+- Plotting will now work, even when some benchmarks are unfinished. (`#140 <https://github.com/bio-phys/MDBenchmark/issues/140>`_)
+- Restarting benchmarks with ``mdbenchmark submit --force`` works again. (`#141 <https://github.com/bio-phys/MDBenchmark/issues/141>`_)
+
+
+Misc
+----
+
+- Use ``poetry`` to manage Python dependencies and the project in general. (`#155 <https://github.com/bio-phys/MDBenchmark/issues/155>`_)
+
+
 2.0.0 (2018-10-29)
 ==================
 

@@ -1,1 +1,0 @@
-Already submitted benchmarks are now hidden in the summary of ``mdbenchmark submit``.
