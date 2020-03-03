@@ -14,8 +14,6 @@ cache:
 
 env:
   global:
-    - MAIN_CMD="pytest"
-    - SETUP_CMD="mdbenchmark -v"
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - CODECOV=""
     - PYTEST_COV=""
@@ -57,25 +55,15 @@ jobs:
 
     - stage: "macOS - Unit tests"
       os: osx
+      osx_image: xcode11.2
       language: shell
-      env:
-        - TOXENV=py3
-        - HOMEBREW_NO_INSTALL_CLEANUP=1
-        - HOMEBREW_NO_ANALYTICS=1
+      before_script:
+        - bash .travis/before_script.sh
       before_cache:
         - rm -f "$HOME/Library/Caches/pip/log/debug.log"
       cache:
         directories:
           - "$HOME/Library/Caches/pip"
-      addons:
-        homebrew:
-          packages: python3
-      before_install:
-        - python3 -m pip install --upgrade pip
-        - pip install poetry
-      install:
-        - poetry install
-      script: poetry run $MAIN_CMD $SETUP_CMD
 
 before_install:
   - $UPGRADE_PIP
