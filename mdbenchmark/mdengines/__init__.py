@@ -22,8 +22,8 @@ import six
 import os
 from collections import defaultdict
 
-from .. import console
-from . import gromacs, namd
+from mdbenchmark import console
+from mdbenchmark.mdengines import gromacs, namd
 
 SUPPORTED_ENGINES = {"gromacs": gromacs, "namd": namd}
 

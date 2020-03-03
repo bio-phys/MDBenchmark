@@ -32,9 +32,9 @@ from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from jinja2.exceptions import TemplateNotFound
 from tabulate import tabulate
 
-from . import console
-from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
-from .mdengines import detect_md_engine, utils
+from mdbenchmark import console
+from mdbenchmark.ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
+from mdbenchmark.mdengines import detect_md_engine, utils
 
 # Order where to look for host templates: HOME -> etc -> package
 # home

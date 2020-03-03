@@ -19,8 +19,8 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
-from .options import AliasedGroup
-from .validators import (
+from mdbenchmark.cli.options import AliasedGroup
+from mdbenchmark.cli.validators import (
     print_known_hosts,
     validate_cpu_gpu_flags,
     validate_hosts,
@@ -80,7 +80,7 @@ def analyze(directory, plot, ncores, save_csv):
     ``--save-csv`` option and a custom filename. To plot the results use
     ``mdbenchmark plot``.
     """
-    from .analyze import do_analyze
+    from mdbenchmark.cli.analyze import do_analyze
 
     do_analyze(directory=directory, plot=plot, ncores=ncores, save_csv=save_csv)
 
@@ -197,7 +197,7 @@ def generate(
     package. All available templates can be listed with the ``--list-hosts``
     option.
     """
-    from .generate import do_generate
+    from mdbenchmark.cli.generate import do_generate
 
     do_generate(
         name=name,
@@ -318,7 +318,7 @@ def plot(
     spread the usage of MDBenchmark. You can remove the watermark with the
     ``--no-watermark`` option.
     """
-    from .plot import do_plot
+    from mdbenchmark.cli.plot import do_plot
 
     do_plot(
         csv,
@@ -366,6 +366,6 @@ def submit(directory, force_restart, yes):
     Only runs benchmarks that were not already started. Can be overwritten with
     ``--force``.
     """
-    from .submit import do_submit
+    from mdbenchmark.cli.submit import do_submit
 
     do_submit(directory=directory, force_restart=force_restart, yes=yes)

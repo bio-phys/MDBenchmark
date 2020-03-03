@@ -26,11 +26,11 @@ import datreant as dtr
 import numpy as np
 import pandas as pd
 
-from .. import console
-from ..mdengines import detect_md_engine
-from ..mdengines.utils import cleanup_before_restart
-from ..migrations import mds_to_dtr
-from ..utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark import console
+from mdbenchmark.mdengines import detect_md_engine
+from mdbenchmark.mdengines.utils import cleanup_before_restart
+from mdbenchmark.migrations import mds_to_dtr
+from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}
