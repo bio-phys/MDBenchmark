@@ -1,6 +1,6 @@
 import click
 
-from .. import console, utils
+from mdbenchmark import console, utils
 
 
 def validate_name(ctx, param, name=None):

@@ -1,6 +1,6 @@
+os: linux
 language: python
-sudo: false
-python: "3.6"
+python: "3.8"
 
 branches:
   only:
@@ -14,8 +14,6 @@ cache:
 
 env:
   global:
-    - MAIN_CMD="pytest"
-    - SETUP_CMD="mdbenchmark -v"
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - CODECOV=""
     - PYTEST_COV=""
@@ -24,15 +22,17 @@ env:
 jobs:
   include:
     - stage: "Linux - Unit tests"
-      name: "Python 3.6"
+      name: "Python 3.8"
       env:
         - CODECOV="--cov mdbenchmark"
         - PYTEST_COV="pytest-cov codecov"
     - name: "Python 3.7"
       language: python
-      python: 3.7
+      python: "3.7"
+    - name: "Python 3.6"
+      language: python
+      python: "3.6"
       dist: xenial
-      sudo: true
     - name: "Python 3.5"
       python: "3.5"
     - name: "Python 2.7"
@@ -55,25 +55,15 @@ jobs:
 
     - stage: "macOS - Unit tests"
       os: osx
-      language: sh
-      env:
-        - TOXENV=py3
-        - HOMEBREW_NO_INSTALL_CLEANUP=1
-        - HOMEBREW_NO_ANALYTICS=1
+      osx_image: xcode11.2
+      language: shell
+      before_script:
+        - bash .travis/before_script.sh
       before_cache:
         - rm -f "$HOME/Library/Caches/pip/log/debug.log"
       cache:
         directories:
           - "$HOME/Library/Caches/pip"
-      addons:
-        homebrew:
-          packages: python3
-      before_install:
-        - python3 -m pip install --upgrade pip
-        - pip install poetry
-      install:
-        - poetry install
-      script: poetry run $MAIN_CMD $SETUP_CMD
 
 before_install:
   - $UPGRADE_PIP

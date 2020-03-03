@@ -26,7 +26,7 @@ from shutil import copyfile
 
 import numpy as np
 
-from .. import console
+from mdbenchmark import console
 
 NAME = "gromacs"
 

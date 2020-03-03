@@ -25,11 +25,11 @@ import pandas as pd
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from .. import console
-from ..mdengines import detect_md_engine, utils
-from ..migrations import mds_to_dtr
-from ..utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
-from .plot import plot_over_group
+from mdbenchmark import console
+from mdbenchmark.cli.plot import plot_over_group
+from mdbenchmark.mdengines import detect_md_engine, utils
+from mdbenchmark.migrations import mds_to_dtr
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
 
 plt.switch_backend("agg")
 

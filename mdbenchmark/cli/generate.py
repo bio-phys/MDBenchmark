@@ -23,10 +23,10 @@ import click
 import datreant as dtr
 import pandas as pd
 
-from .. import console, mdengines, utils
-from ..mdengines.utils import write_benchmark
-from ..utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
-from .validators import validate_cpu_gpu_flags, validate_number_of_nodes
+from mdbenchmark import console, mdengines, utils
+from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
+from mdbenchmark.mdengines.utils import write_benchmark
+from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 NAMD_WARNING = (
     "NAMD support is experimental. "

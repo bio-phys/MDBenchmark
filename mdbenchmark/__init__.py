@@ -17,13 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from .cli import cli
-from .migrations import mds_to_dtr
+from mdbenchmark.cli import cli
+from mdbenchmark.migrations import mds_to_dtr
 
 # Check that the Python environment is correctly setup
 mds_to_dtr.ensure_correct_environment()
-
-__version__ = "2.0.1-dev"
 
 if __name__ == "__main__":
     cli()
