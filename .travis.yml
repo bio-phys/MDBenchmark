@@ -1,5 +1,5 @@
+os: linux
 language: python
-sudo: false
 python: "3.6"
 
 branches:
@@ -32,7 +32,6 @@ jobs:
       language: python
       python: 3.7
       dist: xenial
-      sudo: true
     - name: "Python 3.5"
       python: "3.5"
     - name: "Python 2.7"
@@ -55,7 +54,7 @@ jobs:
 
     - stage: "macOS - Unit tests"
       os: osx
-      language: sh
+      language: shell
       env:
         - TOXENV=py3
         - HOMEBREW_NO_INSTALL_CLEANUP=1
