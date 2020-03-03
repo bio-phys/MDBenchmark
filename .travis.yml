@@ -1,6 +1,6 @@
 os: linux
 language: python
-python: "3.6"
+python: "3.8"
 
 branches:
   only:
@@ -24,13 +24,16 @@ env:
 jobs:
   include:
     - stage: "Linux - Unit tests"
-      name: "Python 3.6"
+      name: "Python 3.8"
       env:
         - CODECOV="--cov mdbenchmark"
         - PYTEST_COV="pytest-cov codecov"
     - name: "Python 3.7"
       language: python
-      python: 3.7
+      python: "3.7"
+    - name: "Python 3.6"
+      language: python
+      python: "3.6"
       dist: xenial
     - name: "Python 3.5"
       python: "3.5"
