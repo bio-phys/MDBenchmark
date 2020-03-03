@@ -28,10 +28,11 @@ from mdbenchmark.cli.validators import (
     validate_name,
     validate_number_of_nodes,
 )
+from mdbenchmark.version import VERSION
 
 
 @click.group(cls=AliasedGroup)
-@click.version_option()
+@click.version_option(version=VERSION)
 def cli():
     """Generate, run and analyze benchmarks of molecular dynamics simulations."""
     pass
