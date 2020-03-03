@@ -29,6 +29,8 @@ from .validators import (
     validate_number_of_nodes,
 )
 
+from mdbenchmark.config import _add_single_context, _import_config_into_context
+
 
 @click.group(cls=AliasedGroup)
 @click.version_option()
@@ -87,6 +89,13 @@ def analyze(directory, plot, ncores, save_csv):
 
 @cli.command()
 @click.option(
+    "--config",
+    "config_file",
+    help="Parse settings from config file instead of command-line. Ignores all other options.",
+    callback=_import_config_into_context,
+    type=click.Path(exists=True),
+)
+@click.option(
     "-n",
     "--name",
     help="Name of input files. All files must have the same base name.",
@@ -99,6 +108,7 @@ def analyze(directory, plot, ncores, save_csv):
     help="Use CPUs for benchmark.",
     default=True,
     show_default=True,
+    callback=_add_single_context,
 )
 @click.option(
     "-g/-ng",
@@ -106,6 +116,7 @@ def analyze(directory, plot, ncores, save_csv):
     is_flag=True,
     help="Use GPUs for benchmark.",
     show_default=True,
+    callback=_add_single_context,
 )
 @click.option(
     "-m",
@@ -128,6 +139,7 @@ def analyze(directory, plot, ncores, save_csv):
     help="Minimal number of nodes to request.",
     default=1,
     show_default=True,
+    callback=_add_single_context,
     type=int,
 )
 @click.option(
@@ -135,6 +147,7 @@ def analyze(directory, plot, ncores, save_csv):
     help="Maximal number of nodes to request.",
     default=5,
     show_default=True,
+    callback=_add_single_context,
     type=int,
 )
 @click.option(
@@ -142,6 +155,7 @@ def analyze(directory, plot, ncores, save_csv):
     help="Run time for benchmark in minutes.",
     default=15,
     show_default=True,
+    callback=_add_single_context,
     type=click.IntRange(1, 1440),
 )
 @click.option(
@@ -156,15 +170,22 @@ def analyze(directory, plot, ncores, save_csv):
     "--skip-validation",
     help="Skip the validation of module names.",
     default=False,
+    callback=_add_single_context,
     is_flag=True,
 )
 @click.option(
     "--job-name", help="Give an optional to the generated benchmarks.", default=None
 )
 @click.option(
-    "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
+    "-y",
+    "--yes",
+    help="Answer all prompts with yes.",
+    default=False,
+    callback=_add_single_context,
+    is_flag=True,
 )
 def generate(
+    config_file,
     name,
     cpu,
     gpu,
