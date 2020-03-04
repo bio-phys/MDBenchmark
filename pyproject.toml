@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "mdbenchmark"
-version = "2.0.1b1"
+version = "2.0.1"
 license = "GPL-3.0"
-authors = ["Max Linke", "Michael Gecht"]
-description = "Benchmark molecular dynamics simulations"
+authors = ["Max Linke", "Michael Gecht", "Marc Siggel"]
+description = "Quickly generate, start and analyze benchmarks for your molecular dynamics simulations."
 keywords = ["benchmark", "molecular dynamics", "simulations", "gromacs", "namd"]
 readme = "README.rst"
 homepage = "https://mdbenchmark.org"
@@ -26,6 +26,7 @@ classifiers = [
   "Programming Language :: Python :: 3.5",
   "Programming Language :: Python :: 3.6",
   "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
   "Topic :: Scientific/Engineering :: Chemistry",

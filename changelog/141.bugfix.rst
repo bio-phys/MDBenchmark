@@ -1,1 +1,0 @@
-Restarting benchmarks with ``mdbenchmark submit --force`` works again.
