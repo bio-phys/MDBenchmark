@@ -1,6 +1,6 @@
+os: linux
 language: python
-sudo: false
-python: "3.6"
+python: "3.8"
 
 branches:
   only:
@@ -14,11 +14,6 @@ cache:
 
 env:
   global:
-    - MAIN_CMD="pytest"
-    - SETUP_CMD="mdbenchmark -v"
-    - CONDA_DEPENDENCIES="datreant jinja2 click==6.7 pandas matplotlib xdg<2"
-    - CONDA_CHANNELS="conda-forge"
-    - NUMPY_VERSION=stable
     - PIP_CACHE_DIR=$HOME/.cache/pip
     - CODECOV=""
     - PYTEST_COV=""
@@ -27,15 +22,17 @@ env:
 jobs:
   include:
     - stage: "Linux - Unit tests"
-      name: "Python 3.6"
+      name: "Python 3.8"
       env:
         - CODECOV="--cov mdbenchmark"
         - PYTEST_COV="pytest-cov codecov"
     - name: "Python 3.7"
       language: python
-      python: 3.7
+      python: "3.7"
+    - name: "Python 3.6"
+      language: python
+      python: "3.6"
       dist: xenial
-      sudo: true
     - name: "Python 3.5"
       python: "3.5"
     - name: "Python 2.7"
@@ -43,47 +40,41 @@ jobs:
 
     - stage: "Linting and formatting"
       name: "Formatting with black"
-      install:
-        - $UPGRADE_PIP
-        - pip install black
-      script: make reformat-check
+      script: poetry run make reformat-check
     - name: "Linting with flake8"
-      install:
-        - $UPGRADE_PIP
-        - pip install flake8
-      script: make flake8
+      script: poetry run make flake8
     - name: "Sorting with isort"
-      install:
-        - $UPGRADE_PIP
-        - pip install isort
-      script: make isort
+      script: poetry run make isort-check
     - name: "Lint reStructuredText"
-      install:
-        - $UPGRADE_PIP
-        - pip install restructuredtext_lint
-      script: make rst-lint
+      script: poetry run make rst-lint
     - name: "Try to build documentation"
-      install:
-        - $UPGRADE_PIP
-        - pip install . sphinx-click
-      script: python setup.py build_sphinx
+      install: poetry install --extras docs
+      script:
+        - cd docs
+        - poetry run make build
 
     - stage: "macOS - Unit tests"
-      language: generic
-      name: "Python 2.7"
-      env: PYTHON_VERSION=2.7
-      install:
-        - git clone git://github.com/astropy/ci-helpers.git
-        - source ci-helpers/travis/setup_conda.sh
-        - pip install -e .
-      script: $MAIN_CMD $SETUP_CMD
+      os: osx
+      osx_image: xcode11.2
+      language: shell
+      before_script:
+        - bash .travis/before_script.sh
+      before_cache:
+        - rm -f "$HOME/Library/Caches/pip/log/debug.log"
+      cache:
+        directories:
+          - "$HOME/Library/Caches/pip"
+          - "$HOME/Library/Caches/pypoetry"
+
+before_install:
+  - $UPGRADE_PIP
+  - pip install poetry
 
 install:
-  - $UPGRADE_PIP
-  - pip install . $PYTEST_COV
+  - poetry install
 
 script:
-  - pytest $CODECOV
+  - poetry run pytest $CODECOV
 
 after_success:
   - if [ -z ${CODECOV} ]; then echo "Skipping codecov submit"; else codecov; fi

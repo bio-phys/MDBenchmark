@@ -8,6 +8,9 @@ environment, as well as through the release process of a new version.
 Setting up a development environment
 ====================================
 
+We use `poetry`_ for local development. Check their documentation on how
+to install the tool.
+
 Download code
 -------------
 
@@ -15,26 +18,26 @@ First clone the repository to your local machine::
 
     $ git clone https://github.com/bio-phys/MDBenchmark.git
 
-Create a virtual environment
-----------------------------
+Installing dependencies
+-----------------------
 
-If you are using ``conda``, you can easily create a `conda environment`_::
+Using ``poetry`` you can simply run ``poetry install`` to
+install all dependencies. ``poetry`` will take care of creating a
+virtual environment for you.
 
-    $ conda create -n benchmark -c conda-forge python=3
-    $ source activate benchmark
+Running commands in the virtual environment
+-------------------------------------------
 
-Make sure to activate the environment, before trying to install the package.
-Also you will need to always activate the environment before you can use the
-package.
+Use the ``poetry run`` to run one-off commands in the virtual environment.
+For example, use ``poetry run pytest`` to run all tests. ``poetry shell``
+will put your whole shell into the virtual environment, whereas ``exit``
+will deactivate it again.
 
-Install package
----------------
+Adding dependencies
+-------------------
 
-When developing python packages locally, it is advisable to install them with
-the ``-e`` option. This way all changes to the code will be reflected
-immediately in your local development environment::
-
-    $ pip install -e .
+Dependencies can be added via ``poetry add package_name``. If the package
+is a dependency for development purposes only, use ``poetry add -D package_name``.
 
 =======================
 Preparing pull requests
@@ -145,6 +148,7 @@ The upload should work via::
 
 After the PyPI upload, update the ``conda-forge`` recipe.
 
+.. _poetry: https://github.com/sdispater/poetry
 .. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html
 .. _towncrier README: https://github.com/hawkowl/towncrier#news-fragments
 .. _semantic versioning scheme: https://semver.org/

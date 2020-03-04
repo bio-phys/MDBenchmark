@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import six
+
 import os
 from collections import defaultdict
 
-import six
-
-from . import gromacs, namd
-from .. import console
+from mdbenchmark import console
+from mdbenchmark.mdengines import gromacs, namd
 
 SUPPORTED_ENGINES = {"gromacs": gromacs, "namd": namd}
 

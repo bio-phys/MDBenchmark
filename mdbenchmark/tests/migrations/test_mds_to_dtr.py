@@ -22,6 +22,7 @@ import uuid
 
 import datreant as dtr
 import pytest
+
 from mdbenchmark.migrations import mds_to_dtr
 
 
@@ -85,7 +86,7 @@ def test_search_mdsynthesis_sim_files(create_sim_files):
 
     bundles = mds_to_dtr.search_mdsynthesis_sim_files(str(directory))
     files = [file for file in files if file.endswith(".json")]
-    assert bundles == files
+    assert sorted(bundles) == sorted(files)
 
 
 def test_convert_to_datreant(create_sim_files):

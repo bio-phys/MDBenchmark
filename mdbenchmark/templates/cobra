@@ -8,7 +8,11 @@
 #SBATCH -J {{ job_name }}
 #
 # Queue (Partition):
-{%- if (time <= 30) and (n_nodes <= 32) %}
+{%- if gpu %}
+#SBATCH --partition=gpu
+#SBATCH --constraint="gpu"
+#SBATCH --gres=gpu:2 
+{%- elif (time <= 30) and (n_nodes <= 32) %}
 #SBATCH --partition=express
 {%- elif (n_nodes <= 32) %}
 #SBATCH --partition=medium

@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -26,9 +25,8 @@ from matplotlib import rcParams as mpl_rcParams
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from . import console
-from .cli import cli
-from .utils import calc_slope_intercept, generate_output_name, lin_func
+from mdbenchmark import console
+from mdbenchmark.utils import calc_slope_intercept, generate_output_name, lin_func
 
 plt.switch_backend("agg")
 
@@ -175,78 +173,7 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
     return df
 
 
-@cli.command()
-@click.option("--csv", help="Name of CSV file to plot.", multiple=True)
-@click.option("-o", "--output-name", help="Filename for the generated plot.")
-@click.option(
-    "-f",
-    "--output-format",
-    help="File format for the generated plot.",
-    type=click.Choice(["png", "pdf", "svg", "ps"]),
-    show_default=True,
-    default="png",
-)
-@click.option(
-    "-m",
-    "--module",
-    "module",
-    multiple=True,
-    help="Name of the MD engine module(s) to plot.",
-)
-@click.option(
-    "-t",
-    "--template",
-    "--host",
-    "template",
-    multiple=True,
-    help="Name of host templates to plot.",
-)
-@click.option(
-    "-g/-ng",
-    "--gpu/--no-gpu",
-    help="Plot data of GPU benchmarks.",
-    show_default=True,
-    default=True,
-)
-@click.option(
-    "-c/-nc",
-    "--cpu/--no-cpu",
-    help="Plot data of CPU benchmarks.",
-    show_default=True,
-    default=True,
-)
-@click.option(
-    "--plot-cores",
-    help="Plot performance per core instead performance per node.",
-    show_default=True,
-    is_flag=True,
-)
-@click.option(
-    "--fit/--no-fit",
-    help="Fit a line through the first two data points, indicating linear scaling.",
-    show_default=True,
-    default=True,
-)
-@click.option(
-    "--font-size", help="Font size for generated plot.", default=16, show_default=True
-)
-@click.option(
-    "--dpi",
-    help="Dots per inch (DPI) for generated plot.",
-    default=300,
-    show_default=True,
-)
-@click.option(
-    "--xtick-step", help="Override the step for xticks in the generated plot.", type=int
-)
-@click.option(
-    "--watermark/--no-watermark",
-    help="Puts a watermark in the top left corner of the generated plot.",
-    default=True,
-    show_default=True,
-    is_flag=True,
-)
-def plot(
+def do_plot(
     csv,
     output_name,
     output_format,
@@ -261,25 +188,7 @@ def plot(
     xtick_step,
     watermark,
 ):
-    """Generate plots showing the benchmark performance.
-
-    To generate a plot, you must first run ``mdbenchmark analyze`` and generate a
-    CSV file. Use this CSV file as the value for the ``--csv`` option in this
-    command.
-
-    You can customize the filename and file format of the generated plot with
-    the ``--output-name`` and ``--output-format`` option, respectively. Per default, a fit
-    will be plotted through the first data points of each benchmark group. To
-    disable the fit, use the ``--no-fit`` option.
-
-    To only plot specific benchmarks, make use of the ``--module``, ``--template``,
-    ``--cpu/--no-cpu`` and ``--gpu/--no-gpu`` options.
-
-    A small watermark will be added to the top left corner of every plot, to
-    spread the usage of MDBenchmark. You can remove the watermark with the
-    ``--no-watermark`` option.
-    """
-
+    """Creates plots of benchmarks."""
     if not csv:
         raise click.BadParameter(
             "You must specify at least one CSV file.", param_hint='"--csv"'

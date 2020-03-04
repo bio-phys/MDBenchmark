@@ -22,7 +22,6 @@ import multiprocessing as mp
 import os
 import socket
 import sys
-from tabulate import tabulate
 
 import click
 import datreant as dtr
@@ -31,11 +30,11 @@ import pandas as pd
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from jinja2.exceptions import TemplateNotFound
+from tabulate import tabulate
 
-from .mdengines import detect_md_engine, utils
-
-from . import console
-from .ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
+from mdbenchmark import console
+from mdbenchmark.ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
+from mdbenchmark.mdengines import detect_md_engine, utils
 
 # Order where to look for host templates: HOME -> etc -> package
 # home
@@ -156,7 +155,6 @@ def DataFrameFromBundle(bundle):
         ["host", "module", "run time [min]", "gpu", "nodes"]
     ).reset_index(drop=True)
 
-    df = df.replace(np.nan, "?")
     return df
 
 

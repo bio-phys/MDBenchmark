@@ -25,8 +25,8 @@ from shutil import copyfile
 import datreant as dtr
 import numpy as np
 
-from .. import console
-from .namd import analyze_namd_file
+from mdbenchmark import console
+from mdbenchmark.mdengines.namd import analyze_namd_file
 
 FILES_TO_KEEP = {
     "gromacs": [".*/bench.job", ".*.tpr", ".*.mdp"],

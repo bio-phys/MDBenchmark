@@ -11,6 +11,7 @@
 .eggs/
 build/
 dist/
+pip-wheel-metadata/
 
 # VSCode
 .vscode/
@@ -28,10 +29,5 @@ docs/.doctrees/
 docs/_build/
 docs/.doctrees/
 
-# Documentation
-docs/_build/
-docs/.doctrees/
-
-# Ignore local Pipfile
-Pipfile
-Pipfile.lock
+# Misc
+.DS_Store

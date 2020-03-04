@@ -24,7 +24,7 @@ from glob import glob
 
 import datreant as dtr
 
-from .. import console
+from mdbenchmark import console
 
 DOCUMENTATION_URL = "https://docs.mdbenchmark.org/en/latest/upgrading.html"
 MIGRATION_WARNING = (
