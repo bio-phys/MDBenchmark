@@ -64,6 +64,7 @@ jobs:
       cache:
         directories:
           - "$HOME/Library/Caches/pip"
+          - "$HOME/Library/Caches/pypoetry"
 
 before_install:
   - $UPGRADE_PIP
