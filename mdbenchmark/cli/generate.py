@@ -49,9 +49,10 @@ def do_generate(
     skip_validation,
     job_name,
     yes,
+    physical_cores,
+    logical_cores,
     number_of_ranks,
     enable_hyperthreading,
-    ignore_hyperthreading_error,
 ):
     """Generate a bunch of benchmarks."""
     # Validate the CPU and GPU flags
@@ -60,9 +61,24 @@ def do_generate(
     # Validate the number of nodes
     validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
 
+    if logical_cores < physical_cores:
+        console.error(
+            "The number of logical cores cannot be smaller than the number of physical cores."
+        )
+
+    if physical_cores and not logical_cores:
+        console.warn("Assuming logical_cores = 2 * physical_cores")
+        logical_cores = 2 * physical_cores
+
+    if physical_cores and logical_cores:
+        processor = Processor(
+            physical_cores=physical_cores, logical_cores=logical_cores
+        )
+    else:
+        processor = Processor()
+
     if not number_of_ranks:
-        proc = Processor()
-        number_of_ranks = (proc.physical_cores,)
+        number_of_ranks = (processor.physical_cores,)
 
     # Grab the template name for the host. This should always work because
     # click does the validation for us
@@ -124,21 +140,15 @@ def do_generate(
 
             for nodes in range(min_nodes, max_nodes + 1):
                 for ranks in number_of_ranks:
-                    processor = Processor()
                     try:
-                        ranks, threads = processor.get_ranks_and_threads(ranks)
+                        ranks, threads = processor.get_ranks_and_threads(
+                            ranks, with_hyperthreading=enable_hyperthreading
+                        )
                     except ValueError as e:
                         console.error(e)
 
-                    # Multiply the number of threads by two
-                    if ignore_hyperthreading_error:
-                        threads *= 2
-
-                    handle_rank_error = (
-                        console.warn if ignore_hyperthreading_error else console.error
-                    )
                     if enable_hyperthreading and not processor.supports_hyperthreading:
-                        handle_rank_error(
+                        console.error(
                             "The processor of this machine does not support hyperthreading."
                         )
 
