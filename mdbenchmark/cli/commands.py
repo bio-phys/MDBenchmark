@@ -165,6 +165,26 @@ def analyze(directory, plot, ncores, save_csv):
 @click.option(
     "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
 )
+@click.option(
+    "--ranks",
+    "number_of_ranks",
+    help="Number of ranks to use per node.",
+    multiple=True,
+    type=int,
+)
+@click.option(
+    "--hyperthreading",
+    "enable_hyperthreading",
+    help="Enable hyperthreading.",
+    default=False,
+    is_flag=True,
+)
+@click.option(
+    "--ignore-hyperthreading-error",
+    help="(ADVANCED MODE) Ignore error and force hyperthreading to be enabled.",
+    default=False,
+    is_flag=True,
+)
 def generate(
     name,
     cpu,
@@ -177,6 +197,9 @@ def generate(
     skip_validation,
     job_name,
     yes,
+    number_of_ranks,
+    enable_hyperthreading,
+    ignore_hyperthreading_error,
 ):
     """Generate benchmarks for molecular dynamics simulations.
 
@@ -212,6 +235,9 @@ def generate(
         skip_validation=skip_validation,
         job_name=job_name,
         yes=yes,
+        number_of_ranks=number_of_ranks,
+        enable_hyperthreading=enable_hyperthreading,
+        ignore_hyperthreading_error=ignore_hyperthreading_error,
     )
 
 
