@@ -26,6 +26,7 @@ import pandas as pd
 from mdbenchmark import console, mdengines, utils
 from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
 from mdbenchmark.mdengines.utils import write_benchmark
+from mdbenchmark.models import Processor
 from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 NAMD_WARNING = (
@@ -48,6 +49,9 @@ def do_generate(
     skip_validation,
     job_name,
     yes,
+    number_of_ranks,
+    enable_hyperthreading,
+    ignore_hyperthreading_error,
 ):
     """Generate a bunch of benchmarks."""
     # Validate the CPU and GPU flags
@@ -55,6 +59,10 @@ def do_generate(
 
     # Validate the number of nodes
     validate_number_of_nodes(min_nodes=min_nodes, max_nodes=max_nodes)
+
+    if not number_of_ranks:
+        proc = Processor()
+        number_of_ranks = (proc.physical_cores,)
 
     # Grab the template name for the host. This should always work because
     # click does the validation for us
@@ -83,6 +91,9 @@ def do_generate(
             "run time [min]",
             "gpu",
             "host",
+            "number_of_ranks",
+            "number_of_threads",
+            "hyperthreading",
         ]
     )
 
@@ -112,19 +123,41 @@ def do_generate(
             base_directory = dtr.Tree(directory)
 
             for nodes in range(min_nodes, max_nodes + 1):
-                df_overview.loc[i] = [
-                    name,
-                    job_name,
-                    base_directory,
-                    template,
-                    engine,
-                    m,
-                    nodes,
-                    time,
-                    gpu,
-                    host,
-                ]
-                i += 1
+                for ranks in number_of_ranks:
+                    processor = Processor()
+                    try:
+                        ranks, threads = processor.get_ranks_and_threads(ranks)
+                    except ValueError as e:
+                        console.error(e)
+
+                    # Multiply the number of threads by two
+                    if ignore_hyperthreading_error:
+                        threads *= 2
+
+                    handle_rank_error = (
+                        console.warn if ignore_hyperthreading_error else console.error
+                    )
+                    if enable_hyperthreading and not processor.supports_hyperthreading:
+                        handle_rank_error(
+                            "The processor of this machine does not support hyperthreading."
+                        )
+
+                    df_overview.loc[i] = [
+                        name,
+                        job_name,
+                        base_directory,
+                        template,
+                        engine,
+                        m,
+                        nodes,
+                        time,
+                        gpu,
+                        host,
+                        ranks,
+                        threads,
+                        processor.supports_hyperthreading,
+                    ]
+                    i += 1
 
     console.info("{}", "Benchmark Summary:")
 
@@ -150,6 +183,9 @@ def do_generate(
             job_name=row["job_name"],
             host=row["host"],
             time=row["run time [min]"],
+            number_of_ranks=row["number_of_ranks"],
+            number_of_threads=row["number_of_threads"],
+            hyperthreading=row["hyperthreading"],
         )
 
     # Provide some output for the user
