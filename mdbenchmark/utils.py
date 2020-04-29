@@ -164,10 +164,26 @@ def ConsolidateDataFrame(df):
        Returns a newly formatted DataFrame.
     """
     df_short = pd.DataFrame(
-        columns=["module", "nodes", "run time [min]", "host", "gpu"]
+        columns=[
+            "module",
+            "nodes",
+            "time [min]",
+            "host",
+            "gpu",
+            "ranks",
+            "threads",
+            "hyperthreading",
+        ]
     )
 
-    groupby = ["module", "host", "gpu"]
+    groupby = [
+        "module",
+        "host",
+        "gpu",
+        "number_of_ranks",
+        "number_of_threads",
+        "hyperthreading",
+    ]
     gb = df.groupby(groupby)
 
     i = 0
@@ -183,7 +199,16 @@ def ConsolidateDataFrame(df):
                 node_print_output.append(str(node_g[0]) + "-" + str(node_g[-1]))
 
         values = ", ".join(str(v) for v in node_print_output)
-        df_short.loc[i] = (key[0], values, df["run time [min]"].iloc[0], key[1], key[2])
+        df_short.loc[i] = (
+            key[0],
+            values,
+            df["run time [min]"].iloc[0],
+            key[1],
+            key[2],
+            key[3],
+            key[4],
+            key[5],
+        )
         i += 1
 
     return df_short
