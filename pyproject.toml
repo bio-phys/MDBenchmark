@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mdbenchmark"
-version = "2.0.1"
+version = "3.0.0-alpha"
 license = "GPL-3.0"
 authors = ["Max Linke", "Michael Gecht", "Marc Siggel"]
 description = "Quickly generate, start and analyze benchmarks for your molecular dynamics simulations."
