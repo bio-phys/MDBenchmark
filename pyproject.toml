@@ -50,6 +50,7 @@ tabulate = "^0.8.5"
 Sphinx = { version = "^1", optional = true }
 sphinx-autobuild = { version = "^0.7.1", optional = true }
 sphinx-click = { version = "^2.3", optional = true }
+psutil = "^5.7.0"
 
 [tool.poetry.extras]
 docs = ["Sphinx", "sphinx-autobuild", "sphinx-click"]
