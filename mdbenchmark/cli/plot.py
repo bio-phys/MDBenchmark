@@ -26,6 +26,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from mdbenchmark import console
+from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import calc_slope_intercept, generate_output_name, lin_func
 
 plt.switch_backend("agg")
@@ -148,7 +149,7 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
         )
 
     for module in module_name:
-        if module in ["gromacs", "namd"]:
+        if module in SUPPORTED_ENGINES.keys():
             console.info("Plotting all modules for engine '{}'.", module)
         elif module in df["module"].tolist():
             console.info("Plotting module '{}'.", module)
