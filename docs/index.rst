@@ -101,6 +101,7 @@ Content
    analyze
    plot
    jobtemplates
+   mdengine
 
 Usage reference
 ===============
