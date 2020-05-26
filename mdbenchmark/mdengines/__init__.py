@@ -120,8 +120,8 @@ def normalize_modules(modules, skip_validation):
         if detect_md_engine(engine_name) is None:
             console.error(
                 "There is currently no support for '{}'. "
-                "Supported MD engines are: {}.".format(
-                    ", ".join(SUPPORTED_ENGINES.keys())
+                + "Supported MD engines are: {}.".format(
+                    ", ".join(sorted(SUPPORTED_ENGINES.keys()))
                 ),
                 engine_name,
             )
