@@ -1,4 +1,5 @@
 import pytest
+
 from mdbenchmark.models import Processor
 
 
