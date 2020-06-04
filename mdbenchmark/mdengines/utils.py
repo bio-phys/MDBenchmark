@@ -127,6 +127,9 @@ def analyze_run(engine, sim):
         sim.categories["gpu"],
         sim.categories["host"],
         ncores,
+        sim.categories["ranks"],
+        sim.categories["threads"],
+        sim.categories["hyperthreading"],
     )
 
 
