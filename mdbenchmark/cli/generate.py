@@ -27,7 +27,7 @@ from mdbenchmark import console, mdengines, utils
 from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
 from mdbenchmark.mdengines.utils import write_benchmark
 from mdbenchmark.models import Processor
-from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import consolidate_dataframe, DataFrameFromBundle, PrintDataFrame
 
 NAMD_WARNING = (
     "NAMD support is experimental. "
@@ -104,7 +104,7 @@ def do_generate(
             "engine",
             "module",
             "nodes",
-            "run time [min]",
+            "time [min]",
             "gpu",
             "host",
             "number_of_ranks",
@@ -171,7 +171,7 @@ def do_generate(
 
     console.info("{}", "Benchmark Summary:")
 
-    df_short = ConsolidateDataFrame(df_overview)
+    df_short = consolidate_dataframe(df_overview, has_performance=False)
     PrintDataFrame(df_short)
 
     if yes:
@@ -192,7 +192,7 @@ def do_generate(
             relative_path=relative_path,
             job_name=row["job_name"],
             host=row["host"],
-            time=row["run time [min]"],
+            time=row["time [min]"],
             number_of_ranks=row["number_of_ranks"],
             number_of_threads=row["number_of_threads"],
             hyperthreading=row["hyperthreading"],

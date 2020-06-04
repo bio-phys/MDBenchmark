@@ -170,12 +170,14 @@ def analyze(directory, plot, ncores, save_csv):
     "physical_cores",
     help="Number of physical cores on each node.",
     type=int,
+    default=40,
 )
 @click.option(
     "--logical-cores",
     "logical_cores",
     help="Number of logical cores on each node.",
     type=int,
+    default=40,
 )
 @click.option(
     "--ranks",

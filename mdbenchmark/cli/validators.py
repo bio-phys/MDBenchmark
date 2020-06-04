@@ -3,6 +3,16 @@ import click
 from mdbenchmark import console, utils
 
 
+def validate_cores(ctx, param, *args, **kwargs):
+    """Validate that we are given a positive integer bigger than 0."""
+    for option, value in kwargs.items():
+        if value is None or not isinstance(int, value) or value < 1:
+            raise click.BadParameter(
+                "Please specify the number of {option} cores.".format(option=option),
+                param_hint='"--{option}"',
+            )
+
+
 def validate_name(ctx, param, name=None):
     """Validate that we are given a name argument."""
     if name is None:

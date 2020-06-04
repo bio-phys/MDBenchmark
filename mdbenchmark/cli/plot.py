@@ -218,8 +218,8 @@ def do_plot(
     ax.set_xlim(min_x - xdiff, max_x + xdiff)
 
     # Update yticks
-    max_y = df["ns/day"].max() or 50
-    yticks_steps = ((max_y + 1) / 10).astype(int)
+    max_y = df["ns/day"].max()[0] or 50
+    yticks_steps = int(((max_y + 1) / 10))
     yticks = np.arange(0, max_y + (max_y * 0.25), yticks_steps)
     ax.set_yticks(yticks)
     ax.set_ylim(0, max_y + (max_y * 0.25))
