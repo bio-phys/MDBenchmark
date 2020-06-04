@@ -30,7 +30,7 @@ from mdbenchmark import console
 from mdbenchmark.mdengines import detect_md_engine
 from mdbenchmark.mdengines.utils import cleanup_before_restart
 from mdbenchmark.migrations import mds_to_dtr
-from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import consolidate_dataframe, DataFrameFromBundle, PrintDataFrame
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}
@@ -82,7 +82,7 @@ def do_submit(directory, force_restart, yes):
     df_to_print = df.replace(np.nan, "?")
     df_to_print = df.drop(columns=["ns/day", "ncores"])
     console.info("{}", "Benchmark Summary:")
-    df_short = ConsolidateDataFrame(df_to_print)
+    df_short = consolidate_dataframe(df_to_print)
     PrintDataFrame(df_short)
 
     # Ask the user to confirm whether they want to submit the benchmarks

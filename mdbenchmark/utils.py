@@ -134,7 +134,18 @@ def generate_output_name(extension):
 def DataFrameFromBundle(bundle):
     """Generates a DataFrame from a datreant bundle."""
     df = pd.DataFrame(
-        columns=["module", "nodes", "ns/day", "run time [min]", "gpu", "host", "ncores"]
+        columns=[
+            "module",
+            "nodes",
+            "ns/day",
+            "time [min]",
+            "gpu",
+            "host",
+            "ncores",
+            "number_of_ranks",
+            "number_of_threads",
+            "hyperthreading",
+        ]
     )
 
     for i, sim in enumerate(bundle):
@@ -152,70 +163,60 @@ def DataFrameFromBundle(bundle):
 
     # Sort values by `nodes`
     df = df.sort_values(
-        ["host", "module", "run time [min]", "gpu", "nodes"]
+        [
+            "host",
+            "module",
+            "time [min]",
+            "gpu",
+            "nodes",
+            "number_of_ranks",
+            "number_of_threads",
+            "hyperthreading",
+        ]
     ).reset_index(drop=True)
+
+    # df.columns = [
+    #     "module",
+    #     "nodes",
+    #     "time [min]",
+    #     "host",
+    #     "gpu",
+    #     "ranks",
+    #     "threads",
+    #     "hyperthreading",
+    # ]
 
     return df
 
 
-def ConsolidateDataFrame(df):
-    """Edits a DataFrame and consolidates the output.
-       Requires the previously generated DataFrame.
-       Returns a newly formatted DataFrame.
-    """
-    df_short = pd.DataFrame(
-        columns=[
-            "module",
-            "nodes",
-            "time [min]",
-            "host",
-            "gpu",
-            "ranks",
-            "threads",
-            "hyperthreading",
-        ]
-    )
-
-    groupby = [
-        "module",
-        "host",
-        "gpu",
-        "number_of_ranks",
-        "number_of_threads",
-        "hyperthreading",
-    ]
-    gb = df.groupby(groupby)
-
-    i = 0
-    for key, df in gb:
-
-        node_print_output = []
-        node_groups = group_consecutives(df["nodes"].tolist())
-
-        for node_g in node_groups:
-            if len(node_g) == 1:
-                node_print_output.append(node_g[0])
-            else:
-                node_print_output.append(str(node_g[0]) + "-" + str(node_g[-1]))
-
-        values = ", ".join(str(v) for v in node_print_output)
-        df_short.loc[i] = (
-            key[0],
-            values,
-            df["run time [min]"].iloc[0],
-            key[1],
-            key[2],
-            key[3],
-            key[4],
-            key[5],
-        )
-        i += 1
-
-    return df_short
+def consolidate_dataframe(df, has_performance=True):
+    """Return a shortened version of a DataFrame, grouping the nodes."""
+    columns_to_groupby = ["module", "host", "gpu", "number_of_ranks", "hyperthreading"]
+    new_columns = df.columns
+    agg = {
+        column: "first" for column in new_columns if column not in columns_to_groupby
+    }
+    agg["nodes"] = format_interval_groups
+    new_df = df.groupby(columns_to_groupby, as_index=False).agg(agg)
+    return new_df[new_columns]
 
 
-def PrintDataFrame(df, printdf=True):
+def PrintDataFrame(df, printdf=True, columns=None):
     """Print a nicely formatted shortened DataFrame."""
+    if columns is not None:
+        df.columns = columns
+    # df.columns = [
+    #     "module",
+    #     "nodes",
+    #     "ns/day",
+    #     "time [min]",
+    #     "gpu",
+    #     "host",
+    #     "ncores",
+    #     "ranks",
+    #     "threads",
+    #     "hyperthreading",
+    # ]
     tab = tabulate(df, headers="keys", tablefmt="psql", showindex=False)
     if printdf is True:
         print(tab)
@@ -223,7 +224,7 @@ def PrintDataFrame(df, printdf=True):
         return tab
 
 
-def group_consecutives(vals, step=1):
+def group_consecutives(values, step=1):
     """Return list of consecutive lists of numbers from vals (number list).
        This list hast to be at least ordered such that N+1 > N.
        Adapted from code found on stack overflow.
@@ -235,13 +236,26 @@ def group_consecutives(vals, step=1):
 
     run = []
     result = [run]
-    expect = None
-    for v in vals:
-        if (v == expect) or (expect is None):
-            run.append(v)
+    expected = None
+    for value in values:
+        if (value == expected) or (expected is None):
+            run.append(value)
         else:
-            run = [v]
+            run = [value]
             result.append(run)
-        expect = v + step
+        expected = value + step
 
     return result
+
+
+def format_interval_groups(nodes):
+    output = []
+    groups = group_consecutives(nodes)
+
+    for group in groups:
+        if len(group) == 1:
+            output.append(group[0])
+        else:
+            output.append(str(group[0]) + "-" + str(group[-1]))
+
+    return ", ".join(str(node) for node in output)
