@@ -165,7 +165,7 @@ def do_generate(
                         host,
                         ranks,
                         threads,
-                        processor.supports_hyperthreading,
+                        enable_hyperthreading,
                     ]
                     i += 1
 
