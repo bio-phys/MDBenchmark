@@ -32,7 +32,6 @@ from pandas.testing import assert_frame_equal
 from mdbenchmark import cli, utils
 from mdbenchmark.cli import plot
 from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.testing import data
 
 
 @pytest.mark.parametrize(
