@@ -23,7 +23,6 @@ import pytest
 
 from mdbenchmark import cli
 from mdbenchmark.cli.submit import get_batch_command
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
 from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 

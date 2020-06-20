@@ -19,7 +19,6 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
 
 
 def test_aliasedgroup_unknown_command(cli_runner):
