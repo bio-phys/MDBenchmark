@@ -22,11 +22,9 @@ import click
 from mdbenchmark.cli.options import AliasedGroup
 from mdbenchmark.cli.validators import (
     print_known_hosts,
-    validate_cpu_gpu_flags,
     validate_hosts,
     validate_module,
     validate_name,
-    validate_number_of_nodes,
 )
 from mdbenchmark.__version__ import VERSION
 

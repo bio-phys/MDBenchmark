@@ -23,13 +23,9 @@ import os
 import socket
 import sys
 
-import click
-import datreant as dtr
-import numpy as np
 import pandas as pd
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
-from jinja2.exceptions import TemplateNotFound
 from tabulate import tabulate
 
 from mdbenchmark import console
