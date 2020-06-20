@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from six.moves import StringIO
+from io import StringIO
 
 import datreant as dtr
 import numpy as np
@@ -109,7 +109,7 @@ def test_check_file_extension(capsys, input_name, tmpdir):
     output = "ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n"
     with pytest.raises(SystemExit) as e:
         gromacs.check_input_file_exists(input_name)
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
         assert out == output

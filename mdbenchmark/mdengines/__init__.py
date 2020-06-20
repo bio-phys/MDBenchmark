@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import six
-
 import os
 from collections import defaultdict
 
@@ -40,7 +38,7 @@ def detect_md_engine(modulename):
     supported.
     """
 
-    for name, engine in six.iteritems(SUPPORTED_ENGINES):
+    for name, engine in SUPPORTED_ENGINES.items():
         if name in modulename.lower():
             return engine
 
@@ -89,7 +87,7 @@ def get_available_modules():
 
     # Go through the directory structure and grab all version of modules that we support.
     for paths in MODULE_PATHS.split(":"):
-        for path, subdirs, files in os.walk(paths):
+        for path, _, files in os.walk(paths):
             for mdengine in SUPPORTED_ENGINES:
                 if mdengine in path:
                     for name in files:

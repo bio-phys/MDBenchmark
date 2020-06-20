@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from six.moves import StringIO
+from io import StringIO
 
 import datreant as dtr
 import numpy as np

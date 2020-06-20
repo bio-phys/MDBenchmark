@@ -17,14 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from __future__ import absolute_import
-
 import os
-import re
-from glob import glob
 from shutil import copyfile
-
-import numpy as np
 
 from mdbenchmark import console
 
