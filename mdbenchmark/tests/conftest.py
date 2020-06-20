@@ -21,6 +21,8 @@ from os.path import exists, isfile, join as pjoin
 
 import pytest
 
+from mdbenchmark.ext.click_test import cli_runner  # noqa: F401
+
 
 class TestDataDir(object):
     """

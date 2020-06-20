@@ -34,7 +34,6 @@ from mdbenchmark.cli.validators import (
     validate_name,
     validate_number_of_nodes,
 )
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 

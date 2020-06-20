@@ -24,7 +24,6 @@ import numpy as np
 import pandas as pd
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
 
 
