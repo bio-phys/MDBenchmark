@@ -27,7 +27,7 @@ from mdbenchmark import console, mdengines, utils
 from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
 from mdbenchmark.mdengines.utils import write_benchmark
 from mdbenchmark.models import Processor
-from mdbenchmark.utils import consolidate_dataframe, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import PrintDataFrame, consolidate_dataframe
 
 NAMD_WARNING = (
     "NAMD support is experimental. "

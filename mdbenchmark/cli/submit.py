@@ -24,12 +24,11 @@ from glob import glob
 import click
 import datreant as dtr
 import numpy as np
-import pandas as pd
 
 from mdbenchmark import console
 from mdbenchmark.mdengines import detect_md_engine
 from mdbenchmark.mdengines.utils import cleanup_before_restart
-from mdbenchmark.utils import consolidate_dataframe, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, consolidate_dataframe
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}

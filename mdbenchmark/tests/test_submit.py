@@ -24,7 +24,7 @@ import pytest
 from mdbenchmark import cli
 from mdbenchmark.cli.submit import get_batch_command
 from mdbenchmark.mdengines import gromacs
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import PrintDataFrame
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -40,7 +40,7 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
     )
     with pytest.raises(SystemExit):
         get_batch_command()
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == output
 
     # Test non-fail state
@@ -51,7 +51,7 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
 def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     """Test that we cannot submit a benchmark system that was already submitted,
-       unless we force it.
+    unless we force it.
     """
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to

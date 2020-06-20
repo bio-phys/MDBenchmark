@@ -19,17 +19,13 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-import click
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import pytest
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
-from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-from mdbenchmark import cli, utils
+from mdbenchmark import cli
 from mdbenchmark.cli import plot
 
 
@@ -226,7 +222,7 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu_fail(
             plot.filter_dataframe_for_plotting(
                 df=input_df, host_name=(), module_name=(), gpu=False, cpu=False
             )
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1
@@ -290,7 +286,7 @@ def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
             "Plotting GPU data only.\n"
             "ERROR Your filtering led to an empty dataset. Exiting.\n"
         )
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1

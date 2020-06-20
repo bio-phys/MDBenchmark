@@ -20,7 +20,6 @@
 import os
 import uuid
 
-import datreant as dtr
 import pytest
 
 from mdbenchmark.migrations import mds_to_dtr
@@ -111,13 +110,13 @@ def test_convert_to_datreant(create_sim_files):
 
 
 def test_migrate_to_datreant(tmpdir, capsys, create_sim_files):
-    directory, files = create_sim_files
+    directory, _ = create_sim_files
 
     with tmpdir.as_cwd():
         assert mds_to_dtr.migrate_to_datreant(".") is None
 
     mds_to_dtr.migrate_to_datreant(str(directory))
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
 
     output = (
         "Converting old benchmark metadata to new format!\n"
