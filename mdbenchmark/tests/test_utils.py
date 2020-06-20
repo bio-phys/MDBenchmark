@@ -21,14 +21,11 @@ import os
 
 import datreant as dtr
 import jinja2
-import numpy as np
 import pandas as pd
 import tabulate
-from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
 from mdbenchmark import utils
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.testing import data
 
 
@@ -99,25 +96,6 @@ def test_retrieve_host_template(monkeypatch):
     # Check that the user can define some custom template
     monkeypatch.setattr("mdbenchmark.utils.ENV.get_template", lambda x: "minerva")
     assert utils.retrieve_host_template("minerva") == "minerva"
-
-
-def test_lin_func():
-    """Test `lin_func()`."""
-    m, x, b = [5, 3, 2]
-
-    assert_equal(utils.lin_func(m, x, b), (m * x) + b)
-
-
-def test_calc_slope_intercept():
-    """Test `calc_slope_intercept()`"""
-    x1, y1 = [1, 1]
-    x2, y2 = [2, 2]
-    slope = (y2 - y1) / (x2 - x1)
-    intercept = y1 - (x1 * slope)
-
-    slope_intercept = utils.calc_slope_intercept((x1, y1), (x2, y2))
-
-    assert_equal(slope_intercept, np.hstack([slope, intercept]))
 
 
 def test_guess_ncores(capsys, monkeypatch):
