@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import six
-
 import sys
 
 import click
@@ -84,7 +82,7 @@ def console_wrapper(
     if kwargs:
         kwargs = {
             k: click.style(str(v), bold=bold, fg=fg, bg=bg, underline=underline)
-            for k, v in six.iteritems(kwargs)
+            for k, v in kwargs.items()
         }
 
     try:
