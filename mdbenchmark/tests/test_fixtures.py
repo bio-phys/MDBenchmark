@@ -19,8 +19,6 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import pytest
 
-from mdbenchmark.testing import data, datafiles
-
 
 def test_datafiles(datafiles):
     with pytest.raises(RuntimeError):

@@ -26,7 +26,6 @@ import tabulate
 from pandas.testing import assert_frame_equal
 
 from mdbenchmark import utils
-from mdbenchmark.testing import data
 
 
 def test_mdbenchmark_template_environment_variable(monkeypatch):
