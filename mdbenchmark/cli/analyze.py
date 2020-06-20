@@ -28,7 +28,6 @@ from matplotlib.figure import Figure
 from mdbenchmark import console
 from mdbenchmark.cli.plot import plot_over_group
 from mdbenchmark.mdengines import detect_md_engine, utils
-from mdbenchmark.migrations import mds_to_dtr
 from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
 
 plt.switch_backend("agg")
@@ -36,9 +35,6 @@ plt.switch_backend("agg")
 
 def do_analyze(directory, plot, ncores, save_csv):
     """Analyze benchmarks."""
-    # Migrate from MDBenchmark<2 to MDBenchmark=>2
-    mds_to_dtr.migrate_to_datreant(directory)
-
     bundle = dtr.discover(directory)
 
     df = DataFrameFromBundle(bundle)

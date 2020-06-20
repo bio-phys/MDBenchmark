@@ -29,7 +29,6 @@ import pandas as pd
 from mdbenchmark import console
 from mdbenchmark.mdengines import detect_md_engine
 from mdbenchmark.mdengines.utils import cleanup_before_restart
-from mdbenchmark.migrations import mds_to_dtr
 from mdbenchmark.utils import consolidate_dataframe, DataFrameFromBundle, PrintDataFrame
 
 PATHS = os.environ["PATH"].split(":")
@@ -49,9 +48,6 @@ def get_batch_command():
 
 def do_submit(directory, force_restart, yes):
     """Submit the benchmarks."""
-    # Migrate from MDBenchmark<2 to MDBenchmark=>2
-    mds_to_dtr.migrate_to_datreant(directory)
-
     bundle = dtr.discover(directory)
 
     # Exit if no bundles were found in the current directory.
