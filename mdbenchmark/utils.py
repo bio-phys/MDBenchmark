@@ -79,7 +79,7 @@ def retrieve_host_template(host=None):
     Parameter
     ---------
     host : str
-      Name of the host template to lookup
+    Name of the host template to lookup
 
     Returns
     -------
@@ -213,12 +213,12 @@ def PrintDataFrame(df, printdf=True, columns=None):
 
 def group_consecutives(values, step=1):
     """Return list of consecutive lists of numbers from vals (number list).
-       This list hast to be at least ordered such that N+1 > N.
-       Adapted from code found on stack overflow.
-       Question Thread:
-       https://stackoverflow.com/questions/7352684/
-       Solved by:
-       https://stackoverflow.com/users/308066/dkamins
+    This list hast to be at least ordered such that N+1 > N.
+    Adapted from code found on stack overflow.
+    Question Thread:
+    https://stackoverflow.com/questions/7352684/
+    Solved by:
+    https://stackoverflow.com/users/308066/dkamins
     """
 
     run = []
