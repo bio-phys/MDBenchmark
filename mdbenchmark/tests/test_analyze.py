@@ -75,26 +75,6 @@ show a question mark instead of a float in the corresponding cell.
         assert result.output == test_output
 
 
-def test_analyze_plot(cli_runner, tmpdir, data):
-    with tmpdir.as_cwd():
-
-        result = cli_runner.invoke(
-            cli,
-            [
-                "analyze",
-                "--directory={}".format(data["analyze-files-gromacs"], "--plot"),
-            ],
-        )
-
-        bundle = dtr.discover(data["analyze-files-gromacs"])
-        df = DataFrameFromBundle(bundle)
-        test_output = PrintDataFrame(df, False) + "\n"
-
-        assert result.exit_code == 0
-        assert result.output == test_output
-        os.path.isfile("runtimes.pdf")
-
-
 def test_analyze_console_messages(cli_runner, tmpdir):
     """Test that the CLI for analyze prints all error messages as expected."""
     with tmpdir.as_cwd():
