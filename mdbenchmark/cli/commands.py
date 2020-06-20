@@ -47,27 +47,12 @@ def cli():
     show_default=True,
 )
 @click.option(
-    "-p",
-    "--plot",
-    is_flag=True,
-    help="DEPRECATED. Please use 'mdbenchmark plot'.\nGenerate a plot of finished benchmarks.",
-)
-@click.option(
-    "--ncores",
-    "--number-cores",
-    "ncores",
-    type=int,
-    default=None,
-    help="DEPRECATED. Please use 'mdbenchmark plot'.\nNumber of cores per node. If not given it will be parsed from the benchmarks' log file.",
-    show_default=True,
-)
-@click.option(
     "-s",
     "--save-csv",
     default=None,
     help="Filename for the CSV file containing benchmark results.",
 )
-def analyze(directory, plot, ncores, save_csv):
+def analyze(directory, save_csv):
     """Analyze benchmarks and print the performance results.
 
     Benchmarks are searched recursively starting from the directory specified
@@ -83,7 +68,7 @@ def analyze(directory, plot, ncores, save_csv):
     """
     from mdbenchmark.cli.analyze import do_analyze
 
-    do_analyze(directory=directory, plot=plot, ncores=ncores, save_csv=save_csv)
+    do_analyze(directory=directory, save_csv=save_csv)
 
 
 @cli.command()

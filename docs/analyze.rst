@@ -47,19 +47,6 @@ single benchmark::
 
   mdbenchmark analyze --directory draco_gromacs/2018.3
 
-Plotting of benchmark results
------------------------------
-
-  .. warning::
-
-   The function |mdbenchmark.analyze.plot|_ was deprecated with version 2.0. You should migrate to the newer ``mdbenchmark plot``, as it provides more functionality and the former version will be removed in the future.
-
-MDBenchmark provides a quick and simple way to plot the results of the
-benchmarks, giving you a ``.pdf`` file as output. To generate a plot simply use
-the ``--plot`` option::
-
-  mdbenchmark analyze --plot
-
 Plot the number of cores
 ~~~~~~~~~~~~~~~~~~~~~~~~
 

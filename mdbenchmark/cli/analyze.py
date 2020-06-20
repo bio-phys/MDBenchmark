@@ -17,23 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import click
 import datreant as dtr
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 
 from mdbenchmark import console
-from mdbenchmark.cli.plot import plot_over_group
-from mdbenchmark.mdengines import detect_md_engine, utils
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
-
-plt.switch_backend("agg")
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 
 
-def do_analyze(directory, plot, ncores, save_csv):
+def do_analyze(directory, save_csv):
     """Analyze benchmarks."""
     bundle = dtr.discover(directory)
 
@@ -53,24 +44,3 @@ def do_analyze(directory, plot, ncores, save_csv):
             "were not started yet."
         )
     PrintDataFrame(df)
-
-    if plot:
-        console.warn("'--plot' has been deprecated, use '{}'.", "mdbenchmark plot")
-
-        fig = Figure()
-        FigureCanvas(fig)
-        ax = fig.add_subplot(111)
-
-        df = pd.read_csv(save_csv)
-        if ncores:
-            console.warn(
-                "Ignoring your value from '{}' and parsing number of cores from log files.",
-                "--number-cores/-ncores",
-            )
-        ax = plot_over_group(df, plot_cores=ncores, fit=True, ax=ax)
-        lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
-
-        fig.tight_layout()
-        fig.savefig(
-            "runtimes.pdf", type="pdf", bbox_extra_artists=(lgd,), bbox_inches="tight"
-        )
