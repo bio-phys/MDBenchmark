@@ -28,7 +28,7 @@ from mdbenchmark.cli.validators import (
     validate_name,
     validate_number_of_nodes,
 )
-from mdbenchmark.version import VERSION
+from mdbenchmark.__version__ import VERSION
 
 
 @click.group(cls=AliasedGroup)
