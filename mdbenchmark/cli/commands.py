@@ -406,3 +406,26 @@ def submit(directory, force_restart, yes):
     from mdbenchmark.cli.submit import do_submit
 
     do_submit(directory=directory, force_restart=force_restart, yes=yes)
+
+
+@cli.command()
+@click.option(
+    "-d",
+    "--directory",
+    help="Path in which to look for benchmarks.",
+    default=".",
+    show_default=True,
+)
+def migrate(directory):
+    """
+    Migrate from old versions of MDBenchmark.
+
+    Currently moves from version 1 to version 2.
+    """
+
+    from mdbenchmark.migrations import mds_to_dtr
+
+    mds_to_dtr.ensure_correct_environment()
+
+    # Migrate from MDBenchmark<2 to MDBenchmark=>2
+    mds_to_dtr.migrate_to_datreant(directory)
