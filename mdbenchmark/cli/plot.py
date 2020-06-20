@@ -26,8 +26,9 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from mdbenchmark import console
+from mdbenchmark.math import calc_slope_intercept, lin_func
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
-from mdbenchmark.utils import calc_slope_intercept, generate_output_name, lin_func
+from mdbenchmark.utils import generate_output_name
 
 plt.switch_backend("agg")
 
