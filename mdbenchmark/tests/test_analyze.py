@@ -17,14 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import os
-
 import datreant as dtr
 import numpy as np
 import pandas as pd
 
 from mdbenchmark import cli
-from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
 
 
 def test_analyze_gromacs(cli_runner, tmpdir, data):

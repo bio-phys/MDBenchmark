@@ -93,12 +93,12 @@ def test_normalize_modules(capsys, monkeypatch, tmpdir):
     """Test that normalize modules works as expected."""
     # Test the warning when we skip the validation
     normalize_modules(modules=["gromacs/2016.4"], skip_validation=True)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert out == "WARNING Not performing module name validation.\n"
 
     # Test the warning when we do not skip the validation
     normalize_modules(modules=["gromacs/2016.4"], skip_validation=False)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert (
         out == "WARNING Cannot locate modules available on this host. "
         "Not performing module name validation.\n"
@@ -161,7 +161,7 @@ def test_validation(capsys, monkeypatch, tmpdir):
         output = "ERROR We were not able to determine the module name.\n"
         with pytest.raises(SystemExit) as e:
             validate_module_name("wrong=format")
-            out, err = capsys.readouterr()
+            out, _ = capsys.readouterr()
 
             assert e.type == SystemExit
             assert e.code == 1

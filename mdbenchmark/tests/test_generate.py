@@ -20,7 +20,6 @@
 import os
 
 import datreant as dtr
-import pandas as pd
 import pytest
 from click import exceptions
 
@@ -35,7 +34,7 @@ from mdbenchmark.cli.validators import (
     validate_number_of_nodes,
 )
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
-from mdbenchmark.utils import ConsolidateDataFrame, DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, consolidate_dataframe
 
 DIR_STRUCTURE = {
     "applications": {
@@ -82,7 +81,7 @@ def generate_output_table():
         bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
         if short:
-            df = ConsolidateDataFrame(df)
+            df = consolidate_dataframe(df)
 
         return title + PrintDataFrame(df, False) + "\n"
 
@@ -365,7 +364,7 @@ def test_generate_odd_number_of_nodes(
 
         bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
-        df = ConsolidateDataFrame(df)
+        df = consolidate_dataframe(df)
         test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
 
         output2 = (
@@ -502,7 +501,7 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
         )
         bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
-        df = ConsolidateDataFrame(df)
+        df = consolidate_dataframe(df)
         test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
 
         output2 = (
@@ -519,7 +518,7 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
 def test_print_known_hosts(ctx_mock, capsys):
     """Test that the print_known_hosts function works as expected."""
     print_known_hosts(ctx_mock, None, True)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
 
     assert out == "Available host templates:\ncobra\ndraco\nhydra\n"
 
@@ -627,7 +626,7 @@ def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
         )
         bundle = dtr.discover()
         df = DataFrameFromBundle(bundle)
-        df = ConsolidateDataFrame(df)
+        df = consolidate_dataframe(df)
         output2 = (
             "The above benchmarks will be generated. Continue? [y/N]: y\n"
             "Finished generating all benchmarks.\n"

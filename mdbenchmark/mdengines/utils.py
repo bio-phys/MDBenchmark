@@ -20,13 +20,9 @@
 import os
 import re
 from glob import glob
-from shutil import copyfile
 
 import datreant as dtr
 import numpy as np
-
-from mdbenchmark import console
-from mdbenchmark.mdengines.namd import analyze_namd_file
 
 FILES_TO_KEEP = {
     "gromacs": [".*/bench.job", ".*.tpr", ".*.mdp"],

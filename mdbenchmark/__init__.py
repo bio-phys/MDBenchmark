@@ -17,9 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from mdbenchmark.cli import cli
-from mdbenchmark.__version__ import VERSION as __version__
-
+from mdbenchmark.__version__ import VERSION as __version_  # noqa: F401
+from mdbenchmark.cli import cli  # noqa: F401
 
 if __name__ == "__main__":
     cli()

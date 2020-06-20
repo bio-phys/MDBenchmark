@@ -84,7 +84,7 @@ def test_check_file_extension(capsys, input_file, tmpdir):
     output = "ERROR File md.namd does not exist, but is needed for NAMD benchmarks.\n"
     with pytest.raises(SystemExit) as e:
         namd.check_input_file_exists(input_file)
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
         assert out == output
@@ -143,11 +143,11 @@ def test_analyze_namd_file(
             if exit_exception:
                 with pytest.raises(exit_exception):
                     namd.analyze_namd_file(fh)
-                    out, err = capsys.readouterr()
+                    out, _ = capsys.readouterr()
                     assert out.type == exit_exception
                     assert out.code == exit_code
                     assert out == output
             else:
                 namd.analyze_namd_file(fh)
-                out, err = capsys.readouterr()
+                out, _ = capsys.readouterr()
                 assert out == output
