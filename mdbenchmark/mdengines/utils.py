@@ -91,41 +91,52 @@ def parse_ncores(engine, fh):
     return np.nan
 
 
-def analyze_run(engine, sim):
+def analyze_benchmark(engine, benchmark):
     """
     Analyze performance data from a simulation run with any MD engine.
     """
-    ns_day = np.nan
+    performance = np.nan
     ncores = np.nan
+    ranks = np.nan
+    threads = np.nan
+    hyperthreading = np.nan
 
     # search all output files
-    output_files = glob(os.path.join(sim.relpath, PARSE_ENGINE[engine.NAME]["analyze"]))
+    output_files = glob(
+        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"])
+    )
     if output_files:
         with open(output_files[0]) as fh:
-            ns_day = parse_ns_day(engine, fh)
+            performance = parse_ns_day(engine, fh)
             fh.seek(0)
             ncores = parse_ncores(engine, fh)
 
-    # Backward compatibility to benchmark systems created with older versions
-    # of MDBenchmark
-    if "time" not in sim.categories:
-        sim.categories["time"] = 0
-    if "module" in sim.categories:
-        module = sim.categories["module"]
-    else:
-        module = sim.categories["version"]
+    if "time" not in benchmark.categories:
+        benchmark.categories["time"] = 0
+
+    if "module" in benchmark.categories:
+        module = benchmark.categories["module"]
+
+    if (
+        "version" in benchmark.categories
+        and isinstance(benchmark.categories["version"], int)
+        and benchmark.categories["version"] >= 3
+    ):
+        ranks = benchmark.categories["ranks"]
+        threads = benchmark.categories["threads"]
+        hyperthreading = benchmark.categories["hyperthreading"]
 
     return (
         module,
-        sim.categories["nodes"],
-        ns_day,
-        sim.categories["time"],
-        sim.categories["gpu"],
-        sim.categories["host"],
+        benchmark.categories["nodes"],
+        performance,
+        benchmark.categories["time"],
+        benchmark.categories["gpu"],
+        benchmark.categories["host"],
         ncores,
-        sim.categories["ranks"],
-        sim.categories["threads"],
-        sim.categories["hyperthreading"],
+        ranks,
+        threads,
+        hyperthreading,
     )
 
 
