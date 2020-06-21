@@ -26,7 +26,7 @@ NAME = "namd"
 
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
-    sim = kwargs["sim"]
+    benchmark = kwargs["benchmark"]
 
     if name.endswith(".namd"):
         name = name[:-5]
@@ -43,9 +43,9 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
         analyze_namd_file(fh)
         fh.seek(0)
 
-    copyfile(namd_relpath, sim[namd].relpath)
-    copyfile(psf_relpath, sim[psf].relpath)
-    copyfile(pdb_relpath, sim[pdb].relpath)
+    copyfile(namd_relpath, benchmark[namd].relpath)
+    copyfile(psf_relpath, benchmark[psf].relpath)
+    copyfile(pdb_relpath, benchmark[pdb].relpath)
 
     return name
 
