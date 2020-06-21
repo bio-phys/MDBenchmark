@@ -1,5 +1,3 @@
-import itertools
-
 import pytest
 
 from mdbenchmark.versions import VersionCategories, VersionFactory
