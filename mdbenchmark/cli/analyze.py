@@ -17,22 +17,30 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+import click
 import datreant as dtr
 import numpy as np
 
 from mdbenchmark import console
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import map_columns, parse_bundle, print_dataframe
+from mdbenchmark.versions import VersionFactory
 
 
 def do_analyze(directory, save_csv):
     """Analyze benchmarks."""
     bundle = dtr.discover(directory)
+    version = VersionFactory(categories=bundle.categories).version_class
 
-    df = DataFrameFromBundle(bundle)
+    df = parse_bundle(
+        bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
+    )
 
-    if save_csv is not None and not save_csv.endswith(".csv"):
-        save_csv = "{}.csv".format(save_csv)
-    df.to_csv(save_csv)
+    if save_csv is not None:
+        if not save_csv.endswith(".csv"):
+            save_csv = "{}.csv".format(save_csv)
+        df.to_csv(save_csv, index=False)
+
+        console.success("Successfully benchmark data to {}.", save_csv)
 
     # Reformat NaN values nicely into question marks.
     # move this to the bundle function!
@@ -43,4 +51,19 @@ def do_analyze(directory, save_csv):
             "Systems marked with question marks have either crashed or "
             "were not started yet."
         )
-    PrintDataFrame(df)
+
+    # Warn user that we are going to print more than 50 benchmark results to the console
+    if df.shape[0] > 50:
+        if click.confirm(
+            "We are about to print the results of {} benchmarks to the console. Continue?".format(
+                click.style(str(df.shape[0]), bold=True)
+            )
+        ):
+            pass
+        else:
+            console.error("Exiting.")
+
+    # Print the data to the console
+    print_dataframe(
+        df, columns=map_columns(version.category_mapping, version.analyze_printing)
+    )

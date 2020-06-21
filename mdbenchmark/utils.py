@@ -193,60 +193,29 @@ def generate_output_name(extension):
     return out
 
 
-def DataFrameFromBundle(bundle):
-    """Generates a DataFrame from a datreant bundle."""
-    df = pd.DataFrame(
-        columns=[
-            "module",
-            "nodes",
-            "ns/day",
-            "time [min]",
-            "gpu",
-            "host",
-            "ncores",
-            "number_of_ranks",
-            "number_of_threads",
-            "hyperthreading",
-        ]
-    )
+def parse_bundle(bundle, columns, sort_values_by):
+    """Generates a DataFrame from a datreant.Bundle."""
+    data = []
 
-    for i, sim in enumerate(bundle):
-        # older versions wrote a version category. This ensures backwards compatibility
-        if "module" in sim.categories:
-            module = sim.categories["module"]
-        else:
-            module = sim.categories["version"]
-        # call the engine specific analysis functions
-        engine = detect_md_engine(module)
-        df.loc[i] = utils.analyze_run(engine=engine, sim=sim)
+    with click.progressbar(
+        bundle, length=len(bundle), label="Analyzing benchmarks", show_pos=True
+    ) as bar:
+        for treant in bar:
+            module = treant.categories["module"]
+            engine = detect_md_engine(module)
+            data.append(utils.analyze_benchmark(engine=engine, benchmark=treant))
 
+    df = pd.DataFrame(data, columns=columns)
+
+    # Exit if no data is available
     if df.empty:
         console.error("There is no data for the given path.")
 
     # Sort values by `nodes`
-    df = df.sort_values(
-        [
-            "host",
-            "module",
-            "time [min]",
-            "gpu",
-            "nodes",
-            "number_of_ranks",
-            "number_of_threads",
-            "hyperthreading",
-        ]
-    ).reset_index(drop=True)
+    df = df.sort_values(sort_values_by).reset_index(drop=True)
 
-    # df.columns = [
-    #     "module",
-    #     "nodes",
-    #     "time [min]",
-    #     "host",
-    #     "gpu",
-    #     "ranks",
-    #     "threads",
-    #     "hyperthreading",
-    # ]
+    return df
+
 
 def map_columns(map_dict, columns):
     return [map_dict[key] for key in columns]
