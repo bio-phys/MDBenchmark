@@ -5,10 +5,10 @@ def lin_func(x, m, b):
     return m * x + b
 
 
-def calc_slope_intercept(x, y):
-    x = np.asarray(x)
-    y = np.asarray(y)
-    diff = x - y
+def calc_slope_intercept(p1, p2):
+    p1 = np.asarray(p1)
+    p2 = np.asarray(p2)
+    diff = p1 - p2
     slope = diff[1] / diff[0]
-    intercept = x[1] - (x[0] * slope)
+    intercept = p1[1] - (p1[0] * slope)
     return np.hstack([slope, intercept])
