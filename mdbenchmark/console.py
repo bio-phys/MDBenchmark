@@ -32,6 +32,7 @@ def console_wrapper(
     bg=None,
     underline=None,
     blink=None,
+    newlines=False,
     **kwargs
 ):
     """Wrapper to consolidate all click.echo() calls.
@@ -86,7 +87,11 @@ def console_wrapper(
         }
 
     try:
+        if newlines:
+            click.echo("")
         click.echo(message.format(*args, **kwargs), file=filehandler)
+        if newlines:
+            click.echo("")
     except IndexError:
         raise ValueError(
             "Number of placeholders do not correspond to the number of curly brackets "
@@ -104,6 +109,12 @@ def warn(message, *args, **kwargs):
     prefix = click.style("WARNING", fg="yellow", bold=True)
 
     console_wrapper(message, prefix=prefix, args=args, **kwargs)
+
+
+def success(message, *args, **kwargs):
+    """Output a success message and exit the script."""
+    console_wrapper(message, args=args, **kwargs)
+    sys.exit(0)
 
 
 def error(message, *args, **kwargs):
