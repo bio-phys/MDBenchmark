@@ -35,9 +35,35 @@ This example shows a HPC running SGE with 30 CPUs per node.
   module unload gromacs
   module load {{ module }}
   module load impi
+  module load cuda
+
+  # The below configuration was kindly provided by Dr. Klaus Reuter
+  # --- edit the following two lines to configure your job ---
+  {% if hyperthreading %}
+  USE_HT=1                                # use hyperthreading, 0 (off) or 1 (on)
+  {%- else %}
+  USE_HT=0                                # use hyperthreading, 0 (off) or 1 (on)
+  {%- endif %
+  N_TASKS_PER_HOST={{ number_of_ranks }}  # number of MPI tasks to be started per node
+
+
+  # --- no need to touch the lines below ---
+  N_SLOTS_TOTAL=$NSLOTS
+  N_TASKS_TOTAL=$((N_TASKS_PER_HOST*NHOSTS))
+  N_SLOTS_PER_HOST=$((NSLOTS/NHOSTS))
+  N_THREADS_PER_PROCESS=$((N_SLOTS_PER_HOST/N_TASKS_PER_HOST))
+  N_THREADS_PER_PROCESS=$(((1+USE_HT)*N_THREADS_PER_PROCESS))
+  export OMP_NUM_THREADS=$N_THREADS_PER_PROCESS
+  if [ $USE_HT ]; then
+      export OMP_PLACES=threads
+  else
+      export OMP_PLACES=cores
+  fi
+
+  # Edit again below, as you see fit
 
   # Run gromacs/{{ version }} for {{ time - 5 }} minutes
-  mpiexec -n {{ 30 * n_nodes }} -perhost 30 mdrun_mpi -v -maxh {{ time / 60 }} -deffnm {{ name }}
+  mpiexec -n $N_TASKS_TOTAL -ppn $N_TASKS_PER_HOST mdrun_mpi -ntomp $N_THREADS_PER_PROCESS -v -maxh {{ time / 60 }} -resethway -noconfout -deffnm {{ name }}
 
 Slurm
 -----
@@ -70,9 +96,16 @@ Slurm.
   {%- endif %}
   {%- endif %}
   #
-  # Number of nodes and MPI tasks per node:
+  # Request {{ n_nodes }} node(s)
   #SBATCH --nodes={{ n_nodes }}
-  #SBATCH --ntasks-per-node=32
+  # Set the number of tasks per node (=MPI ranks)
+  #SBATCH --ntasks-per-node={{ number_of_ranks }}
+  # Set the number of threads per rank (=OpenMP threads)
+  #SBATCH --cpus-per-task={{ number_of_threads }}
+  {% if hyperthreading %}
+  # Enable hyperthreading
+  #SBATCH --ntasks-per-core=2
+  {%- endif %}
   # Wall clock limit:
   #SBATCH --time={{ formatted_time }}
 
@@ -81,14 +114,22 @@ Slurm.
   module load cuda
   module load {{ module }}
 
+  export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+  {% if hyperthreading %}
+  export OMP_PLACES=threads
+  export SLURM_HINT=multithread
+  {%- else %}
+  export OMP_PLACES=cores
+  {%- endif %}
+
   # Run {{ module }} for {{ time  }} minutes
-  srun gmx_mpi mdrun -v -maxh {{ time / 60 }} -deffnm {{ name }}
+  srun gmx_mpi mdrun -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -noconfout -deffnm {{ name }}
 
 
 LoadLeveler
 -----------
 
-Here is an example job template for the MPG cluster ``hydra`` (LoadLeveler).
+Here is an example job template for the decomissioned MPG cluster ``hydra`` (LoadLeveler).
 
 .. code::
 
@@ -99,7 +140,7 @@ Here is an example job template for the MPG cluster ``hydra`` (LoadLeveler).
     # @ job_type = parallel
     # @ node_usage = not_shared
     # @ node = {{ n_nodes }}
-    # @ tasks_per_node = 20
+    # @ tasks_per_node = {{ number_of_threads }}
     {%- if gpu %}
     # @ requirements = (Feature=="gpu")
     {%- endif %}
@@ -112,30 +153,36 @@ Here is an example job template for the MPG cluster ``hydra`` (LoadLeveler).
     module load {{ module }}
 
     # run {{ module }} for {{ time }} minutes
-    poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }}
+    poe gmx_mpi mdrun -deffnm {{ name }} -maxh {{ time / 60 }} -resethway -noconfout
 
 Options passed to job templates
 -------------------------------
 
 MDBenchmark passes the following variables to each template:
 
-+----------------+---------------------------------------------------------------------+
-| Value          | Description                                                         |
-+================+=====================================================================+
-| name           | Name of the TPR file                                                |
-+----------------+---------------------------------------------------------------------+
-| job_name       | Job name as specified by the user, if not specified same as name    |
-+----------------+---------------------------------------------------------------------+
-| gpu            | Boolean that is true, if GPUs are requested                         |
-+----------------+---------------------------------------------------------------------+
-| module         | Name of the module to load                                          |
-+----------------+---------------------------------------------------------------------+
-| n_nodes        | Maximal number of nodes to run on                                   |
-+----------------+---------------------------------------------------------------------+
-| time           | Benchmark run time in minutes                                       |
-+----------------+---------------------------------------------------------------------+
-| formatted_time | Run time for the queuing system in human readable format (HH:MM:SS) |
-+----------------+---------------------------------------------------------------------+
++-------------------+---------------------------------------------------------------------+
+| Value             | Description                                                         |
++===================+=====================================================================+
+| name              | Name of the TPR file                                                |
++-------------------+---------------------------------------------------------------------+
+| job_name          | Job name as specified by the user, if not specified same as name    |
++-------------------+---------------------------------------------------------------------+
+| gpu               | Boolean that is true, if GPUs are requested                         |
++-------------------+---------------------------------------------------------------------+
+| module            | Name of the module to load                                          |
++-------------------+---------------------------------------------------------------------+
+| n_nodes           | Maximal number of nodes to run on                                   |
++-------------------+---------------------------------------------------------------------+
+| number_of_ranks   | The number of MPI ranks                                             |
++-------------------+---------------------------------------------------------------------+
+| number_of_threads | The number of OpenMP threads                                        |
++-------------------+---------------------------------------------------------------------+
+| hyperthreading    | Whether to use hyperthreading                                       |
++-------------------+---------------------------------------------------------------------+
+| time              | Benchmark run time in minutes                                       |
++-------------------+---------------------------------------------------------------------+
+| formatted_time    | Run time for the queuing system in human readable format (HH:MM:SS) |
++-------------------+---------------------------------------------------------------------+
 
 To ensure correct termination of jobs ``formatted_time`` is 5 minutes longer
 than ``time``.
