@@ -21,7 +21,7 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import rcParams as mpl_rcParams
+from matplotlib import rcParams
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -29,6 +29,7 @@ from mdbenchmark import console
 from mdbenchmark.math import calc_slope_intercept, lin_func
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import generate_output_name
+from mdbenchmark.versions import VersionFactory
 
 plt.switch_backend("agg")
 
@@ -58,64 +59,91 @@ def get_xsteps(size, min_x, plot_cores, xtick_step):
     return step
 
 
-def plot_projection(df, selection, color, ax=None):
-    if ax is None:
-        ax = plt.gca()
-    slope, intercept = calc_slope_intercept(
-        (df[selection].iloc[0], df["ns/day"].iloc[0]),
-        (df[selection].iloc[1], df["ns/day"].iloc[1]),
-    )
-    xstep = df[selection].iloc[1] - df[selection].iloc[0]
-    xmax = df[selection].iloc[-1] + xstep
-    x = df[selection]
-    x = pd.concat([pd.DataFrame({0: [0]}), x, pd.DataFrame({0: [xmax]})])
-    # avoid a label and use values instead of pd.Series
-    ax.plot(x, lin_func(x.values, slope, intercept), ls="--", color=color, alpha=0.5)
+def plot_projection(df, selection, color, performance_column, ax=None):
+    # Grab x and y values
+    xs = df[selection].iloc[0:2].values.tolist()
+    ys = df[performance_column].iloc[0:2].values.tolist()
+
+    # Calculate slope and intercept
+    p1, p2 = list(zip(xs, ys))
+    slope, intercept = calc_slope_intercept(p1, p2)
+
+    # Plot the projection
+    xstep = np.diff(xs)
+    xmax = (df[selection].iloc[-1] + xstep).tolist()
+    xs = np.array([0] + xs + xmax)
+    ax.plot(xs, lin_func(xs, slope, intercept), ls="--", color=color, alpha=0.5)
+
     return ax
 
 
-def plot_line(df, selection, label, fit, ax=None):
-    if ax is None:
-        ax = plt.gca()
-
-    p = ax.plot(selection, "ns/day", ".-", data=df, ms="10", label=label)
+def plot_line(df, selection, label, fit, performance_column="performance", ax=None):
+    mask = np.isfinite(df[performance_column])
+    p = ax.plot(
+        df[selection][mask],
+        df[performance_column][mask],
+        ls="solid",
+        marker="o",
+        ms="10",
+        label=label,
+    )
     color = p[0].get_color()
 
     if fit and (len(df[selection]) > 1):
-        plot_projection(df=df, selection=selection, color=color, ax=ax)
+        plot_projection(
+            df=df,
+            selection=selection,
+            color=color,
+            performance_column=performance_column,
+            ax=ax,
+        )
 
     return ax
 
 
-def plot_over_group(df, plot_cores, fit, ax=None):
-    # plot all lines
+def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
     selection = "ncores" if plot_cores else "nodes"
+    benchmark_version = VersionFactory(
+        version="3" if "use_gpu" in df.columns else "2"
+    ).version_class
 
-    groupby = ["gpu", "module", "host"]
-    gb = df.groupby(groupby)
-    for key, df in gb:
-        template = key[2]
-        module = key[1]
-        pu = "GPU" if key[0] else "CPU"
+    for key, group in df.groupby(benchmark_version.consolidate_categories):
+        if benchmark_version.version == "3":
+            module, template, gpus, ranks, hyperthreading = key
+            threads = group.number_of_threads.iloc[0]
+        else:
+            gpus, module, template = key
 
-        label = "{template} - {module} on {pu}s".format(
-            template=template, module=module, pu=pu
+        label = "{template} - {module}, {node_type}".format(
+            template=template,
+            module=module,
+            node_type="mixed CPU-GPU" if gpus else "CPU-only",
         )
-        plot_line(df=df, selection=selection, ax=ax, fit=fit, label=label)
 
-    # style axes
-    xlabel = "cores" if plot_cores else "nodes"
-    ax.set_xlabel("Number of {}".format(xlabel))
-    ax.set_ylabel("Performance [ns/day]")
+        # Add ranks and threads information to label
+        if benchmark_version.version == "3":
+            label += " (ranks: {ranks}, threads: {threads}{ht})".format(
+                ranks=ranks, threads=threads, ht=" [HT]" if hyperthreading else ""
+            )
 
-    # here I return the figure as well as the legend
+        plot_line(
+            df=group,
+            selection=selection,
+            label=label,
+            fit=fit,
+            performance_column=performance_column,
+            ax=ax,
+        )
+
+    selection_label = "cores" if plot_cores else "nodes"
+    ax.set_xlabel("Number of {selection}".format(selection=selection_label))
+    ax.set_ylabel("Performance (ns/day)")
+
     return ax
 
 
 def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
-    # gpu/cpu can be plotted together or separately
     if gpu and cpu:
-        # if no flags are given by the user or both are set everything is plotted
         console.info("Plotting GPU and CPU data.")
     elif gpu and not cpu:
         df = df[df.gpu]
@@ -161,8 +189,7 @@ def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
 
     if not module_name:
         console.info("Plotting all modules in your input data.")
-    # this should work but we need to check before whether any of the entered
-    # names are faulty/don't exist
+
     if module_name:
         df = df[df["module"].str.contains("|".join(module_name))]
 
@@ -196,15 +223,22 @@ def do_plot(
             "You must specify at least one CSV file.", param_hint='"--csv"'
         )
 
-    df = pd.concat([pd.read_csv(c, index_col=0) for c in csv]).dropna()
+    df = pd.concat([pd.read_csv(c) for c in csv])
+    performance_column = "performance" if "performance" in df.columns else "ns/day"
 
     df = filter_dataframe_for_plotting(df, template, module, gpu, cpu)
 
-    mpl_rcParams["font.size"] = font_size
+    rcParams["font.size"] = font_size
     fig = Figure()
     FigureCanvas(fig)
     ax = fig.add_subplot(111)
-    ax = plot_over_group(df=df, plot_cores=plot_cores, fit=fit, ax=ax)
+    ax = plot_over_group(
+        df=df,
+        plot_cores=plot_cores,
+        fit=fit,
+        performance_column=performance_column,
+        ax=ax,
+    )
 
     # Update xticks
     selection = "ncores" if plot_cores else "nodes"
@@ -219,7 +253,7 @@ def do_plot(
     ax.set_xlim(min_x - xdiff, max_x + xdiff)
 
     # Update yticks
-    max_y = df["ns/day"].max()[0] or 50
+    max_y = df[performance_column].max() or 50
     yticks_steps = int(((max_y + 1) / 10))
     yticks = np.arange(0, max_y + (max_y * 0.25), yticks_steps)
     ax.set_yticks(yticks)
@@ -229,7 +263,7 @@ def do_plot(
     if watermark:
         ax.text(0.025, 0.925, "MDBenchmark", transform=ax.transAxes, alpha=0.3)
 
-    lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
+    legend = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
     plt.tight_layout()
 
     if output_name is None and len(csv) == 1:
@@ -239,14 +273,12 @@ def do_plot(
         output_name = generate_output_name(output_format)
     elif not output_name.endswith(".{}".format(output_format)):
         output_name = "{}.{}".format(output_name, output_format)
-    # tight alone does not consider the legend if it is outside the plot.
-    # therefore i add it manually as extra artist. This way we don't get problems
-    # with the variability of individual lines which are to be plotted
+
     fig.savefig(
         output_name,
         type=output_format,
-        bbox_extra_artists=(lgd,),
+        bbox_extra_artists=(legend,),
         bbox_inches="tight",
         dpi=dpi,
     )
-    console.info("Your file was saved as '{}' in the working directory.", output_name)
+    console.info("The plot was saved as '{}'.", output_name)
