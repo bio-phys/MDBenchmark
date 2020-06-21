@@ -614,7 +614,7 @@ enum = ["enum34"]
 [[package]]
 category = "dev"
 description = "Run a subprocess in a pseudo terminal"
-marker = "sys_platform != \"win32\""
+marker = "python_version >= \"3.4\" and sys_platform != \"win32\" or sys_platform != \"win32\""
 name = "ptyprocess"
 optional = false
 python-versions = "*"
@@ -1064,7 +1064,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 docs = ["Sphinx", "sphinx-autobuild", "sphinx-click"]
 
 [metadata]
-content-hash = "6cdb5c9c4c4ede866e32c23896c0917836f78471fff01300dfaaa651a02f272b"
+content-hash = "6bccfcd1870e8ce9c79d2bbe1c736e6501bd1bd1471ca518304b3f0c7db3f9c8"
 python-versions = "^3.6"
 
 [metadata.files]
