@@ -94,18 +94,71 @@ simply use the ``--host`` option::
 Running on CPUs or GPUs
 -----------------------
 
-Depending on your setup you might want to run your simulations only on GPUs 
-or CPUs. You can do so with the ``--cpu/--no-cpu`` and ``--gpu/--no-gpu`` flags, ``-c/-nc` and ``-g/-ng` respectively.
-If neither of both options is given, benchmarks will be generated for CPUs only.
-The default template for the MPCDF cluster ``draco`` showcases the ability to
-run benchmarks on GPUs::
+Depending on your setup you might want to run your simulations only on GPUs or
+CPUs. You can do so with the ``--cpu/--no-cpu`` and ``--gpu/--no-gpu`` flags,
+``-c/-nc` and ``-g/-ng`` respectively. If neither of both options is given,
+benchmarks will be generated for CPUs only. The default template for the MPCDF
+cluster ``draco`` showcases the ability to run benchmarks on GPUs::
 
   mdbenchmark generate --gpu
 
 This generates benchmarks for both GPU and CPU partitions. If you only want to run on
 GPUs this is easily achieved with::
 
-   mdbenchmark generate --gpu --no-cpu
+  mdbenchmark generate --gpu --no-cpu
+
+
+Using a different number of ranks or threads
+--------------------------------------------
+
+The correct choice on the number of MPI ranks and OpenMP threads and
+hyperthreading depends on your available hardware and software resources, your
+simulation system and used MD engine. MDBenchmark can help you scan different
+numbers of ranks and threads.
+
+To use this feature, you first need to know the number of physical cores on your
+compute nodes. MDBenchmark will try to guess the number of physical cores. The
+guess is only correct if the machine from which you submit the jobs, i.e., a
+login node on a supercomputer, has the same number of cores as the actual
+compute nodes. As an example, the MPCDF ``cobra`` supercomputer does not have
+the same number of physical cores on the login and compute nodes.
+
+You can override the number of physical cores with the ``--physical-cores``
+options. In addition, Intel CPUs are able run two calculations on the same core
+at the same time. This feature is called "hyperthreading". If your CPU supports
+hyperthreading, then it also has logical cores, which is twice the number of
+physical cores. Assuming the CPUs of your compute node have 40 physical cores
+and supports hyperthreading, you need to specify the following settings::
+
+  mdbenchmark generate --physical-cores 40 --logical-cores 80
+
+The above example would generate benchmarks without hyperthreading. To enable
+hyperthreading you need to specify the ``--hyperthreading`` option::
+
+  mdbenchmark generate --hyperthreading
+
+Now that you have defined the number of available cores and whether you want to
+toggle hyperthreading, you can define the number of MPI ranks that MDBenchmark
+should use for the job::
+
+  mdbenchmark generate --ranks 2 --ranks 10 --ranks 40
+
+The above command will generate jobs using 2, 10 and 40 MPI ranks. MDBenchmark
+will calculate the number of OpenMP threads by itself. As a general rule:
+`number_of_cores = number_of_ranks * number_of_threads`. If your CPU does not
+support hyperthreading, then the number of cores equals the number of physical
+cores. If it does support hyperthreading, then it equals the number of logical
+cores.
+
+Combining all options you can run benchmarks on 1-10 with and without GPUs using
+either 4, 8 or 20 MPI ranks with hyperthreading with the following command::
+
+  mdbenchmark generate --max-nodes 10 --cpu --gpu --ranks 4 --ranks 8 --ranks 20 --physical-cores 40 --logical-cores 80 --hyperthreading
+
+In the above case, MDBenchmark will generate jobs with 4 MPI ranks/20 OpenMP
+threads; 8 MPI ranks/10 OpenMP threads and 20 MPI ranks/4 OpenMP threads to
+fulfill the constarint from above. A total of 60 benchmarks will be generated
+(``10 (nodes) * 2 (gpu/cpu) * 3 (ranks)``).
 
 
 Limiting the run time of benchmarks
