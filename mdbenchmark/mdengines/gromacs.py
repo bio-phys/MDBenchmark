@@ -26,7 +26,7 @@ NAME = "gromacs"
 
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
-    sim = kwargs["sim"]
+    benchmark = kwargs["benchmark"]
 
     full_filename = name + ".tpr"
     if name.endswith(".tpr"):
@@ -35,7 +35,7 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
 
     filepath = os.path.join(relative_path, full_filename)
 
-    copyfile(filepath, sim[full_filename].relpath)
+    copyfile(filepath, benchmark[full_filename].relpath)
 
     return name
 

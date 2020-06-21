@@ -20,14 +20,20 @@
 import os.path
 
 import click
-import datreant as dtr
 import pandas as pd
 
 from mdbenchmark import console, mdengines, utils
 from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
 from mdbenchmark.mdengines.utils import write_benchmark
 from mdbenchmark.models import Processor
-from mdbenchmark.utils import PrintDataFrame, consolidate_dataframe
+from mdbenchmark.utils import (
+    consolidate_dataframe,
+    construct_generate_data,
+    map_columns,
+    print_dataframe,
+    validate_required_files,
+)
+from mdbenchmark.versions import Version3Categories
 
 NAMD_WARNING = (
     "NAMD support is experimental. "
@@ -55,6 +61,10 @@ def do_generate(
     enable_hyperthreading,
 ):
     """Generate a bunch of benchmarks."""
+
+    # Instantiate the version we are going to use
+    benchmark_version = Version3Categories()
+
     # Validate the CPU and GPU flags
     validate_cpu_gpu_flags(cpu, gpu)
 
@@ -77,6 +87,10 @@ def do_generate(
     else:
         processor = Processor()
 
+    # Hyperthreading check
+    if enable_hyperthreading and not processor.supports_hyperthreading:
+        console.error("The processor of this machine does not support hyperthreading.")
+
     if not number_of_ranks:
         number_of_ranks = (processor.physical_cores,)
 
@@ -88,118 +102,90 @@ def do_generate(
     if any(["namd" in m for m in module]):
         console.warn(NAMD_WARNING, "--gpu")
 
-    module = mdengines.normalize_modules(module, skip_validation)
-
-    # If several modules were given and we only cannot find one of them, we
-    # continue.
-    if not module:
+    # Stop if we cannot find any modules. If the user specified multiple
+    # modules, we will continue with only the valid ones.
+    modules = mdengines.normalize_modules(module, skip_validation)
+    if not modules:
         console.error("No requested modules available!")
 
-    df_overview = pd.DataFrame(
-        columns=[
-            "name",
-            "job_name",
-            "base_directory",
-            "template",
-            "engine",
-            "module",
-            "nodes",
-            "time [min]",
-            "gpu",
-            "host",
-            "number_of_ranks",
-            "number_of_threads",
-            "hyperthreading",
-        ]
+    # Check if all needed files exist. Throw an error if they do not.
+    validate_required_files(name=name, modules=modules)
+
+    # Validate that we can use the number of ranks and threads.
+    # We can continue, if no ValueError is thrown
+    for ranks in number_of_ranks:
+        try:
+            processor.get_ranks_and_threads(
+                ranks, with_hyperthreading=enable_hyperthreading
+            )
+        except ValueError as e:
+            console.error(e)
+
+    # Create all benchmark combinations and put them into a DataFrame
+    data = construct_generate_data(
+        name,
+        job_name,
+        modules,
+        host,
+        template,
+        cpu,
+        gpu,
+        time,
+        min_nodes,
+        max_nodes,
+        processor,
+        number_of_ranks,
+        enable_hyperthreading,
+    )
+    df = pd.DataFrame(data, columns=benchmark_version.generate_categories)
+
+    # Consolidate the data by grouping on the number of nodes and print to the
+    # user as an overview.
+    consolidated_df = consolidate_dataframe(
+        df, columns=benchmark_version.consolidate_categories
+    )
+    print_dataframe(
+        consolidated_df[benchmark_version.generate_printing],
+        columns=map_columns(
+            map_dict=benchmark_version.category_mapping,
+            columns=benchmark_version.generate_printing,
+        ),
     )
 
-    i = 1
-    for m in module:
-        # Here we detect the MD engine (supported: GROMACS and NAMD).
-        engine = mdengines.detect_md_engine(m)
-
-        # Check if all needed files exist. Throw an error if they do not.
-        engine.check_input_file_exists(name)
-
-        gpu_cpu = {"cpu": cpu, "gpu": gpu}
-        for pu, state in sorted(gpu_cpu.items()):
-            if not state:
-                continue
-
-            directory = "{}_{}".format(host, m)
-            gpu = False
-            gpu_string = ""
-            if pu == "gpu":
-                gpu = True
-                directory += "_gpu"
-                gpu_string = " with GPUs"
-
-            console.info("Creating benchmark system for {}.", m + gpu_string)
-
-            base_directory = dtr.Tree(directory)
-
-            for nodes in range(min_nodes, max_nodes + 1):
-                for ranks in number_of_ranks:
-                    try:
-                        ranks, threads = processor.get_ranks_and_threads(
-                            ranks, with_hyperthreading=enable_hyperthreading
-                        )
-                    except ValueError as e:
-                        console.error(e)
-
-                    if enable_hyperthreading and not processor.supports_hyperthreading:
-                        console.error(
-                            "The processor of this machine does not support hyperthreading."
-                        )
-
-                    df_overview.loc[i] = [
-                        name,
-                        job_name,
-                        base_directory,
-                        template,
-                        engine,
-                        m,
-                        nodes,
-                        time,
-                        gpu,
-                        host,
-                        ranks,
-                        threads,
-                        enable_hyperthreading,
-                    ]
-                    i += 1
-
-    console.info("{}", "Benchmark Summary:")
-
-    df_short = consolidate_dataframe(df_overview, has_performance=False)
-    PrintDataFrame(df_short)
-
+    # Save the number of benchmarks for later printing
+    number_of_benchmarks = df.shape[0]
+    # Ask the user for confirmation to generate files.
+    # If the user defined `--yes`, we will skip the confirmation immediately.
     if yes:
-        console.info("Generating the above benchmarks.")
-    elif not click.confirm("The above benchmarks will be generated. Continue?"):
-        console.error("Exiting. No benchmarks generated.")
-
-    for _, row in df_overview.iterrows():
-        relative_path, file_basename = os.path.split(row["name"])
-        write_benchmark(
-            engine=row["engine"],
-            base_directory=row["base_directory"],
-            template=row["template"],
-            nodes=row["nodes"],
-            gpu=row["gpu"],
-            module=row["module"],
-            name=file_basename,
-            relative_path=relative_path,
-            job_name=row["job_name"],
-            host=row["host"],
-            time=row["time [min]"],
-            number_of_ranks=row["number_of_ranks"],
-            number_of_threads=row["number_of_threads"],
-            hyperthreading=row["hyperthreading"],
+        console.info(
+            "We will generate {} "
+            + "{benchmark}.".format(
+                benchmark="benchmark" if number_of_benchmarks == 1 else "benchmarks"
+            ),
+            number_of_benchmarks,
         )
+    elif not click.confirm(
+        "We will generate {} benchmarks. Continue?".format(number_of_benchmarks)
+    ):
+        console.error("Exiting. No benchmarks were generated.")
 
-    # Provide some output for the user
+    # Generate the benchmarks
+    with click.progressbar(
+        df.iterrows(),
+        length=number_of_benchmarks,
+        show_pos=True,
+        label="Generating benchmarks",
+    ) as bar:
+        for _, row in bar:
+            relative_path, file_basename = os.path.split(row["name"])
+            mappings = benchmark_version.generate_mapping
+            kwargs = {"name": file_basename, "relative_path": relative_path}
+            for key, value in mappings.items():
+                kwargs[value] = row[key]
+
+            write_benchmark(**kwargs)
+
+    # Finish up by telling the user how to submit the benchmarks
     console.info(
-        "Finished generating all benchmarks.\n" "You can now submit the jobs with {}.",
-        "mdbenchmark submit",
+        "Finished! You can submit the jobs with {}.", "mdbenchmark submit",
     )

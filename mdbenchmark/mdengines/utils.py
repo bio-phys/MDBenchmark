@@ -165,21 +165,28 @@ def write_benchmark(
     number_of_threads,
     hyperthreading,
 ):
-    """Generate a benchmark folder with the respective Sim object."""
+    """Generate a benchmark folder with the respective Benchmark object."""
     # Create the `dtr.Treant` object
     hyperthreading_string = "wht" if hyperthreading else "woht"
     directory = base_directory[
-        f"n{nodes:03d}_r{number_of_ranks:02d}_t{number_of_threads:02d}_{hyperthreading_string}/"
+        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}/".format(
+            nodes=nodes,
+            ranks=number_of_ranks,
+            threads=number_of_threads,
+            ht=hyperthreading_string,
+        )
     ]
-    sim = dtr.Treant(directory)
+    benchmark = dtr.Treant(directory)
 
     # Do MD engine specific things. Here we also format the name.
-    name = engine.prepare_benchmark(name=name, relative_path=relative_path, sim=sim)
+    name = engine.prepare_benchmark(
+        name=name, relative_path=relative_path, benchmark=benchmark
+    )
     if job_name is None:
         job_name = name
 
-    # Add categories to the `Sim` object
-    sim.categories = {
+    # Add categories as metadata
+    benchmark.categories = {
         "module": module,
         "gpu": gpu,
         "nodes": nodes,
@@ -213,5 +220,5 @@ def write_benchmark(
     )
 
     # Write the actual job script that is going to be submitted to the cluster
-    with open(sim["bench.job"].relpath, "w") as fh:
+    with open(benchmark["bench.job"].relpath, "w") as fh:
         fh.write(script)

@@ -23,12 +23,14 @@ import os
 import socket
 import sys
 
+import click
+import datreant as dtr
 import pandas as pd
 import xdg
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from tabulate import tabulate
 
-from mdbenchmark import console
+from mdbenchmark import console, mdengines
 from mdbenchmark.ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 from mdbenchmark.mdengines import detect_md_engine, utils
 
@@ -106,6 +108,83 @@ def guess_ncores():
     return total_cores
 
 
+def validate_required_files(name, modules):
+    for module in modules:
+        # Here we detect the MD engine (supported: GROMACS and NAMD).
+        engine = mdengines.detect_md_engine(module)
+        engine.check_input_file_exists(name)
+
+
+def construct_directory_name(template, module, gpu):
+    return "{template}_{module}{gpu}".format(
+        template=template, module=module, gpu="_gpu" if gpu else ""
+    )
+
+
+def construct_generate_data(
+    name,
+    job_name,
+    modules,
+    host,
+    template,
+    cpu,
+    gpu,
+    time,
+    min_nodes,
+    max_nodes,
+    processor,
+    number_of_ranks,
+    enable_hyperthreading,
+):
+    data = []
+    for module in modules:
+        # Here we detect the MD engine (supported: GROMACS and NAMD).
+        engine = mdengines.detect_md_engine(module)
+
+        # Iterate over CPUs or GPUs
+        gpu_cpu = {"cpu": cpu, "gpu": gpu}
+        for key, value in sorted(gpu_cpu.items()):
+            # Skip the current processing unit
+            if not value:
+                continue
+
+            # Generate directory name and string representation for the user.
+            # Also set the `gpu` variable for later use.
+            gpu = True if key == "gpu" else False
+            directory = construct_directory_name(template.name, module, gpu)
+
+            # Set up the path to the new directory as `datreant.Tree`
+            base_directory = dtr.Tree(directory)
+
+            # Do the main iteration over nodes and ranks
+            for nodes in range(min_nodes, max_nodes + 1):
+                for _ranks in number_of_ranks:
+                    ranks, threads = processor.get_ranks_and_threads(
+                        _ranks, with_hyperthreading=enable_hyperthreading
+                    )
+
+                    # Append the data to our list
+                    data.append(
+                        [
+                            name,
+                            job_name,
+                            base_directory,
+                            host,
+                            engine,
+                            module,
+                            nodes,
+                            time,
+                            gpu,
+                            template,
+                            ranks,
+                            threads,
+                            enable_hyperthreading,
+                        ]
+                    )
+
+    return data
+
+
 def generate_output_name(extension):
     """ generate a unique filename based on the date and time for a given extension.
     """
@@ -169,42 +248,25 @@ def DataFrameFromBundle(bundle):
     #     "hyperthreading",
     # ]
 
-    return df
+def map_columns(map_dict, columns):
+    return [map_dict[key] for key in columns]
 
 
-def consolidate_dataframe(df, has_performance=True):
+def consolidate_dataframe(df, columns):
     """Return a shortened version of a DataFrame, grouping the nodes."""
-    columns_to_groupby = ["module", "host", "gpu", "number_of_ranks", "hyperthreading"]
     new_columns = df.columns
-    agg = {
-        column: "first" for column in new_columns if column not in columns_to_groupby
-    }
+    agg = {column: "first" for column in new_columns if column not in columns}
     agg["nodes"] = format_interval_groups
-    new_df = df.groupby(columns_to_groupby, as_index=False).agg(agg)
+    new_df = df.groupby(columns, as_index=False).agg(agg)
     return new_df[new_columns]
 
 
-def PrintDataFrame(df, printdf=True, columns=None):
+def print_dataframe(df, columns):
     """Print a nicely formatted shortened DataFrame."""
-    if columns is not None:
-        df.columns = columns
-    # df.columns = [
-    #     "module",
-    #     "nodes",
-    #     "ns/day",
-    #     "time [min]",
-    #     "gpu",
-    #     "host",
-    #     "ncores",
-    #     "ranks",
-    #     "threads",
-    #     "hyperthreading",
-    # ]
-    tab = tabulate(df, headers="keys", tablefmt="psql", showindex=False)
-    if printdf is True:
-        print(tab)
-    else:
-        return tab
+    table = df.copy()
+    table.columns = columns
+    table = tabulate(table, headers="keys", tablefmt="psql", showindex=False)
+    console.info(table, newlines=True)
 
 
 def group_consecutives(values, step=1):
