@@ -193,7 +193,7 @@ def generate_output_name(extension):
     return out
 
 
-def parse_bundle(bundle, columns, sort_values_by):
+def parse_bundle(bundle, columns, sort_values_by, discard_performance=False):
     """Generates a DataFrame from a datreant.Bundle."""
     data = []
 
@@ -203,7 +203,17 @@ def parse_bundle(bundle, columns, sort_values_by):
         for treant in bar:
             module = treant.categories["module"]
             engine = detect_md_engine(module)
-            data.append(utils.analyze_benchmark(engine=engine, benchmark=treant))
+            row = utils.analyze_benchmark(engine=engine, benchmark=treant)
+
+            version = 2
+            if "version" in treant.categories:
+                version = 3
+            row += [version]
+
+            if discard_performance:
+                row = row[:2] + row[3:]
+
+            data.append(row)
 
     df = pd.DataFrame(data, columns=columns)
 

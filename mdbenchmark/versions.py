@@ -48,6 +48,29 @@ class Version2Categories(VersionCategories):
         "hyperthreading",
     ]
     analyze_sort = ["module", "gpu", "nodes"]
+    generate_printing = [
+        "name",
+        "module",
+        "nodes",
+        "time",
+        "gpu",
+        "host",
+        "number_of_ranks",
+        "number_of_threads",
+        "hyperthreading",
+    ]
+    submit_categories = [
+        "module",
+        "nodes",
+        "time",
+        "gpu",
+        "host",
+        "ncores",
+        "number_of_ranks",
+        "number_of_threads",
+        "hyperthreading",
+        "version",
+    ]
     category_mapping = {
         "name": "Name",
         "engine": "Engine",
@@ -140,6 +163,18 @@ class Version3Categories(VersionCategories):
         "hyperthreading",
     ]
     analyze_sort = ["module", "number_of_ranks", "hyperthreading", "use_gpu", "nodes"]
+    submit_categories = [
+        "module",
+        "nodes",
+        "time",
+        "use_gpu",
+        "host",
+        "ncores",
+        "number_of_ranks",
+        "number_of_threads",
+        "hyperthreading",
+        "version",
+    ]
     category_mapping = {
         "name": "Name",
         "engine": "Engine",
