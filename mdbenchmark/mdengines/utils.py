@@ -126,7 +126,7 @@ def analyze_benchmark(engine, benchmark):
         threads = benchmark.categories["threads"]
         hyperthreading = benchmark.categories["hyperthreading"]
 
-    return (
+    return [
         module,
         benchmark.categories["nodes"],
         performance,
@@ -137,7 +137,7 @@ def analyze_benchmark(engine, benchmark):
         ranks,
         threads,
         hyperthreading,
-    )
+    ]
 
 
 def cleanup_before_restart(engine, sim):

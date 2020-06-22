@@ -28,7 +28,13 @@ import numpy as np
 from mdbenchmark import console
 from mdbenchmark.mdengines import detect_md_engine
 from mdbenchmark.mdengines.utils import cleanup_before_restart
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, consolidate_dataframe
+from mdbenchmark.utils import (
+    consolidate_dataframe,
+    map_columns,
+    parse_bundle,
+    print_dataframe,
+)
+from mdbenchmark.versions import VersionFactory
 
 PATHS = os.environ["PATH"].split(":")
 BATCH_SYSTEMS = {"slurm": "sbatch", "sge": "qsub", "Loadleveler": "llsubmit"}
@@ -71,14 +77,35 @@ def do_submit(directory, force_restart, yes):
     if not force_restart:
         bundles_to_start = bundles_not_yet_started
 
-    df = DataFrameFromBundle(bundles_to_start)
+    benchmark_version = VersionFactory(
+        categories=bundles_to_start.categories
+    ).version_class
+
+    df = parse_bundle(
+        bundles_to_start,
+        columns=benchmark_version.submit_categories,
+        sort_values_by=benchmark_version.analyze_sort,
+        discard_performance=True,
+    )
 
     # Reformat NaN values nicely into question marks.
     df_to_print = df.replace(np.nan, "?")
-    df_to_print = df.drop(columns=["ns/day", "ncores"])
-    console.info("{}", "Benchmark Summary:")
-    df_short = consolidate_dataframe(df_to_print)
-    PrintDataFrame(df_short)
+
+    columns_to_drop = ["ncores", "version"]
+    df_to_print = df.drop(columns=columns_to_drop)
+
+    # Consolidate the data by grouping on the number of nodes and print to the
+    # user as an overview.
+    consolidated_df = consolidate_dataframe(
+        df_to_print, columns=benchmark_version.consolidate_categories
+    )
+    print_dataframe(
+        consolidated_df,
+        columns=map_columns(
+            map_dict=benchmark_version.category_mapping,
+            columns=benchmark_version.generate_printing[1:],
+        ),
+    )
 
     # Ask the user to confirm whether they want to submit the benchmarks
     if yes:
