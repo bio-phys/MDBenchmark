@@ -116,16 +116,19 @@ hyperthreading depends on your available hardware and software resources, your
 simulation system and used MD engine. MDBenchmark can help you scan different
 numbers of ranks and threads.
 
+.. note::
+
+  The following was only tested with GROMACS.
+
 To use this feature, you first need to know the number of physical cores on your
 compute nodes. MDBenchmark will try to guess the number of physical cores. The
 guess is only correct if the machine from which you submit the jobs, i.e., a
 login node on a supercomputer, has the same number of cores as the actual
-compute nodes. As an example, the MPCDF ``cobra`` supercomputer does not have
-the same number of physical cores on the login and compute nodes.
+compute nodes. You can override the number of physical cores with the
+``--physical-cores`` options.
 
-You can override the number of physical cores with the ``--physical-cores``
-options. In addition, Intel CPUs are able run two calculations on the same core
-at the same time. This feature is called "hyperthreading". If your CPU supports
+In addition, Intel CPUs are able run two calculations on the same core at the
+same time. This feature is called "hyperthreading". If your CPU supports
 hyperthreading, then it also has logical cores, which is twice the number of
 physical cores. Assuming the CPUs of your compute node have 40 physical cores
 and supports hyperthreading, you need to specify the following settings::
@@ -157,7 +160,7 @@ either 4, 8 or 20 MPI ranks with hyperthreading with the following command::
 
 In the above case, MDBenchmark will generate jobs with 4 MPI ranks/20 OpenMP
 threads; 8 MPI ranks/10 OpenMP threads and 20 MPI ranks/4 OpenMP threads to
-fulfill the constarint from above. A total of 60 benchmarks will be generated
+fulfill the constraint from above. A total of 60 benchmarks will be generated
 (``10 (nodes) * 2 (gpu/cpu) * 3 (ranks)``).
 
 
