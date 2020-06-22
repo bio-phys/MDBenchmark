@@ -1,6 +1,21 @@
 Installation
 ============
 
+.. note::
+   To install the 3.0-alpha version of MDBenchmark, you need to clone the GitHub
+   repository and install manually with ``pip`` or ``poetry``::
+
+      git clone --single-branch --branch version-3 https://github.com/bio-phys/MDBenchmark
+      cd MDBenchmark
+
+      # Install via pip
+      pip install .
+
+      # Install via poetry
+      poetry install
+
+If you are familiar wil
+
 Why isolated environments matter
 --------------------------------
 
@@ -29,8 +44,8 @@ create an environment called ``benchmark`` and install ``mdbenchmark`` inside.
 
 .. code::
 
-    conda create -n benchmark
-    conda install -n benchmark -c conda-forge mdbenchmark
+   conda create -n benchmark
+   conda install -n benchmark -c conda-forge mdbenchmark
 
 Before every usage of ``mdbenchmark``, you need to first activate the conda
 environment via ``source activate benchmark``. After doing this once, you can
@@ -61,9 +76,9 @@ After activating the environment, you should be able to install the package via
 
 .. note::
 
-  The ``--user`` option leads to the installation of the package in your home
-  directory ``$HOME``. If you are not using the option, you may get errors due
-  to missing write permissions.
+   The ``--user`` option leads to the installation of the package in your home
+   directory ``$HOME``. If you are not using the option, you may get errors due
+   to missing write permissions.
 
 .. code::
 
@@ -97,9 +112,9 @@ the folder you installed it in.
 You can also activate the virtual environment once and then visit different
 directories afterwards::
 
-  pipenv shell
-  cd ..
-  mdbenchmark
+   pipenv shell
+   cd ..
+   mdbenchmark
 
 .. _virtual environment: https://docs.python.org/3/tutorial/venv.html
 .. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html
