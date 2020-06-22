@@ -14,8 +14,6 @@ Installation
       # Install via poetry
       poetry install
 
-If you are familiar wil
-
 Why isolated environments matter
 --------------------------------
 
