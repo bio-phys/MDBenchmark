@@ -58,16 +58,17 @@ Install
 -------
 
 .. note::
-    To install the 3.0-alpha version of MDBenchmark, you need to clone the GitHub repository and install manually with ``pip`` or ``poetry``::
+  To install the 3.0-alpha version of MDBenchmark, you need to clone the GitHub
+  repository and install manually with ``pip`` or ``poetry``::
 
-      git clone --single-branch --branch version-3 https://github.com/bio-phys/MDBenchmark
-      cd MDBenchmark
+    git clone --single-branch --branch version-3 https://github.com/bio-phys/MDBenchmark
+    cd MDBenchmark
 
-      # Install via pip
-      pip install .
+    # Install via pip
+    pip install .
 
-      # Install via poetry
-      poetry install
+    # Install via poetry
+    poetry install
 
 If you are familiar with the usual way of installing python packages, just use
 ``pip``::
