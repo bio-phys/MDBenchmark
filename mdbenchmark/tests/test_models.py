@@ -57,8 +57,9 @@ def test_supports_hyperthreading(physical_cores, logical_cores, expected_result)
         [40, 80, 40, True, (40, 2)],
         [40, 80, 40, False, (40, 1)],
         [40, 80, 20, True, (20, 4)],
-        [40, 40, 20, False, (20, 1)],
-        [40, 40, 20, True, (20, 2)],
+        [40, 40, 20, False, (20, 2)],
+        [40, 40, 4, False, (4, 10)],
+        [40, 40, 2, False, (2, 20)],
     ],
 )
 def test_ranks_and_threads(

@@ -66,7 +66,11 @@ class Processor:
 
         number_of_threads = self._get_number_of_available_cores // number_of_ranks
 
-        if not with_hyperthreading and number_of_threads != 1:
+        if (
+            not with_hyperthreading
+            and number_of_threads != 1
+            and not self.physical_cores == self.logical_cores
+        ):
             number_of_threads //= 2
 
         return (number_of_ranks, number_of_threads)
