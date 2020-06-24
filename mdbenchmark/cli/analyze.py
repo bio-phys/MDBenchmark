@@ -35,6 +35,10 @@ def do_analyze(directory, save_csv):
         bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
     )
 
+    # Remove the versions column from the DataFrame
+    columns_to_drop = ["version"]
+    df = df.drop(columns=columns_to_drop)
+
     if save_csv is not None:
         if not save_csv.endswith(".csv"):
             save_csv = "{}.csv".format(save_csv)
@@ -65,5 +69,5 @@ def do_analyze(directory, save_csv):
 
     # Print the data to the console
     print_dataframe(
-        df, columns=map_columns(version.category_mapping, version.analyze_printing)
+        df, columns=map_columns(version.category_mapping, version.analyze_printing),
     )

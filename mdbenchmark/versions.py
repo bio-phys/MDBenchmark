@@ -34,6 +34,7 @@ class Version2Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "version",
     ]
     analyze_printing = [
         "module",
@@ -149,6 +150,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "version",
     ]
     analyze_printing = [
         "module",
