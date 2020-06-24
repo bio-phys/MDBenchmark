@@ -27,7 +27,7 @@ def test_aliasedgroup_unknown_command(cli_runner):
     assert result.exit_code == 2
     output = (
         "Usage: cli [OPTIONS] COMMAND [ARGS]...\n"
-        'Try "cli --help" for help.\n\n'
+        "Try 'cli --help' for help.\n\n"
         "Error: Sub command unknown: unknown_command\n"
     )
     assert result.output == output
