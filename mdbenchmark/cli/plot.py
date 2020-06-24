@@ -108,6 +108,10 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
     ).version_class
 
     for key, group in df.groupby(benchmark_version.consolidate_categories):
+        # Do not try to plot groups without performance values
+        if group[performance_column].isnull().all():
+            continue
+
         if benchmark_version.version == "3":
             module, template, gpus, ranks, hyperthreading = key
             threads = group.number_of_threads.iloc[0]
@@ -228,6 +232,10 @@ def do_plot(
 
     df = filter_dataframe_for_plotting(df, template, module, gpu, cpu)
 
+    # Exit if there is no performance data
+    if df[performance_column].isnull().all():
+        console.error("There is no performance data to plot.")
+
     rcParams["font.size"] = font_size
     fig = Figure()
     FigureCanvas(fig)
@@ -254,7 +262,9 @@ def do_plot(
 
     # Update yticks
     max_y = df[performance_column].max() or 50
-    yticks_steps = int(((max_y + 1) / 10))
+    yticks_steps = int(((max_y + 1) // 10))
+    if yticks_steps == 0:
+        yticks_steps = 1
     yticks = np.arange(0, max_y + (max_y * 0.25), yticks_steps)
     ax.set_yticks(yticks)
     ax.set_ylim(0, max_y + (max_y * 0.25))
