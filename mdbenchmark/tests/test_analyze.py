@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from mdbenchmark import cli
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import parse_bundle, print_dataframe
 
 
 def test_analyze_gromacs(cli_runner, tmpdir, data):
@@ -34,7 +34,7 @@ def test_analyze_gromacs(cli_runner, tmpdir, data):
         )
 
         df = pd.read_csv(data["analyze-files-gromacs.csv"])
-        test_output = PrintDataFrame(df, False) + "\n"
+        test_output = print_dataframe(df, False) + "\n"
         assert result.exit_code == 0
         assert result.output == test_output
 
@@ -46,8 +46,8 @@ def test_analyze_namd(cli_runner, tmpdir, data):
         )
 
         bundle = dtr.discover(data["analyze-files-namd"])
-        df = DataFrameFromBundle(bundle)
-        test_output = PrintDataFrame(df, False) + "\n"
+        df = parse_bundle(bundle)
+        test_output = print_dataframe(df, False) + "\n"
 
         assert result.exit_code == 0
         assert result.output == test_output
@@ -64,9 +64,9 @@ show a question mark instead of a float in the corresponding cell.
         )
 
         bundle = dtr.discover(data["analyze-files-w-errors"])
-        df = DataFrameFromBundle(bundle)
+        df = parse_bundle(bundle)
         df = df.replace(np.nan, "?")
-        test_output = PrintDataFrame(df, False) + "\n"
+        test_output = print_dataframe(df, False) + "\n"
 
         assert result.exit_code == 0
         assert result.output == test_output

@@ -129,13 +129,13 @@ def test_guess_ncores(capsys, monkeypatch):
     assert out == output
 
 
-def test_DataFrameFromBundle(data):
-    """Test DataFrameFromBundle function.
+def test_parse_bundle(data):
+    """Test parse_bundle function.
        This is used in other tests, therefore everything is hard coded
        If changes are made to the layout type this should be changed here.
     """
     bundle = dtr.discover(data["analyze-files-gromacs"])
-    test_output = utils.DataFrameFromBundle(bundle)
+    test_output = utils.parse_bundle(bundle)
 
     expected_output = pd.read_csv(data["analyze-files-gromacs.csv"])
 
@@ -150,7 +150,7 @@ def test_ConsolidateDataFrame(data):
         If changes are made to the layout type this should be changed here.
     """
     bundle = dtr.discover(data["analyze-files-gromacs"])
-    df = utils.DataFrameFromBundle(bundle)
+    df = utils.parse_bundle(bundle)
     test_output = utils.ConsolidateDataFrame(df)
 
     expected_output = pd.read_csv(
@@ -173,13 +173,13 @@ def test_group_consecutives():
     assert test_output == expected_output
 
 
-def test_PrintDataFrame(data):
+def test_print_dataframe(data):
     """Tests the group_consecutives function.
        This is used in other tests, therefore everyting is hard coded.
         If changes are made to the layout type this should be changed here.
     """
     df_test = pd.read_csv(data["analyze-files-gromacs.csv"])
-    test_output = utils.PrintDataFrame(df_test, False)
+    test_output = utils.print_dataframe(df_test, False)
 
     expected_output = tabulate.tabulate(
         df_test, headers="keys", tablefmt="psql", showindex=False
