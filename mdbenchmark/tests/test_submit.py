@@ -24,7 +24,7 @@ import pytest
 from mdbenchmark import cli
 from mdbenchmark.cli.submit import get_batch_command
 from mdbenchmark.mdengines import gromacs
-from mdbenchmark.utils import PrintDataFrame
+from mdbenchmark.utils import print_dataframe
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -67,7 +67,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
             ["submit", "--directory={}".format(data["analyze-files-gromacs"]), "--yes"],
         )
         df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
+        s = print_dataframe(df, False)
 
         output = "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
 
@@ -121,7 +121,7 @@ def test_submit_test_prompt_no(cli_runner, tmpdir, data):
         )
 
         df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
+        s = print_dataframe(df, False)
 
         output = (
             "Benchmark Summary:\n"
@@ -161,7 +161,7 @@ def test_submit_test_prompt_yes(cli_runner, tmpdir, data, monkeypatch):
         )
 
         df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
+        s = print_dataframe(df, False)
 
         output = (
             "Benchmark Summary:\n"

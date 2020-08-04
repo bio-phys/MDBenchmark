@@ -34,7 +34,7 @@ from mdbenchmark.cli.validators import (
     validate_number_of_nodes,
 )
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, consolidate_dataframe
+from mdbenchmark.utils import parse_bundle, print_dataframe, consolidate_dataframe
 
 DIR_STRUCTURE = {
     "applications": {
@@ -79,11 +79,11 @@ def generate_output_table():
     def _output(short=False):
         title = "Benchmark Summary:\n"
         bundle = dtr.discover()
-        df = DataFrameFromBundle(bundle)
+        df = parse_bundle(bundle)
         if short:
             df = consolidate_dataframe(df)
 
-        return title + PrintDataFrame(df, False) + "\n"
+        return title + print_dataframe(df, False) + "\n"
 
     return _output
 
@@ -363,9 +363,9 @@ def test_generate_odd_number_of_nodes(
         output1 = "Creating benchmark system for {} with GPUs.\n".format(module)
 
         bundle = dtr.discover()
-        df = DataFrameFromBundle(bundle)
+        df = parse_bundle(bundle)
         df = consolidate_dataframe(df)
-        test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+        test_output = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
 
         output2 = (
             "Generating the above benchmarks.\n"
@@ -500,9 +500,9 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
             "Creating benchmark system for namd/123.\n"
         )
         bundle = dtr.discover()
-        df = DataFrameFromBundle(bundle)
+        df = parse_bundle(bundle)
         df = consolidate_dataframe(df)
-        test_output = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+        test_output = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
 
         output2 = (
             "Generating the above benchmarks.\n"
@@ -625,14 +625,14 @@ def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
             "Creating benchmark system for gromacs/2016 with GPUs.\n"
         )
         bundle = dtr.discover()
-        df = DataFrameFromBundle(bundle)
+        df = parse_bundle(bundle)
         df = consolidate_dataframe(df)
         output2 = (
             "The above benchmarks will be generated. Continue? [y/N]: y\n"
             "Finished generating all benchmarks.\n"
             "You can now submit the jobs with mdbenchmark submit.\n"
         )
-        mid = "Benchmark Summary:\n" + PrintDataFrame(df, False) + "\n"
+        mid = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
         output = output1 + mid + output2
         # Test that we get a warning, if no module name validation is performed.
 
