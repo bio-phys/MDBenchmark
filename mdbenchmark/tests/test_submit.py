@@ -24,7 +24,8 @@ import pytest
 from mdbenchmark import cli
 from mdbenchmark.cli.submit import get_batch_command
 from mdbenchmark.mdengines import gromacs
-from mdbenchmark.utils import print_dataframe
+from mdbenchmark.utils import map_columns, print_dataframe
+from mdbenchmark.versions import Version2Categories
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -110,6 +111,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
 
 def test_submit_test_prompt_no(cli_runner, tmpdir, data):
     """Test whether prompt answer no works."""
+    benchmark_version = Version2Categories()
     with tmpdir.as_cwd():
         result = cli_runner.invoke(
             cli,
@@ -120,18 +122,19 @@ def test_submit_test_prompt_no(cli_runner, tmpdir, data):
             input="n\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
-        s = print_dataframe(df, False)
-
-        output = (
-            "Benchmark Summary:\n"
-            + s
-            + "\nThe above benchmarks will be submitted. Continue? [y/N]: n\n"
-            + "ERROR Exiting. No benchmarks submitted.\n"
+        df = pd.read_csv(data["gromacs/test_prompt.csv"], index_col=0)
+        print_dataframe(
+            df,
+            columns=map_columns(
+                map_dict=benchmark_version.category_mapping,
+                columns=benchmark_version.generate_printing[1:],
+            ),
         )
 
         assert result.exit_code == 1
-        assert result.output == output
+        assert (
+            result.output.split("\n")[-2] == "ERROR Exiting. No benchmarks submitted."
+        )
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -160,7 +163,7 @@ def test_submit_test_prompt_yes(cli_runner, tmpdir, data, monkeypatch):
             input="y\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
+        df = pd.read_csv(data["gromacs/test_prompt.csv"], index_col=0)
         s = print_dataframe(df, False)
 
         output = (
