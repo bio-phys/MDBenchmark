@@ -34,7 +34,13 @@ from mdbenchmark.cli.validators import (
     validate_number_of_nodes,
 )
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
-from mdbenchmark.utils import parse_bundle, print_dataframe, consolidate_dataframe
+from mdbenchmark.utils import (
+    consolidate_dataframe,
+    map_columns,
+    parse_bundle,
+    print_dataframe,
+)
+from mdbenchmark.versions import Version2Categories
 
 DIR_STRUCTURE = {
     "applications": {
@@ -62,61 +68,11 @@ def ctx_mock():
     return MockCtx()
 
 
-@pytest.fixture
-def generate_output_create():
-    def _output(gpu=True, n_benchmarks=4, runtime=15):
-        gpu_string = "{}"
-        if gpu:
-            gpu_string = "{} with GPUs"
-
-        return "Creating benchmark system for {}.\n".format(gpu_string)
-
-    return _output
-
-
-@pytest.fixture
-def generate_output_table():
-    def _output(short=False):
-        title = "Benchmark Summary:\n"
-        bundle = dtr.discover()
-        df = parse_bundle(bundle)
-        if short:
-            df = consolidate_dataframe(df)
-
-        return title + print_dataframe(df, False) + "\n"
-
-    return _output
-
-
-@pytest.fixture
-def generate_output_finish():
-    return (
-        "Generating the above benchmarks.\n"
-        "Finished generating all benchmarks.\nYou can"
-        " now submit the jobs with mdbenchmark submit.\n"
-    )
-
-
-@pytest.fixture
-def generate_output(
-    generate_output_create, generate_output_table, generate_output_finish
-):
-    def _output(gpu=True, n_benchmarks=4, runtime=15):
-        create_string = generate_output_create(
-            gpu=gpu, n_benchmarks=n_benchmarks, runtime=runtime
-        )
-        table_string = generate_output_table(short=True)
-        finish_string = generate_output_finish
-        return create_string + table_string + finish_string
-
-    return _output
-
-
 @pytest.mark.parametrize(
     "module, extensions",
     [("gromacs/2016", ["tpr"]), ("namd/11", ["namd", "pdb", "psf"])],
 )
-def test_generate_simple_input(cli_runner, generate_output, module, extensions, tmpdir):
+def test_generate(cli_runner, module, extensions, tmpdir):
     """Test that we can generate benchmarks for all supported MD engines w/o module validation."""
     with tmpdir.as_cwd():
         for ext in extensions:
@@ -136,15 +92,31 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions, 
             ],
         )
 
-        output = generate_output().format(module)
-        output = (
-            "WARNING Cannot locate modules available on this host. "
-            "Not performing module name validation.\n" + output
+        expected_output = (
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+            "| Name    | Module       | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+            "|---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+            "| protein | gromacs/2016 | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
         )
+
+        if "namd" in module:
+            expected_output = (
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+                "| Name    | Module   | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+                "|---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+                "| protein | namd/11  | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
+            )
+
+        start_of_message = "WARNING Cannot locate modules available on this host. Not performing module name validation.\n\n"
+        end_of_message = (
+            "We will generate 4 benchmarks.\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
+        )
+        output = start_of_message + "".join(expected_output) + end_of_message
         if "namd" in module:
             output = NAMD_WARNING_FORMATTED + output
-
-        # Test that we get a warning, if no module name validation is performed.
 
         assert result.exit_code == 0
         assert result.output == output
@@ -154,14 +126,8 @@ def test_generate_simple_input(cli_runner, generate_output, module, extensions, 
     "module, extensions",
     [("gromacs/2016", ["tpr"]), ("namd/11", ["namd", "pdb", "psf"])],
 )
-def test_generate_simple_input_with_cpu_gpu(
-    cli_runner,
-    generate_output_create,
-    generate_output_finish,
-    generate_output_table,
-    module,
-    extensions,
-    tmpdir,
+def test_generate_with_cpu_gpu(
+    cli_runner, module, extensions, tmpdir,
 ):
     """Test that we can generate benchmarks for CPUs and GPUs at once."""
     with tmpdir.as_cwd():
@@ -181,18 +147,33 @@ def test_generate_simple_input_with_cpu_gpu(
             ],
         )
 
-        output = generate_output_create(gpu=False).format(module)
-        output = (
-            "WARNING Cannot locate modules available on this host. "
-            "Not performing module name validation.\n" + output
+        expected_output = (
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+            "| Name    | Module       | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+            "|---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+            "| protein | gromacs/2016 | 1-4     |           15 | False   | draco  |        40 |           1 | False             |\n"
+            "| protein | gromacs/2016 | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
         )
-        output += generate_output_create(gpu=True).format(module)
-        output += generate_output_table(True)
-        output += generate_output_finish
+
+        if "namd" in module:
+            expected_output = (
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+                "| Name    | Module   | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+                "|---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+                "| protein | namd/11  | 1-4     |           15 | False   | draco  |        40 |           1 | False             |\n"
+                "| protein | namd/11  | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
+            )
+
+        start_of_message = "WARNING Cannot locate modules available on this host. Not performing module name validation.\n\n"
+        end_of_message = (
+            "We will generate 8 benchmarks.\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
+        )
+        output = start_of_message + "".join(expected_output) + end_of_message
         if "namd" in module:
             output = NAMD_WARNING_FORMATTED + output
-
-        # Test that we get a warning, if no module name validation is performed.
 
         assert result.exit_code == 0
         assert result.output == output
@@ -202,13 +183,16 @@ def test_generate_simple_input_with_cpu_gpu(
     "module, extensions",
     [("gromacs/2016", ["tpr"]), ("namd/11", ["namd", "pdb", "psf"])],
 )
-def test_generate_simple_input_with_working_validation(
-    cli_runner, generate_output, module, monkeypatch, extensions, tmpdir
-):
-    """Test that we can generate benchmarks for all supported MD engines with module validation."""
+def test_generate_with_validation(cli_runner, module, monkeypatch, extensions, tmpdir):
     with tmpdir.as_cwd():
         for ext in extensions:
             open("protein.{}".format(ext), "a").close()
+
+        # monkeypatch the output of the available modules
+        monkeypatch.setattr(
+            "mdbenchmark.mdengines.get_available_modules",
+            lambda: {"gromacs": ["2016"], "namd": ["11"]},
+        )
 
         result = cli_runner.invoke(
             cli,
@@ -224,21 +208,32 @@ def test_generate_simple_input_with_working_validation(
             ],
         )
 
-        output = generate_output().format(module)
-        output = (
-            "WARNING Cannot locate modules available on this host. Not performing module name validation.\n"
-            + output
+        expected_output = (
+            "\n"
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+            "| Name    | Module       | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+            "|---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+            "| protein | gromacs/2016 | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
         )
+
         if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output
+            expected_output = (
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+                "| Name    | Module   | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+                "|---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+                "| protein | namd/11  | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
+            )
 
-        # monkeypatch the output of the available modules
-        monkeypatch.setattr(
-            "mdbenchmark.mdengines.get_available_modules",
-            lambda: {"gromacs": ["2016"], "namd": ["11"]},
+        end_of_message = (
+            "We will generate 4 benchmarks.\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
+        output = "".join(expected_output) + end_of_message
+        if "namd" in module:
+            output = NAMD_WARNING_FORMATTED + "\n" + output
 
-        # Test that we get a warning, if no module name validation is performed.
         assert result.exit_code == 0
         assert result.output == output
 
@@ -247,9 +242,7 @@ def test_generate_simple_input_with_working_validation(
     "module, extensions",
     [("gromacs/2016", ["tpr"]), ("namd/11", ["namd", "pdb", "psf"])],
 )
-def test_generate_skip_validation(
-    cli_runner, module, extensions, generate_output, monkeypatch, tmpdir
-):
+def test_generate_skip_validation(cli_runner, module, extensions, monkeypatch, tmpdir):
     """Test that we can skip the validation during benchmark generation."""
     with tmpdir.as_cwd():
         for ext in extensions:
@@ -265,7 +258,7 @@ def test_generate_skip_validation(
             cli,
             [
                 "generate",
-                "--module={}".format(module),
+                f"--module={module}",
                 "--host=draco",
                 "--max-nodes=4",
                 "--gpu",
@@ -276,8 +269,32 @@ def test_generate_skip_validation(
             ],
         )
 
-        output = generate_output().format(module)
-        output = "WARNING Not performing module name validation.\n" + output
+        expected_output = (
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+            "| Name    | Module       | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+            "|---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+            "| protein | gromacs/2016 | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
+        )
+
+        if "namd" in module:
+            expected_output = (
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n"
+                "| Name    | Module   | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n"
+                "|---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n"
+                "| protein | namd/11  | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n"
+                "+---------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n"
+            )
+
+        end_of_message = (
+            "We will generate 4 benchmarks.\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
+        )
+        output = (
+            "WARNING Not performing module name validation.\n\n"
+            + "".join(expected_output)
+            + end_of_message
+        )
         if "namd" in module:
             output = NAMD_WARNING_FORMATTED + output
 
@@ -316,79 +333,6 @@ def test_generate_unsupported_engine(cli_runner, monkeypatch, tmpdir):
         )
         assert result.exit_code == 1
         assert result.output == output
-
-
-@pytest.mark.parametrize(
-    "engine, module, version, extensions",
-    [
-        ("gromacs", "gromacs/2016", "2016", ["tpr"]),
-        ("namd", "namd/11", "11", ["namd", "pdb", "psf"]),
-    ],
-)
-def test_generate_odd_number_of_nodes(
-    cli_runner,
-    engine,
-    module,
-    extensions,
-    generate_output,
-    monkeypatch,
-    tmpdir,
-    version,
-):
-    """Make sure we generate the correct folder structure."""
-    with tmpdir.as_cwd():
-        for ext in extensions:
-            open("protein.{}".format(ext), "a").close()
-
-        monkeypatch.setattr(
-            "mdbenchmark.mdengines.get_available_modules",
-            lambda: {"gromacs": ["2016"], "namd": ["11"]},
-        )
-
-        result = cli_runner.invoke(
-            cli,
-            [
-                "generate",
-                "--module={}".format(module),
-                "--host=draco",
-                "--min-nodes=6",
-                "--max-nodes=8",
-                "--gpu",
-                "--no-cpu",
-                "--name=protein",
-                "--yes",
-            ],
-        )
-
-        output1 = "Creating benchmark system for {} with GPUs.\n".format(module)
-
-        bundle = dtr.discover()
-        df = parse_bundle(bundle)
-        df = consolidate_dataframe(df)
-        test_output = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
-
-        output2 = (
-            "Generating the above benchmarks.\n"
-            "Finished generating all benchmarks.\n"
-            "You can now submit the jobs with mdbenchmark submit.\n"
-        )
-
-        if "namd" in module:
-            output = NAMD_WARNING_FORMATTED + output1 + test_output + output2
-        else:
-            output = output1 + test_output + output2
-
-        assert result.exit_code == 0
-        assert result.output == output
-        assert os.path.exists("draco_{}".format(engine))
-        host_engine_version_path = "draco_{}/{}_gpu/".format(engine, version)
-        for i in range(6, 9):
-            assert os.path.exists(host_engine_version_path + "{}".format(i))
-            for ext in extensions:
-                assert os.path.exists(
-                    host_engine_version_path + "{}/protein.{}".format(i, ext)
-                )
-            assert os.path.exists(host_engine_version_path + "{}/bench.job".format(i))
 
 
 def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
@@ -497,19 +441,21 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
             "All input files must be in the current directory. "
             "Parameter paths must be absolute. Only crude file checks are performed! "
             "If you use the --gpu option make sure you use the GPU compatible NAMD module!\n"
-            "Creating benchmark system for namd/123.\n"
+            "\n"
         )
-        bundle = dtr.discover()
-        df = parse_bundle(bundle)
-        df = consolidate_dataframe(df)
-        test_output = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
+        expected_output = (
+            "+--------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n",
+            "| Name   | Module   | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n",
+            "|--------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n",
+            "| md     | namd/123 | 1-5     |           15 | False   | draco  |        40 |           1 | False             |\n",
+            "+--------+----------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n",
+        )
 
         output2 = (
-            "Generating the above benchmarks.\n"
-            "Finished generating all benchmarks.\nYou can "
-            "now submit the jobs with mdbenchmark submit.\n"
+            "We will generate 5 benchmarks.\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
-        output = output1 + test_output + output2
+        output = output1 + "".join(expected_output) + output2
 
         assert result.exit_code == 0
         assert result.output == output
@@ -602,7 +548,7 @@ def test_validate_generate_host(ctx_mock):
     assert validate_hosts(ctx_mock, None, host="draco") == "draco"
 
 
-def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
+def test_generate_prompt_yes(cli_runner, tmpdir):
     """Test whether promt answer yes works."""
     with tmpdir.as_cwd():
         open("protein.tpr", "a").close()
@@ -622,25 +568,27 @@ def test_generate_test_prompt_yes(cli_runner, tmpdir, generate_output):
         )
         output1 = (
             "WARNING Cannot locate modules available on this host. Not performing module name validation.\n"
-            "Creating benchmark system for gromacs/2016 with GPUs.\n"
+            "\n"
         )
-        bundle = dtr.discover()
-        df = parse_bundle(bundle)
-        df = consolidate_dataframe(df)
+        expected_output = (
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n",
+            "| Name    | Module       | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads | Hyperthreading?   |\n",
+            "|---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n",
+            "| protein | gromacs/2016 | 1-4     |           15 | True    | draco  |        40 |           1 | False             |\n",
+            "+---------+--------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n\n",
+        )
+
         output2 = (
-            "The above benchmarks will be generated. Continue? [y/N]: y\n"
-            "Finished generating all benchmarks.\n"
-            "You can now submit the jobs with mdbenchmark submit.\n"
+            "We will generate 4 benchmarks. Continue? [y/N]: y\n"
+            "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
-        mid = "Benchmark Summary:\n" + print_dataframe(df, False) + "\n"
-        output = output1 + mid + output2
-        # Test that we get a warning, if no module name validation is performed.
+        output = output1 + "".join(expected_output) + output2
 
         assert result.exit_code == 0
         assert result.output == output
 
 
-def test_generate_test_prompt_no(cli_runner, tmpdir, generate_output):
+def test_generate_test_prompt_no(cli_runner, tmpdir):
     """Test whether promt answer no works."""
     with tmpdir.as_cwd():
         open("protein.tpr", "a").close()
