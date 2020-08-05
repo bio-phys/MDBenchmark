@@ -59,7 +59,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
             "Plotting GPU and CPU data.\n"
             "Plotting all hosts in input file.\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testpng.png' in the working directory.\n"
+            "The plot was saved as 'testpng.png'.\n"
         )
 
         result = cli_runner.invoke(
@@ -88,9 +88,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
             "Plotting GPU and CPU data.\n"
             "Data for the following hosts will be plotted: {}\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                host
-            )
+            "The plot was saved as 'testpng.png'.\n".format(host)
         )
 
         result = cli_runner.invoke(
@@ -119,18 +117,14 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
                 "Plotting GPU and CPU data.\n"
                 "Plotting all hosts in input file.\n"
                 "Plotting all modules for engine '{}'.\n"
-                "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                    module
-                )
+                "The plot was saved as 'testpng.png'.\n".format(module)
             )
         else:
             output = (
                 "Plotting GPU and CPU data.\n"
                 "Plotting all hosts in input file.\n"
                 "Plotting module '{}'.\n"
-                "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                    module
-                )
+                "The plot was saved as 'testpng.png'.\n".format(module)
             )
 
         result = cli_runner.invoke(
@@ -158,17 +152,14 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
             "All modules will be plotted.\n"
             "All hosts will be plotted.\n"
             "A total of 2 runs will be plotted.\n"
-            "Your file was saved as 'test.{}' in the working directory.\n".format(
-                output_type
-            )
+            "The plot was saved as 'test.{}'.\n".format(output_type)
         )
 
         output = (
             "Plotting GPU and CPU data.\n"
             "Plotting all hosts in input file.\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testfile.{}' in the working "
-            "directory.\n".format(output_type)
+            "The plot was saved as 'testfile.{}'.\n".format(output_type)
         )
         result = cli_runner.invoke(
             cli,
@@ -290,42 +281,3 @@ def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1
-
-
-def test_plot_plot_projection(capsys, cli_runner, tmpdir, data):
-    """Assert whether the line projection function returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:2]
-    selection = "nodes"
-    color = "grey"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_projection(df=df, selection=selection, color=color, ax=ax)
-
-
-def test_plot_plot_line(capsys, cli_runner, tmpdir, data):
-    """Assert whether the single plot entry works and returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:2]
-    selection = "nodes"
-    label = "test"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)
-
-
-def test_plot_plot_line_singlepoint(capsys, cli_runner, tmpdir, data):
-    """Assert whether the single plot entry works and returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:1]
-    selection = "nodes"
-    label = "test"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)
