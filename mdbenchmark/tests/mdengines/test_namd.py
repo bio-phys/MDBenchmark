@@ -66,8 +66,8 @@ def sim(tmpdir_factory):
     )
 
 
-def test_analyze_run(sim):
-    res = utils.analyze_run(namd, sim)
+def test_analyze_benchmark(sim):
+    res = utils.analyze_benchmark(namd, sim)
     assert res[0] == "namd/11"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
