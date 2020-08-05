@@ -100,6 +100,7 @@ def analyze_benchmark(engine, benchmark):
     ranks = np.nan
     threads = np.nan
     hyperthreading = np.nan
+    module = None
 
     # search all output files
     output_files = glob(
@@ -114,9 +115,15 @@ def analyze_benchmark(engine, benchmark):
     if "time" not in benchmark.categories:
         benchmark.categories["time"] = 0
 
+    # Backwards compatibility to version <2
+    if "module" not in benchmark.categories and "version" in benchmark.categories:
+        module = benchmark.categories["version"]
+
+    # Version >=2,<=3
     if "module" in benchmark.categories:
         module = benchmark.categories["module"]
 
+    # Version >=3
     if (
         "version" in benchmark.categories
         and isinstance(benchmark.categories["version"], int)
