@@ -1,2 +1,2 @@
-,module,nodes,run time [min],host,gpu
-0,gromacs/2016.3,1-5,15,draco,False
+module,nodes,time,gpu,host,ncores,number_of_ranks,number_of_threads,hyperthreading
+gromacs/2016.3,1-5,15,False,draco,32,,,,
