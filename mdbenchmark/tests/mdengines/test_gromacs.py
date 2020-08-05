@@ -81,8 +81,8 @@ def sim_old(tmpdir_factory):
     )
 
 
-def test_analyze_run(sim):
-    res = utils.analyze_run(gromacs, sim)
+def test_analyze_benchmark(sim):
+    res = utils.analyze_benchmark(gromacs, sim)
     assert res[0] == "gromacs/5.1.4"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
@@ -92,8 +92,8 @@ def test_analyze_run(sim):
     assert np.isnan(res[6])  # ncores
 
 
-def test_analyze_run_backward_compatibility(sim_old):
-    res = utils.analyze_run(gromacs, sim_old)
+def test_analyze_benchmark_backward_compatibility(sim_old):
+    res = utils.analyze_benchmark(gromacs, sim_old)
     assert res[0] == "5.1.4"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
