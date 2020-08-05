@@ -215,15 +215,20 @@ class VersionFactory:
 
     def _guess_version(self, categories):
         console.info("Setting up...")
-        if "module" in categories and "version" in categories:
-            # Versions >=3 have both a "module" and "version" key
+        try:
+            if "module" in categories and "version" in categories:
+                # Versions >=3 have both a "module" and "version" key
+                self.version = "3"
+            elif "module" in categories:
+                # Version 2 uses "module", but has no "version" key
+                self.version = "2"
+            else:
+                # We found a version that is not enumerated above
+                self.version = "next"
+        except TypeError:
+            # If we point datreant to an empty or non-existent directory, it
+            # will throw an error. Catch it and set some default version.
             self.version = "3"
-        elif "module" in categories:
-            # Version 2 uses "module", but has no "version" key
-            self.version = "2"
-        else:
-            # We found a version that is not enumerated above
-            self.version = "next"
 
     @property
     def version_class(self):
