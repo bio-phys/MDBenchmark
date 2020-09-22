@@ -42,7 +42,7 @@ export OMP_PLACES=cores
 
 # Run {{ module }} for {{ time  }} minutes
 {%- if mdengine == "gromacs" %}
-srun gmx_mpi mdrun -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -deffnm {{ name }} -noconfout
+srun gmx_mpi mdrun {{ multidir }} -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -deffnm {{ name }} -noconfout
 {%- elif mdengine == "namd" %}
 srun namd2 {{ name }}.namd
 {%- endif %}
