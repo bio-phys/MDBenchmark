@@ -101,6 +101,7 @@ def analyze_benchmark(engine, benchmark):
     threads = np.nan
     hyperthreading = np.nan
     module = None
+    multidir = np.nan
 
     # search all output files
     output_files = glob(
@@ -114,6 +115,9 @@ def analyze_benchmark(engine, benchmark):
 
     if "time" not in benchmark.categories:
         benchmark.categories["time"] = 0
+
+    if "multidir" in benchmark.categories:
+        multidir = benchmark.categories["multidir"]
 
     # Backwards compatibility to version <2
     if "module" not in benchmark.categories and "version" in benchmark.categories:
@@ -144,6 +148,7 @@ def analyze_benchmark(engine, benchmark):
         ranks,
         threads,
         hyperthreading,
+        multidir,
     ]
 
 
@@ -221,6 +226,7 @@ def write_benchmark(
         "threads": number_of_threads,
         "hyperthreading": hyperthreading,
         "version": 3,
+        "multidir": multidir,
     }
 
     # Add some time buffer to the requested time. Otherwise the queuing system
