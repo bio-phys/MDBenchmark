@@ -35,7 +35,7 @@ PARSE_ENGINE = {
         "performance_return": lambda line: float(line.split()[1]),
         "ncores": "Running on",
         "ncores_return": lambda line: int(line.split()[6]),
-        "analyze": "[!#]*log*",
+        "analyze": "**/[!#]*log*",
     },
     "namd": {
         "performance": "Benchmark time",
@@ -108,10 +108,15 @@ def analyze_benchmark(engine, benchmark):
         os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"])
     )
     if output_files:
-        with open(output_files[0]) as fh:
-            performance = parse_ns_day(engine, fh)
-            fh.seek(0)
-            ncores = parse_ncores(engine, fh)
+        for f in output_files:
+            performance = []
+            ncores = []
+            with open(f) as fh:
+                performance.append(parse_ns_day(engine, fh))
+                fh.seek(0)
+                ncores.append(parse_ncores(engine, fh))
+        performance = np.mean(performance)
+        ncores = ncores[0]
 
     if "time" not in benchmark.categories:
         benchmark.categories["time"] = 0
