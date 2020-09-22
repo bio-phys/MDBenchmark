@@ -182,23 +182,28 @@ def write_benchmark(
     number_of_ranks,
     number_of_threads,
     hyperthreading,
+    multidir,
 ):
     """Generate a benchmark folder with the respective Benchmark object."""
     # Create the `dtr.Treant` object
     hyperthreading_string = "wht" if hyperthreading else "woht"
     directory = base_directory[
-        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}/".format(
+        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
             nodes=nodes,
             ranks=number_of_ranks,
             threads=number_of_threads,
             ht=hyperthreading_string,
+            nsim=multidir,
         )
     ]
     benchmark = dtr.Treant(directory)
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(
-        name=name, relative_path=relative_path, benchmark=benchmark
+        name=name,
+        relative_path=relative_path,
+        benchmark=benchmark,
+        multidir=multidir
     )
     if job_name is None:
         job_name = name
@@ -222,6 +227,9 @@ def write_benchmark(
     # kills the job before the benchmark is finished
     formatted_time = "{:02d}:{:02d}:00".format(*divmod(time + 5, 60))
 
+    # get engine specific multidir template replacement
+    multidir_string = engine.prepare_multidir(multidir)
+
     # Create benchmark job script
     script = template.render(
         name=name,
@@ -235,6 +243,7 @@ def write_benchmark(
         number_of_ranks=number_of_ranks,
         number_of_threads=number_of_threads,
         hyperthreading=hyperthreading,
+        multidir=multidir_string,
     )
 
     # Write the actual job script that is going to be submitted to the cluster

@@ -28,6 +28,9 @@ NAME = "namd"
 def prepare_benchmark(name, relative_path, *args, **kwargs):
     benchmark = kwargs["benchmark"]
 
+    if not kwargs["multidir"] == 1:
+        raise NotImplementedError
+
     if name.endswith(".namd"):
         name = name[:-5]
 
@@ -49,6 +52,8 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
 
     return name
 
+def prepare_multidir(multidir):
+    raise NotImplementedError
 
 def analyze_namd_file(fh):
     """ Check whether the NAMD config file has any relative imports or variables

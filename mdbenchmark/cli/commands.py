@@ -176,6 +176,13 @@ def analyze(directory, save_csv):
     default=False,
     is_flag=True,
 )
+@click.option(
+    "--multidir",
+    "multidir",
+    help="Use gromacs multidir simulation.",
+    multiple=True,
+    type=int,
+)
 def generate(
     name,
     cpu,
@@ -192,6 +199,7 @@ def generate(
     logical_cores,
     number_of_ranks,
     enable_hyperthreading,
+    multidir,
 ):
     """Generate benchmarks for molecular dynamics simulations.
 
@@ -231,6 +239,7 @@ def generate(
         logical_cores=logical_cores,
         number_of_ranks=number_of_ranks,
         enable_hyperthreading=enable_hyperthreading,
+        multidir=multidir,
     )
 
 

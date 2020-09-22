@@ -19,11 +19,13 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 from shutil import copyfile
+import string
 
 from mdbenchmark import console
 
 NAME = "gromacs"
 
+MULTIDIRS=string.ascii_lowercase
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
     benchmark = kwargs["benchmark"]
@@ -35,10 +37,23 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
 
     filepath = os.path.join(relative_path, full_filename)
 
-    copyfile(filepath, benchmark[full_filename].relpath)
+    if kwargs["multidir"] == 1:
+        copyfile(filepath, benchmark[full_filename].relpath)
+    else:
+        for i in range(kwargs["multidir"]):
+            subdir = benchmark[MULTIDIRS[i]+"/"+full_filename].make()
+            copyfile(filepath, subdir.relpath)
 
     return name
 
+def prepare_multidir(multidir):
+    if multidir == 1:
+        return ""
+    else:
+        multidir_string = "--multidir"
+        for i in range(multidir):
+            multidir_string += " "+MULTIDIRS[i]
+        return multidir_string
 
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
