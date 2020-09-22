@@ -154,6 +154,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
         "version",
     ]
     analyze_printing = [
@@ -167,6 +168,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
     ]
     analyze_sort = ["module", "number_of_ranks", "hyperthreading", "use_gpu", "nodes"]
     submit_categories = [
@@ -179,6 +181,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
         "version",
     ]
     category_mapping = {
