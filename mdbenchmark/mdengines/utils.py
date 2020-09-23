@@ -108,9 +108,9 @@ def analyze_benchmark(engine, benchmark):
         os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"])
     )
     if output_files:
+        performance = []
+        ncores = []
         for f in output_files:
-            performance = []
-            ncores = []
             with open(f) as fh:
                 performance.append(parse_ns_day(engine, fh))
                 fh.seek(0)
