@@ -47,13 +47,14 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
     return name
 
 def prepare_multidir(multidir):
-    if multidir == 1:
-        return ""
-    else:
+    multidir_string = ""
+    
+    if multidir != 1:
         multidir_string = "-multidir"
         for i in range(multidir):
-            multidir_string += " "+MULTIDIRS[i]
-        return multidir_string
+            multidir_string += " " + LOWERCASE_LETTERS[i]
+            
+    return multidir_string
 
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
