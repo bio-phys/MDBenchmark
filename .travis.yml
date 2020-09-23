@@ -6,6 +6,7 @@ branches:
   only:
     - develop
     - master
+    - version-3
 
 cache:
   - pip: true
