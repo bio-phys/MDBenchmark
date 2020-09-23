@@ -115,7 +115,7 @@ def analyze_benchmark(engine, benchmark):
                 performance.append(parse_ns_day(engine, fh))
                 fh.seek(0)
                 ncores.append(parse_ncores(engine, fh))
-        performance = np.mean(performance)
+        performance = np.sum(performance)
         ncores = ncores[0]
 
     if "time" not in benchmark.categories:
