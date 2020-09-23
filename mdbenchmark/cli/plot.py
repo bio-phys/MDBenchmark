@@ -113,7 +113,7 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
             continue
 
         if benchmark_version.version == "3":
-            module, template, gpus, ranks, hyperthreading = key
+            module, template, gpus, ranks, hyperthreading, multidir = key
             threads = group.number_of_threads.iloc[0]
         else:
             gpus, module, template = key
@@ -124,10 +124,10 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
             node_type="mixed CPU-GPU" if gpus else "CPU-only",
         )
 
-        # Add ranks and threads information to label
+        # Add ranks, threads and multdir information to label
         if benchmark_version.version == "3":
-            label += " (ranks: {ranks}, threads: {threads}{ht})".format(
-                ranks=ranks, threads=threads, ht=" [HT]" if hyperthreading else ""
+            label += " (ranks: {ranks}, threads: {threads}{ht}, nsims: {nsims})".format(
+                ranks=ranks, threads=threads, ht=" [HT]" if hyperthreading else "", nsims=multidir
             )
 
         plot_line(
