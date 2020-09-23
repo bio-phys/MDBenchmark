@@ -19,6 +19,7 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
+from mdbenchmark.__version__ import VERSION
 from mdbenchmark.cli.options import AliasedGroup
 from mdbenchmark.cli.validators import (
     print_known_hosts,
@@ -26,7 +27,6 @@ from mdbenchmark.cli.validators import (
     validate_module,
     validate_name,
 )
-from mdbenchmark.__version__ import VERSION
 
 
 @click.group(cls=AliasedGroup)
