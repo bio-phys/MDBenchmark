@@ -48,7 +48,11 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
         relative_path, filename = os.path.split(input_name)
         sim = dtr.Treant("./{}".format(engine))
         name = engine.prepare_benchmark(
-            name=filename, relative_path=relative_path, sim=sim, benchmark=sim, multidir=1,
+            name=filename,
+            relative_path=relative_path,
+            sim=sim,
+            benchmark=sim,
+            multidir=1,
         )
 
         assert name == "md"

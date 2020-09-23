@@ -127,7 +127,10 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
         # Add ranks, threads and multdir information to label
         if benchmark_version.version == "3":
             label += " (ranks: {ranks}, threads: {threads}{ht}, nsims: {nsims})".format(
-                ranks=ranks, threads=threads, ht=" [HT]" if hyperthreading else "", nsims=multidir
+                ranks=ranks,
+                threads=threads,
+                ht=" [HT]" if hyperthreading else "",
+                nsims=multidir,
             )
 
         plot_line(

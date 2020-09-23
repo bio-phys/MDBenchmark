@@ -18,14 +18,15 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
-from shutil import copyfile
 import string
+from shutil import copyfile
 
 from mdbenchmark import console
 
 NAME = "gromacs"
 
 LOWERCASE_LETTERS = string.ascii_lowercase
+
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
     benchmark = kwargs["benchmark"]
@@ -46,15 +47,17 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
 
     return name
 
+
 def prepare_multidir(multidir):
     multidir_string = ""
-    
+
     if multidir != 1:
         multidir_string = "-multidir"
         for i in range(multidir):
             multidir_string += " " + LOWERCASE_LETTERS[i]
-            
+
     return multidir_string
+
 
 def check_input_file_exists(name):
     """Check if the TPR file exists."""
