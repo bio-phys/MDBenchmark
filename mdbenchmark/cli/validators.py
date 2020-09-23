@@ -1,4 +1,5 @@
 import click
+import numpy as np
 
 from mdbenchmark import console, utils
 
@@ -54,6 +55,19 @@ def validate_number_of_nodes(min_nodes, max_nodes):
             param_hint='"--min-nodes"',
         )
 
+def validate_number_of_simulations(nsims,min_nodes,max_nodes,nranks):
+    """validate that the number of simulations is an integer multiple of
+    number of nodes times number of ranks per node.
+    """
+    for nn in range(min_nodes,max_nodes+1):
+        nranks = np.array([nn*ri for ri in nranks])
+        for nsim in nsims:
+            if np.any(nranks%nsim):
+                raise click.BadParameter(
+                    "The total number of ranks must be an integer multiple of"+
+                    " the number of simulations",
+                    param_hint='"--multidir" / "--ranks" / "--min-nodes" / "--max-nodes"',
+                )
 
 def print_known_hosts(ctx, param, value):
     """Callback to print all available hosts to the user."""

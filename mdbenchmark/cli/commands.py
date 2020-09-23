@@ -182,6 +182,7 @@ def analyze(directory, save_csv):
     help="Use gromacs multidir simulation.",
     multiple=True,
     type=int,
+    default=(1,)
 )
 def generate(
     name,
