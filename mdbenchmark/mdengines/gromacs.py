@@ -50,7 +50,7 @@ def prepare_multidir(multidir):
     if multidir == 1:
         return ""
     else:
-        multidir_string = "--multidir"
+        multidir_string = "-multidir"
         for i in range(multidir):
             multidir_string += " "+MULTIDIRS[i]
         return multidir_string
