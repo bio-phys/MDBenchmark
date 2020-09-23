@@ -21,8 +21,6 @@ import os
 
 import pandas as pd
 import pytest
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 from pandas.testing import assert_frame_equal
 
 from mdbenchmark import cli
