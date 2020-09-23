@@ -53,7 +53,7 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
     return name
 
 def prepare_multidir(multidir):
-    raise NotImplementedError
+    return None
 
 def analyze_namd_file(fh):
     """ Check whether the NAMD config file has any relative imports or variables

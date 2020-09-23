@@ -105,7 +105,8 @@ def analyze_benchmark(engine, benchmark):
 
     # search all output files
     output_files = glob(
-        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"])
+        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"]),
+        recursive=True,
     )
     if output_files:
         performance = []
