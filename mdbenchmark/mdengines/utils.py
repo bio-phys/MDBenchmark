@@ -211,10 +211,7 @@ def write_benchmark(
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(
-        name=name,
-        relative_path=relative_path,
-        benchmark=benchmark,
-        multidir=multidir
+        name=name, relative_path=relative_path, benchmark=benchmark, multidir=multidir
     )
     if job_name is None:
         job_name = name
