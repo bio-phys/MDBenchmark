@@ -104,6 +104,7 @@ def test_analyze_benchmark_backward_compatibility(sim_old):
 
 
 @pytest.mark.parametrize("input_name", ["md", "md.tpr"])
+@pytest.mark.skip()
 def test_check_file_extension(capsys, input_name, tmpdir):
     """Test that we check for all files needed to run GROMACS benchmarks."""
     output = "ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n"
