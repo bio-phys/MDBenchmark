@@ -41,7 +41,7 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
         copyfile(filepath, benchmark[full_filename].relpath)
     else:
         for i in range(kwargs["multidir"]):
-            subdir = benchmark[MULTIDIRS[i]+"/"+full_filename].make()
+            subdir = benchmark[LOWERCASE_LETTERS[i] + "/" + full_filename].make()
             copyfile(filepath, subdir.relpath)
 
     return name
