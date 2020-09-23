@@ -199,7 +199,7 @@ class Version3Categories(VersionCategories):
         "hyperthreading": "Hyperthreading?",
         "job_name": "Job name",
         "submitted": "Submitted?",
-        "multidir": "# sims",
+        "multidir": "# Simulations",
     }
 
 
