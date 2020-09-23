@@ -48,7 +48,7 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
         relative_path, filename = os.path.split(input_name)
         sim = dtr.Treant("./{}".format(engine))
         name = engine.prepare_benchmark(
-            name=filename, relative_path=relative_path, sim=sim, benchmark=sim
+            name=filename, relative_path=relative_path, sim=sim, benchmark=sim, multidir=1,
         )
 
         assert name == "md"
@@ -91,11 +91,12 @@ def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, 
             number_of_ranks=40,
             number_of_threads=1,
             hyperthreading=False,
+            multidir=1,
         )
 
         expected_job_name = "md" if job_name is None else job_name
-        folder_name = "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}/".format(
-            nodes=nodes, ranks=40, threads=1, ht="woht",
+        folder_name = "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
+            nodes=nodes, ranks=40, threads=1, ht="woht", nsim=1,
         )
 
         assert os.path.exists(base_dirname)

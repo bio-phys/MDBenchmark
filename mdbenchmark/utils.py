@@ -211,6 +211,8 @@ def parse_bundle(bundle, columns, sort_values_by, discard_performance=False):
             version = 2
             if "version" in treant.categories:
                 version = 3
+            if version == 2:
+                row.pop() # multidir is not a category for version 2 data
             row += [version]
 
             if discard_performance:
