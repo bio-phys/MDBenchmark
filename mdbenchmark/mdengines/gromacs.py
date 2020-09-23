@@ -25,7 +25,7 @@ from mdbenchmark import console
 
 NAME = "gromacs"
 
-MULTIDIRS=string.ascii_lowercase
+LOWERCASE_LETTERS = string.ascii_lowercase
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
     benchmark = kwargs["benchmark"]
