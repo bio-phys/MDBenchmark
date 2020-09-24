@@ -29,7 +29,7 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
     benchmark = kwargs["benchmark"]
 
     if not kwargs["multidir"] == 1:
-        raise console.error("The NAMD-engine currently only supports '--multidir 1'")
+        console.error("The NAMD-engine currently only supports '--multidir 1'")
 
     if name.endswith(".namd"):
         name = name[:-5]
