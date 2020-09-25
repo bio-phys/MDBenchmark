@@ -135,6 +135,7 @@ def construct_generate_data(
     processor,
     number_of_ranks,
     enable_hyperthreading,
+    multidir,
 ):
     data = []
     for module in modules:
@@ -156,31 +157,33 @@ def construct_generate_data(
             # Set up the path to the new directory as `datreant.Tree`
             base_directory = dtr.Tree(directory)
 
-            # Do the main iteration over nodes and ranks
+            # Do the main iteration over nodes, ranks and number of simulations
             for nodes in range(min_nodes, max_nodes + 1):
                 for _ranks in number_of_ranks:
                     ranks, threads = processor.get_ranks_and_threads(
                         _ranks, with_hyperthreading=enable_hyperthreading
                     )
+                    for nsim in multidir:
 
-                    # Append the data to our list
-                    data.append(
-                        [
-                            name,
-                            job_name,
-                            base_directory,
-                            host,
-                            engine,
-                            module,
-                            nodes,
-                            time,
-                            gpu,
-                            template,
-                            ranks,
-                            threads,
-                            enable_hyperthreading,
-                        ]
-                    )
+                        # Append the data to our list
+                        data.append(
+                            [
+                                name,
+                                job_name,
+                                base_directory,
+                                host,
+                                engine,
+                                module,
+                                nodes,
+                                time,
+                                gpu,
+                                template,
+                                ranks,
+                                threads,
+                                enable_hyperthreading,
+                                nsim,
+                            ]
+                        )
 
     return data
 
@@ -208,6 +211,8 @@ def parse_bundle(bundle, columns, sort_values_by, discard_performance=False):
             version = 2
             if "version" in treant.categories:
                 version = 3
+            if version == 2:
+                row.pop()  # multidir is not a category for version 2 data
             row += [version]
 
             if discard_performance:

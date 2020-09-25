@@ -35,7 +35,7 @@ PARSE_ENGINE = {
         "performance_return": lambda line: float(line.split()[1]),
         "ncores": "Running on",
         "ncores_return": lambda line: int(line.split()[6]),
-        "analyze": "[!#]*log*",
+        "analyze": "**/[!#]*log*",
     },
     "namd": {
         "performance": "Benchmark time",
@@ -101,19 +101,29 @@ def analyze_benchmark(engine, benchmark):
     threads = np.nan
     hyperthreading = np.nan
     module = None
+    multidir = np.nan
 
     # search all output files
     output_files = glob(
-        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"])
+        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"]),
+        recursive=True,
     )
     if output_files:
-        with open(output_files[0]) as fh:
-            performance = parse_ns_day(engine, fh)
-            fh.seek(0)
-            ncores = parse_ncores(engine, fh)
+        performance = []
+        ncores = []
+        for f in output_files:
+            with open(f) as fh:
+                performance.append(parse_ns_day(engine, fh))
+                fh.seek(0)
+                ncores.append(parse_ncores(engine, fh))
+        performance = np.sum(performance)
+        ncores = ncores[0]
 
     if "time" not in benchmark.categories:
         benchmark.categories["time"] = 0
+
+    if "multidir" in benchmark.categories:
+        multidir = benchmark.categories["multidir"]
 
     # Backwards compatibility to version <2
     if "module" not in benchmark.categories and "version" in benchmark.categories:
@@ -144,6 +154,7 @@ def analyze_benchmark(engine, benchmark):
         ranks,
         threads,
         hyperthreading,
+        multidir,
     ]
 
 
@@ -182,23 +193,25 @@ def write_benchmark(
     number_of_ranks,
     number_of_threads,
     hyperthreading,
+    multidir,
 ):
     """Generate a benchmark folder with the respective Benchmark object."""
     # Create the `dtr.Treant` object
     hyperthreading_string = "wht" if hyperthreading else "woht"
     directory = base_directory[
-        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}/".format(
+        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
             nodes=nodes,
             ranks=number_of_ranks,
             threads=number_of_threads,
             ht=hyperthreading_string,
+            nsim=multidir,
         )
     ]
     benchmark = dtr.Treant(directory)
 
     # Do MD engine specific things. Here we also format the name.
     name = engine.prepare_benchmark(
-        name=name, relative_path=relative_path, benchmark=benchmark
+        name=name, relative_path=relative_path, benchmark=benchmark, multidir=multidir
     )
     if job_name is None:
         job_name = name
@@ -216,11 +229,15 @@ def write_benchmark(
         "threads": number_of_threads,
         "hyperthreading": hyperthreading,
         "version": 3,
+        "multidir": multidir,
     }
 
     # Add some time buffer to the requested time. Otherwise the queuing system
     # kills the job before the benchmark is finished
     formatted_time = "{:02d}:{:02d}:00".format(*divmod(time + 5, 60))
+
+    # get engine specific multidir template replacement
+    multidir_string = engine.prepare_multidir(multidir)
 
     # Create benchmark job script
     script = template.render(
@@ -235,6 +252,7 @@ def write_benchmark(
         number_of_ranks=number_of_ranks,
         number_of_threads=number_of_threads,
         hyperthreading=hyperthreading,
+        multidir=multidir_string,
     )
 
     # Write the actual job script that is going to be submitted to the cluster

@@ -23,7 +23,11 @@ import click
 import pandas as pd
 
 from mdbenchmark import console, mdengines, utils
-from mdbenchmark.cli.validators import validate_cpu_gpu_flags, validate_number_of_nodes
+from mdbenchmark.cli.validators import (
+    validate_cpu_gpu_flags,
+    validate_number_of_nodes,
+    validate_number_of_simulations,
+)
 from mdbenchmark.mdengines.utils import write_benchmark
 from mdbenchmark.models import Processor
 from mdbenchmark.utils import (
@@ -59,6 +63,7 @@ def do_generate(
     logical_cores,
     number_of_ranks,
     enable_hyperthreading,
+    multidir,
 ):
     """Generate a bunch of benchmarks."""
 
@@ -93,6 +98,9 @@ def do_generate(
 
     if not number_of_ranks:
         number_of_ranks = (processor.physical_cores,)
+
+    # Validate number of simulations
+    validate_number_of_simulations(multidir, min_nodes, max_nodes, number_of_ranks)
 
     # Grab the template name for the host. This should always work because
     # click does the validation for us
@@ -136,6 +144,7 @@ def do_generate(
         processor,
         number_of_ranks,
         enable_hyperthreading,
+        multidir,
     )
     df = pd.DataFrame(data, columns=benchmark_version.generate_categories)
 

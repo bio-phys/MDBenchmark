@@ -98,6 +98,7 @@ class Version3Categories(VersionCategories):
         "use_gpu",
         "number_of_ranks",
         "hyperthreading",
+        "multidir",
     ]
     generate_categories = [
         "name",
@@ -113,6 +114,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
     ]
     generate_mapping = {
         "engine": "engine",
@@ -127,6 +129,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks": "number_of_ranks",
         "number_of_threads": "number_of_threads",
         "hyperthreading": "hyperthreading",
+        "multidir": "multidir",
     }
     generate_printing = [
         "name",
@@ -138,6 +141,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
     ]
     analyze_categories = [
         "module",
@@ -150,6 +154,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
         "version",
     ]
     analyze_printing = [
@@ -163,6 +168,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
     ]
     analyze_sort = ["module", "number_of_ranks", "hyperthreading", "use_gpu", "nodes"]
     submit_categories = [
@@ -175,6 +181,7 @@ class Version3Categories(VersionCategories):
         "number_of_ranks",
         "number_of_threads",
         "hyperthreading",
+        "multidir",
         "version",
     ]
     category_mapping = {
@@ -192,6 +199,7 @@ class Version3Categories(VersionCategories):
         "hyperthreading": "Hyperthreading?",
         "job_name": "Job name",
         "submitted": "Submitted?",
+        "multidir": "# Simulations",
     }
 
 
