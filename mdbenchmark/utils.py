@@ -18,10 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import datetime as dt
-import multiprocessing as mp
 import os
 import socket
-import sys
 
 import click
 import datreant as dtr
@@ -31,7 +29,6 @@ from jinja2 import ChoiceLoader, Environment, FileSystemLoader, PackageLoader
 from tabulate import tabulate
 
 from mdbenchmark import console, mdengines
-from mdbenchmark.ext.cadishi import _cat_proc_cpuinfo_grep_query_sort_uniq
 from mdbenchmark.mdengines import detect_md_engine, utils
 
 # Order where to look for host templates: HOME -> etc -> package
@@ -84,28 +81,6 @@ def retrieve_host_template(host=None):
     template
     """
     return ENV.get_template(host)
-
-
-def guess_ncores():
-    """Guess the number of physical CPU cores.
-
-    We inspect `/proc/cpuinfo` to grab the actual number."""
-    total_cores = None
-    if sys.platform.startswith("linux"):
-        nsocket = len(_cat_proc_cpuinfo_grep_query_sort_uniq("physical id"))
-        ncores = len(_cat_proc_cpuinfo_grep_query_sort_uniq("core id"))
-        total_cores = ncores * nsocket
-    elif sys.platform == "darwin":
-        # assumes we have an INTEL CPU with hyper-threading. As of 2017 this is
-        # true for all officially supported Apple models.
-        total_cores = mp.cpu_count() // 2
-    if total_cores is None:
-        console.warn(
-            "Could not guess number of physical cores. "
-            "Assuming there is only 1 core per node."
-        )
-        total_cores = 1
-    return total_cores
 
 
 def validate_required_files(name, modules):

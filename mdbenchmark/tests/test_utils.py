@@ -99,38 +99,6 @@ def test_retrieve_host_template(monkeypatch):
     assert utils.retrieve_host_template("minerva") == "minerva"
 
 
-def test_guess_ncores(capsys, monkeypatch):
-    """Test that we can guess the correct number of cores on the supported
-    systems.
-    """
-
-    def dummy(arg):
-        return "ABC"
-
-    # Test on Linux
-    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "linux")
-    monkeypatch.setattr(
-        "mdbenchmark.utils._cat_proc_cpuinfo_grep_query_sort_uniq", dummy
-    )
-    assert utils.guess_ncores() == 9
-
-    # Test on Darwin
-    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "darwin")
-    monkeypatch.setattr("mdbenchmark.utils.mp.cpu_count", lambda: 10)
-    assert utils.guess_ncores() == 5
-
-    # Test on some unknown platform
-    monkeypatch.setattr("mdbenchmark.utils.sys.platform", "starlord")
-    output = (
-        "WARNING Could not guess number of physical cores. "
-        "Assuming there is only 1 core per node.\n"
-    )
-
-    utils.guess_ncores()
-    out, err = capsys.readouterr()
-    assert out == output
-
-
 def test_parse_bundle(data):
     bundle = dtr.discover(data["analyze-files-gromacs"])
     version = VersionFactory(categories=bundle.categories).version_class
