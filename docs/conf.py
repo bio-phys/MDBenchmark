@@ -51,7 +51,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "MDBenchmark"
-copyright = "2017-2018, The MDBenchmark development team"
+copyright = "2017-2020, The MDBenchmark development team"
 author = "Written by the MDBenchmark development team"
 
 # The version info for the project you're documenting, acts as replacement for
