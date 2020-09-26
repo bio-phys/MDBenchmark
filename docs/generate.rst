@@ -184,6 +184,29 @@ If you want your benchmark jobs to have specific names, use the ``--job-name`` o
 
   mdbenchmark generate --job-name my_benchmark
 
+Multiple jobs per node
+----------------------
+
+.. note::
+
+  Multiple simulations per node are currently only supported with GROMACS. The
+  developers of MDBenchmark welcome all support to implement further MD engines.
+
+It is possible to run multiple simulations on a single node to use the available
+resources more efficiently. For example, when a node is equipped with two GPUs
+it is possible to run either 1, 2 or 4 simulations on this single node. Each
+instance of the simulation will generate shorter trajectories, but the overall
+performance (the sum of all instances) will most likely be bigger than running a
+single simulation on one node. This is especially useful when one is interested
+in running many short simulations, instead of a single long simulation.
+
+To use this feature, users can specify the ``--multidir`` option. This will make
+use of the built-in functionality availabe in GROMACS, which itself will take
+care of running multiple independent instances of the same system. The following
+command will run four benchmarks of a single system on the same node::
+
+  mdbenchmark generate --multidir 4
+
 .. _modules: https://linux.die.net/man/1/module
 .. _draco: https://www.mpcdf.mpg.de/services/computing/draco
 .. _hydra: https://www.mpcdf.mpg.de/services/computing/hydra
