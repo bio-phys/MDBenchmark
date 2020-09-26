@@ -125,6 +125,15 @@ Slurm.
   # Run {{ module }} for {{ time  }} minutes
   srun gmx_mpi mdrun -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -noconfout -deffnm {{ name }}
 
+  # Running multiple simulations on a single node (multidir)
+  # If you want to run multiple simulations on the same node, use the `multidir`
+  # variable, like so:
+  #
+  # srun gmx_mpi mdrun -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -noconfout -deffnm {{ name }} {{ multidir }}
+  #
+  # MDBenchmark will set up the folder structure as required by GROMACS and
+  # replace the variable.
+
 
 LoadLeveler
 -----------
@@ -182,6 +191,8 @@ MDBenchmark passes the following variables to each template:
 | time              | Benchmark run time in minutes                                       |
 +-------------------+---------------------------------------------------------------------+
 | formatted_time    | Run time for the queuing system in human readable format (HH:MM:SS) |
++-------------------+---------------------------------------------------------------------+
+| multidir          | Run multiple simulations on a single node (GROMACS only)            |
 +-------------------+---------------------------------------------------------------------+
 
 To ensure correct termination of jobs ``formatted_time`` is 5 minutes longer
