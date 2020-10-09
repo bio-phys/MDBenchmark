@@ -29,12 +29,6 @@ MDBenchmark: Benchmark molecular dynamics simulations
 
 ---------------
 
-.. warning::
-    You are currently looking at the 3.0-alpha verson of MDBenchmark. This
-    version might not yet be stable and you might encouter bugs.
-
-    Please help us to improve MDBenchmark by `providing your feedback`_.
-
 **MDBenchmark** — quickly generate, start and analyze benchmarks for your molecular dynamics simulations.
 
 MDBenchmark is a tool to squeeze the maximum out of your limited computing
@@ -56,19 +50,6 @@ package manager. Afterwards you are ready to use ``mdbenchmark``.
 
 Install
 -------
-
-.. note::
-  To install the 3.0-alpha version of MDBenchmark, you need to clone the GitHub
-  repository and install manually with ``pip`` or ``poetry``::
-
-    git clone --single-branch --branch version-3 https://github.com/bio-phys/MDBenchmark
-    cd MDBenchmark
-
-    # Install via pip
-    pip install .
-
-    # Install via poetry
-    poetry install
 
 If you are familiar with the usual way of installing python packages, just use
 ``pip``::
