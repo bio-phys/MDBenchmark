@@ -95,7 +95,7 @@ your simulations. This will help raise awareness of benchmarking and help people
 improve their simulation performance, as well as reduce overall resource
 wastage.
 
-  M. Gecht, M. Siggel, M. Linke, G. Hummer, J. Köfinger MDBenchmark: A toolkit to optimize the performance of molecular dynamics simulations. J. Chem. Phys. 153, 144105 (2020); https://doi.org/10.1063/5.0019045
+M\. Gecht, M. Siggel, M. Linke, G. Hummer, J. Köfinger MDBenchmark: A toolkit to optimize the performance of molecular dynamics simulations. J. Chem. Phys. 153, 144105 (2020); https://doi.org/10.1063/5.0019045
 
 Content
 =======
