@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -20,13 +20,9 @@
 import os
 import re
 from glob import glob
-from shutil import copyfile
 
 import datreant as dtr
 import numpy as np
-
-from mdbenchmark import console
-from mdbenchmark.mdengines.namd import analyze_namd_file
 
 FILES_TO_KEEP = {
     "gromacs": [".*/bench.job", ".*.tpr", ".*.mdp"],
@@ -39,7 +35,7 @@ PARSE_ENGINE = {
         "performance_return": lambda line: float(line.split()[1]),
         "ncores": "Running on",
         "ncores_return": lambda line: int(line.split()[6]),
-        "analyze": "[!#]*log*",
+        "analyze": "**/[!#]*log*",
     },
     "namd": {
         "performance": "Benchmark time",
@@ -95,39 +91,71 @@ def parse_ncores(engine, fh):
     return np.nan
 
 
-def analyze_run(engine, sim):
+def analyze_benchmark(engine, benchmark):
     """
     Analyze performance data from a simulation run with any MD engine.
     """
-    ns_day = np.nan
+    performance = np.nan
     ncores = np.nan
+    ranks = np.nan
+    threads = np.nan
+    hyperthreading = np.nan
+    module = None
+    multidir = np.nan
 
     # search all output files
-    output_files = glob(os.path.join(sim.relpath, PARSE_ENGINE[engine.NAME]["analyze"]))
-    if output_files:
-        with open(output_files[0]) as fh:
-            ns_day = parse_ns_day(engine, fh)
-            fh.seek(0)
-            ncores = parse_ncores(engine, fh)
-
-    # Backward compatibility to benchmark systems created with older versions
-    # of MDBenchmark
-    if "time" not in sim.categories:
-        sim.categories["time"] = 0
-    if "module" in sim.categories:
-        module = sim.categories["module"]
-    else:
-        module = sim.categories["version"]
-
-    return (
-        module,
-        sim.categories["nodes"],
-        ns_day,
-        sim.categories["time"],
-        sim.categories["gpu"],
-        sim.categories["host"],
-        ncores,
+    output_files = glob(
+        os.path.join(benchmark.relpath, PARSE_ENGINE[engine.NAME]["analyze"]),
+        recursive=True,
     )
+    if output_files:
+        performance = []
+        ncores = []
+        for f in output_files:
+            with open(f) as fh:
+                performance.append(parse_ns_day(engine, fh))
+                fh.seek(0)
+                ncores.append(parse_ncores(engine, fh))
+        performance = np.sum(performance)
+        ncores = ncores[0]
+
+    if "time" not in benchmark.categories:
+        benchmark.categories["time"] = 0
+
+    if "multidir" in benchmark.categories:
+        multidir = benchmark.categories["multidir"]
+
+    # Backwards compatibility to version <2
+    if "module" not in benchmark.categories and "version" in benchmark.categories:
+        module = benchmark.categories["version"]
+
+    # Version >=2,<=3
+    if "module" in benchmark.categories:
+        module = benchmark.categories["module"]
+
+    # Version >=3
+    if (
+        "version" in benchmark.categories
+        and isinstance(benchmark.categories["version"], int)
+        and benchmark.categories["version"] >= 3
+    ):
+        ranks = benchmark.categories["ranks"]
+        threads = benchmark.categories["threads"]
+        hyperthreading = benchmark.categories["hyperthreading"]
+
+    return [
+        module,
+        benchmark.categories["nodes"],
+        performance,
+        benchmark.categories["time"],
+        benchmark.categories["gpu"],
+        benchmark.categories["host"],
+        ncores,
+        ranks,
+        threads,
+        hyperthreading,
+        multidir,
+    ]
 
 
 def cleanup_before_restart(engine, sim):
@@ -162,18 +190,34 @@ def write_benchmark(
     job_name,
     host,
     time,
+    number_of_ranks,
+    number_of_threads,
+    hyperthreading,
+    multidir,
 ):
-    """Generate a benchmark folder with the respective Sim object."""
+    """Generate a benchmark folder with the respective Benchmark object."""
     # Create the `dtr.Treant` object
-    sim = dtr.Treant(base_directory["{}/".format(nodes)])
+    hyperthreading_string = "wht" if hyperthreading else "woht"
+    directory = base_directory[
+        "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
+            nodes=nodes,
+            ranks=number_of_ranks,
+            threads=number_of_threads,
+            ht=hyperthreading_string,
+            nsim=multidir,
+        )
+    ]
+    benchmark = dtr.Treant(directory)
 
     # Do MD engine specific things. Here we also format the name.
-    name = engine.prepare_benchmark(name=name, relative_path=relative_path, sim=sim)
+    name = engine.prepare_benchmark(
+        name=name, relative_path=relative_path, benchmark=benchmark, multidir=multidir
+    )
     if job_name is None:
         job_name = name
 
-    # Add categories to the `Sim` object
-    sim.categories = {
+    # Add categories as metadata
+    benchmark.categories = {
         "module": module,
         "gpu": gpu,
         "nodes": nodes,
@@ -181,11 +225,19 @@ def write_benchmark(
         "time": time,
         "name": name,
         "started": False,
+        "ranks": number_of_ranks,
+        "threads": number_of_threads,
+        "hyperthreading": hyperthreading,
+        "version": 3,
+        "multidir": multidir,
     }
 
     # Add some time buffer to the requested time. Otherwise the queuing system
     # kills the job before the benchmark is finished
     formatted_time = "{:02d}:{:02d}:00".format(*divmod(time + 5, 60))
+
+    # get engine specific multidir template replacement
+    multidir_string = engine.prepare_multidir(multidir)
 
     # Create benchmark job script
     script = template.render(
@@ -197,8 +249,12 @@ def write_benchmark(
         n_nodes=nodes,
         time=time,
         formatted_time=formatted_time,
+        number_of_ranks=number_of_ranks,
+        number_of_threads=number_of_threads,
+        hyperthreading=hyperthreading,
+        multidir=multidir_string,
     )
 
     # Write the actual job script that is going to be submitted to the cluster
-    with open(sim["bench.job"].relpath, "w") as fh:
+    with open(benchmark["bench.job"].relpath, "w") as fh:
         fh.write(script)

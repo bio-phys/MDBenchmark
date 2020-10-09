@@ -29,8 +29,8 @@ create an environment called ``benchmark`` and install ``mdbenchmark`` inside.
 
 .. code::
 
-    conda create -n benchmark
-    conda install -n benchmark -c conda-forge mdbenchmark
+   conda create -n benchmark
+   conda install -n benchmark -c conda-forge mdbenchmark
 
 Before every usage of ``mdbenchmark``, you need to first activate the conda
 environment via ``source activate benchmark``. After doing this once, you can
@@ -61,9 +61,9 @@ After activating the environment, you should be able to install the package via
 
 .. note::
 
-  The ``--user`` option leads to the installation of the package in your home
-  directory ``$HOME``. If you are not using the option, you may get errors due
-  to missing write permissions.
+   The ``--user`` option leads to the installation of the package in your home
+   directory ``$HOME``. If you are not using the option, you may get errors due
+   to missing write permissions.
 
 .. code::
 
@@ -97,9 +97,9 @@ the folder you installed it in.
 You can also activate the virtual environment once and then visit different
 directories afterwards::
 
-  pipenv shell
-  cd ..
-  mdbenchmark
+   pipenv shell
+   cd ..
+   mdbenchmark
 
 .. _virtual environment: https://docs.python.org/3/tutorial/venv.html
 .. _conda environment: https://conda.io/docs/user-guide/tasks/manage-environments.html

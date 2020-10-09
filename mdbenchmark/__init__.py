@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,11 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from mdbenchmark.cli import cli
-from mdbenchmark.migrations import mds_to_dtr
-
-# Check that the Python environment is correctly setup
-mds_to_dtr.ensure_correct_environment()
+from mdbenchmark.__version__ import VERSION as __version_  # noqa: F401
+from mdbenchmark.cli import cli  # noqa: F401
 
 if __name__ == "__main__":
     cli()

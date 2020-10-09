@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from six.moves import StringIO
+from io import StringIO
 
 import datreant as dtr
 import numpy as np
@@ -66,8 +66,8 @@ def sim(tmpdir_factory):
     )
 
 
-def test_analyze_run(sim):
-    res = utils.analyze_run(namd, sim)
+def test_analyze_benchmark(sim):
+    res = utils.analyze_benchmark(namd, sim)
     assert res[0] == "namd/11"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
@@ -84,7 +84,7 @@ def test_check_file_extension(capsys, input_file, tmpdir):
     output = "ERROR File md.namd does not exist, but is needed for NAMD benchmarks.\n"
     with pytest.raises(SystemExit) as e:
         namd.check_input_file_exists(input_file)
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
         assert out == output
@@ -143,11 +143,11 @@ def test_analyze_namd_file(
             if exit_exception:
                 with pytest.raises(exit_exception):
                     namd.analyze_namd_file(fh)
-                    out, err = capsys.readouterr()
+                    out, _ = capsys.readouterr()
                     assert out.type == exit_exception
                     assert out.code == exit_code
                     assert out == output
             else:
                 namd.analyze_namd_file(fh)
-                out, err = capsys.readouterr()
+                out, _ = capsys.readouterr()
                 assert out == output

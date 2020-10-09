@@ -16,4 +16,18 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
+# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>
+import numpy as np
+
+
+def lin_func(x, m, b):
+    return m * x + b
+
+
+def calc_slope_intercept(p1, p2):
+    p1 = np.asarray(p1)
+    p2 = np.asarray(p2)
+    diff = p1 - p2
+    slope = diff[1] / diff[0]
+    intercept = p1[1] - (p1[0] * slope)
+    return np.hstack([slope, intercept])

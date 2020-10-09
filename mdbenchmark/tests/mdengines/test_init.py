@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -22,7 +22,6 @@ import os
 import pytest
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import (
     detect_md_engine,
     get_available_modules,
@@ -94,12 +93,12 @@ def test_normalize_modules(capsys, monkeypatch, tmpdir):
     """Test that normalize modules works as expected."""
     # Test the warning when we skip the validation
     normalize_modules(modules=["gromacs/2016.4"], skip_validation=True)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert out == "WARNING Not performing module name validation.\n"
 
     # Test the warning when we do not skip the validation
     normalize_modules(modules=["gromacs/2016.4"], skip_validation=False)
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert (
         out == "WARNING Cannot locate modules available on this host. "
         "Not performing module name validation.\n"
@@ -162,7 +161,7 @@ def test_validation(capsys, monkeypatch, tmpdir):
         output = "ERROR We were not able to determine the module name.\n"
         with pytest.raises(SystemExit) as e:
             validate_module_name("wrong=format")
-            out, err = capsys.readouterr()
+            out, _ = capsys.readouterr()
 
             assert e.type == SystemExit
             assert e.code == 1

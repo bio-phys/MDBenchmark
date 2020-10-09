@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -48,7 +48,11 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
         relative_path, filename = os.path.split(input_name)
         sim = dtr.Treant("./{}".format(engine))
         name = engine.prepare_benchmark(
-            name=filename, relative_path=relative_path, sim=sim
+            name=filename,
+            relative_path=relative_path,
+            sim=sim,
+            benchmark=sim,
+            multidir=1,
         )
 
         assert name == "md"
@@ -67,7 +71,7 @@ def test_prepare_benchmark(engine, input_name, extensions, tmpdir):
 def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, tmpdir):
     """Test that the write_benchmark works as expected."""
     host = "draco"
-    base_dirname = "{}_{}".format(host, engine)
+    base_dirname = "{}_{}".format(host, engine.NAME)
     nodes = 5
     with tmpdir.as_cwd():
         base_directory = dtr.Tree(base_dirname)
@@ -88,18 +92,21 @@ def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, 
             relative_path=".",
             host=host,
             time=15,
+            number_of_ranks=40,
+            number_of_threads=1,
+            hyperthreading=False,
+            multidir=1,
         )
 
         expected_job_name = "md" if job_name is None else job_name
-
-        assert os.path.exists(base_dirname)
-        assert os.path.exists(
-            os.path.join(base_dirname, "{}".format(nodes), input_name)
+        folder_name = "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
+            nodes=nodes, ranks=40, threads=1, ht="woht", nsim=1,
         )
 
-        with open(
-            os.path.join(base_dirname, "{}".format(nodes), "bench.job"), "r"
-        ) as f:
+        assert os.path.exists(base_dirname)
+        assert os.path.exists(os.path.join(base_dirname, folder_name, input_name,))
+
+        with open(os.path.join(base_dirname, folder_name, "bench.job"), "r") as f:
             for line in f:
                 if "#SBATCH -J" in line:
                     assert line == "#SBATCH -J {}\n".format(expected_job_name)

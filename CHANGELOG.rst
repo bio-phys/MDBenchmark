@@ -1,3 +1,18 @@
+3.0.1 (2020-10-09)
+==================
+
+Features
+--------
+
+- Add ability to scan number of MPI ranks and OpenMP threads. (`#165 <https://github.com/bio-phys/MDBenchmark/issues/165>`_)
+- Add support to run multiple simulations on single nodes (GROMACS-only). (`#168 <https://github.com/bio-phys/MDBenchmark/issues/168>`_)
+
+3.0.0
+=====
+
+This version was skipped intentionally. Version 3.0.1 is the first release of the major version 3.
+
+
 2.0.1 (2020-03-04)
 ==================
 

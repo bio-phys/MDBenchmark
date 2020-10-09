@@ -1,6 +1,36 @@
+# -*- Mode: python; tab-width: 4; indent-tabs-mode:nil; coding:utf-8 -*-
+# vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
+#
+# MDBenchmark
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
+# (see the file AUTHORS for the full list of names)
+#
+# MDBenchmark is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# MDBenchmark is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>
 import click
+import numpy as np
 
 from mdbenchmark import console, utils
+
+
+def validate_cores(ctx, param, *args, **kwargs):
+    """Validate that we are given a positive integer bigger than 0."""
+    for option, value in kwargs.items():
+        if value is None or not isinstance(int, value) or value < 1:
+            raise click.BadParameter(
+                "Please specify the number of {option} cores.".format(option=option),
+                param_hint='"--{option}"',
+            )
 
 
 def validate_name(ctx, param, name=None):
@@ -43,6 +73,21 @@ def validate_number_of_nodes(min_nodes, max_nodes):
             "The minimal number of nodes needs to be smaller than the maximal number.",
             param_hint='"--min-nodes"',
         )
+
+
+def validate_number_of_simulations(nsims, min_nodes, max_nodes, nranks):
+    """validate that the number of simulations is an integer multiple of
+    number of nodes times number of ranks per node.
+    """
+    for nn in range(min_nodes, max_nodes + 1):
+        nranks = np.array([nn * ri for ri in nranks])
+        for nsim in nsims:
+            if np.any(nranks % nsim):
+                raise click.BadParameter(
+                    "The total number of ranks must be an integer multiple of"
+                    + " the number of simulations",
+                    param_hint='"--multidir" / "--ranks" / "--min-nodes" / "--max-nodes"',
+                )
 
 
 def print_known_hosts(ctx, param, value):

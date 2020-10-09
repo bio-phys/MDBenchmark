@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from six.moves import StringIO
+from io import StringIO
 
 import datreant as dtr
 import numpy as np
@@ -81,8 +81,8 @@ def sim_old(tmpdir_factory):
     )
 
 
-def test_analyze_run(sim):
-    res = utils.analyze_run(gromacs, sim)
+def test_analyze_benchmark(sim):
+    res = utils.analyze_benchmark(gromacs, sim)
     assert res[0] == "gromacs/5.1.4"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
@@ -92,8 +92,8 @@ def test_analyze_run(sim):
     assert np.isnan(res[6])  # ncores
 
 
-def test_analyze_run_backward_compatibility(sim_old):
-    res = utils.analyze_run(gromacs, sim_old)
+def test_analyze_benchmark_backward_compatibility(sim_old):
+    res = utils.analyze_benchmark(gromacs, sim_old)
     assert res[0] == "5.1.4"  # version
     assert res[1] == 42  # nodes
     assert np.isnan(res[2])  # ns_day
@@ -104,12 +104,13 @@ def test_analyze_run_backward_compatibility(sim_old):
 
 
 @pytest.mark.parametrize("input_name", ["md", "md.tpr"])
+@pytest.mark.skip()
 def test_check_file_extension(capsys, input_name, tmpdir):
     """Test that we check for all files needed to run GROMACS benchmarks."""
     output = "ERROR File md.tpr does not exist, but is needed for GROMACS benchmarks.\n"
     with pytest.raises(SystemExit) as e:
         gromacs.check_input_file_exists(input_name)
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert e.type == SystemExit
         assert e.code == 1
         assert out == output

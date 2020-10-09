@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -19,20 +19,12 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
-import click
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import pytest
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from numpy.testing import assert_equal
 from pandas.testing import assert_frame_equal
 
-from mdbenchmark import cli, utils
+from mdbenchmark import cli
 from mdbenchmark.cli import plot
-from mdbenchmark.ext.click_test import cli_runner
-from mdbenchmark.testing import data
 
 
 @pytest.mark.parametrize(
@@ -65,7 +57,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
             "Plotting GPU and CPU data.\n"
             "Plotting all hosts in input file.\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testpng.png' in the working directory.\n"
+            "The plot was saved as 'testpng.png'.\n"
         )
 
         result = cli_runner.invoke(
@@ -94,9 +86,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
             "Plotting GPU and CPU data.\n"
             "Data for the following hosts will be plotted: {}\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                host
-            )
+            "The plot was saved as 'testpng.png'.\n".format(host)
         )
 
         result = cli_runner.invoke(
@@ -125,18 +115,14 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
                 "Plotting GPU and CPU data.\n"
                 "Plotting all hosts in input file.\n"
                 "Plotting all modules for engine '{}'.\n"
-                "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                    module
-                )
+                "The plot was saved as 'testpng.png'.\n".format(module)
             )
         else:
             output = (
                 "Plotting GPU and CPU data.\n"
                 "Plotting all hosts in input file.\n"
                 "Plotting module '{}'.\n"
-                "Your file was saved as 'testpng.png' in the working directory.\n".format(
-                    module
-                )
+                "The plot was saved as 'testpng.png'.\n".format(module)
             )
 
         result = cli_runner.invoke(
@@ -164,17 +150,14 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
             "All modules will be plotted.\n"
             "All hosts will be plotted.\n"
             "A total of 2 runs will be plotted.\n"
-            "Your file was saved as 'test.{}' in the working directory.\n".format(
-                output_type
-            )
+            "The plot was saved as 'test.{}'.\n".format(output_type)
         )
 
         output = (
             "Plotting GPU and CPU data.\n"
             "Plotting all hosts in input file.\n"
             "Plotting all modules in your input data.\n"
-            "Your file was saved as 'testfile.{}' in the working "
-            "directory.\n".format(output_type)
+            "The plot was saved as 'testfile.{}'.\n".format(output_type)
         )
         result = cli_runner.invoke(
             cli,
@@ -228,7 +211,7 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu_fail(
             plot.filter_dataframe_for_plotting(
                 df=input_df, host_name=(), module_name=(), gpu=False, cpu=False
             )
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1
@@ -292,46 +275,7 @@ def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
             "Plotting GPU data only.\n"
             "ERROR Your filtering led to an empty dataset. Exiting.\n"
         )
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == expected_output
         assert error.type == SystemExit
         assert error.value.code == 1
-
-
-def test_plot_plot_projection(capsys, cli_runner, tmpdir, data):
-    """Assert whether the line projection function returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:2]
-    selection = "nodes"
-    color = "grey"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_projection(df=df, selection=selection, color=color, ax=ax)
-
-
-def test_plot_plot_line(capsys, cli_runner, tmpdir, data):
-    """Assert whether the single plot entry works and returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:2]
-    selection = "nodes"
-    label = "test"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)
-
-
-def test_plot_plot_line_singlepoint(capsys, cli_runner, tmpdir, data):
-    """Assert whether the single plot entry works and returns an ax object.
-    """
-    df = pd.read_csv(data["testcsv.csv"])
-    df = df[:1]
-    selection = "nodes"
-    label = "test"
-    fig = Figure()
-    FigureCanvas(fig)
-    ax = fig.add_subplot(111)
-    plot.plot_line(df=df, selection=selection, label=label, fit=True, ax=ax)

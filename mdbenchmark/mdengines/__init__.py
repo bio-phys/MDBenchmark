@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import six
-
 import os
 from collections import defaultdict
 
@@ -40,7 +38,7 @@ def detect_md_engine(modulename):
     supported.
     """
 
-    for name, engine in six.iteritems(SUPPORTED_ENGINES):
+    for name, engine in SUPPORTED_ENGINES.items():
         if name in modulename.lower():
             return engine
 
@@ -89,7 +87,7 @@ def get_available_modules():
 
     # Go through the directory structure and grab all version of modules that we support.
     for paths in MODULE_PATHS.split(":"):
-        for path, subdirs, files in os.walk(paths):
+        for path, _, files in os.walk(paths):
             for mdengine in SUPPORTED_ENGINES:
                 if mdengine in path:
                     for name in files:
@@ -120,7 +118,9 @@ def normalize_modules(modules, skip_validation):
         if detect_md_engine(engine_name) is None:
             console.error(
                 "There is currently no support for '{}'. "
-                "Supported MD engines are: gromacs, namd.",
+                + "Supported MD engines are: {}.".format(
+                    ", ".join(sorted(SUPPORTED_ENGINES.keys()))
+                ),
                 engine_name,
             )
 

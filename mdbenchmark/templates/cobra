@@ -7,30 +7,22 @@
 # Job Name:
 #SBATCH -J {{ job_name }}
 #
-# Queue (Partition):
 {%- if gpu %}
-#SBATCH --partition=gpu
+# Request two RTX5000 per node
 #SBATCH --constraint="gpu"
-#SBATCH --gres=gpu:2 
-{%- elif (time <= 30) and (n_nodes <= 32) %}
-#SBATCH --partition=express
-{%- elif (n_nodes <= 32) %}
-#SBATCH --partition=medium
-{%- elif (n_nodes <= 64) %}
-#SBATCH --partition=n0064
-{%- elif (n_nodes <= 128) %}
-#SBATCH --partition=n0128
-{%- elif (n_nodes <= 265) %}
-#SBATCH --partition=n0265
-{%- elif (n_nodes <= 512) %}
-#SBATCH --partition=n0512
-{%- else %}
-#SBATCH --partition=n0620
+#SBATCH --gres=gpu:rtx5000:2
 {%- endif %}
 #
-# Number of nodes and MPI tasks per node:
+# Request {{ n_nodes }} node(s)
 #SBATCH --nodes={{ n_nodes }}
-#SBATCH --ntasks-per-node=40
+# Set the number of tasks per node (=MPI ranks)
+#SBATCH --ntasks-per-node={{ number_of_ranks }}
+# Set the number of threads per rank (=OpenMP threads)
+#SBATCH --cpus-per-task={{ number_of_threads }}
+{% if hyperthreading %}
+# Enable hyperthreading
+#SBATCH --ntasks-per-core=2
+{%- endif %}
 # Wall clock limit:
 #SBATCH --time={{ formatted_time }}
 
@@ -40,9 +32,17 @@ module load impi
 module load cuda
 module load {{ module }}
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+{% if hyperthreading %}
+export OMP_PLACES=threads
+export SLURM_HINT=multithread
+{%- else %}
+export OMP_PLACES=cores
+{%- endif %}
+
 # Run {{ module }} for {{ time  }} minutes
 {%- if mdengine == "gromacs" %}
-srun gmx_mpi mdrun -v -maxh {{ time / 60 }} -deffnm {{ name }}
+srun gmx_mpi mdrun {{ multidir }} -v -ntomp $OMP_NUM_THREADS -maxh {{ time / 60 }} -resethway -deffnm {{ name }} -noconfout
 {%- elif mdengine == "namd" %}
 srun namd2 {{ name }}.namd
 {%- endif %}

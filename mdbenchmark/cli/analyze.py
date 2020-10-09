@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -19,33 +19,32 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 import datreant as dtr
-import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 
 from mdbenchmark import console
-from mdbenchmark.cli.plot import plot_over_group
-from mdbenchmark.mdengines import detect_md_engine, utils
-from mdbenchmark.migrations import mds_to_dtr
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame, generate_output_name
-
-plt.switch_backend("agg")
+from mdbenchmark.utils import map_columns, parse_bundle, print_dataframe
+from mdbenchmark.versions import VersionFactory
 
 
-def do_analyze(directory, plot, ncores, save_csv):
+def do_analyze(directory, save_csv):
     """Analyze benchmarks."""
-    # Migrate from MDBenchmark<2 to MDBenchmark=>2
-    mds_to_dtr.migrate_to_datreant(directory)
-
     bundle = dtr.discover(directory)
+    version = VersionFactory(categories=bundle.categories).version_class
 
-    df = DataFrameFromBundle(bundle)
+    df = parse_bundle(
+        bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
+    )
 
-    if save_csv is not None and not save_csv.endswith(".csv"):
-        save_csv = "{}.csv".format(save_csv)
-    df.to_csv(save_csv)
+    # Remove the versions column from the DataFrame
+    columns_to_drop = ["version"]
+    df = df.drop(columns=columns_to_drop)
+
+    if save_csv is not None:
+        if not save_csv.endswith(".csv"):
+            save_csv = "{}.csv".format(save_csv)
+        df.to_csv(save_csv, index=False)
+
+        console.success("Successfully benchmark data to {}.", save_csv)
 
     # Reformat NaN values nicely into question marks.
     # move this to the bundle function!
@@ -56,25 +55,19 @@ def do_analyze(directory, plot, ncores, save_csv):
             "Systems marked with question marks have either crashed or "
             "were not started yet."
         )
-    PrintDataFrame(df)
 
-    if plot:
-        console.warn("'--plot' has been deprecated, use '{}'.", "mdbenchmark plot")
-
-        fig = Figure()
-        FigureCanvas(fig)
-        ax = fig.add_subplot(111)
-
-        df = pd.read_csv(save_csv)
-        if ncores:
-            console.warn(
-                "Ignoring your value from '{}' and parsing number of cores from log files.",
-                "--number-cores/-ncores",
+    # Warn user that we are going to print more than 50 benchmark results to the console
+    if df.shape[0] > 50:
+        if click.confirm(
+            "We are about to print the results of {} benchmarks to the console. Continue?".format(
+                click.style(str(df.shape[0]), bold=True)
             )
-        ax = plot_over_group(df, plot_cores=ncores, fit=True, ax=ax)
-        lgd = ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.175))
+        ):
+            pass
+        else:
+            console.error("Exiting.")
 
-        fig.tight_layout()
-        fig.savefig(
-            "runtimes.pdf", type="pdf", bbox_extra_artists=(lgd,), bbox_inches="tight"
-        )
+    # Print the data to the console
+    print_dataframe(
+        df, columns=map_columns(version.category_mapping, version.analyze_printing),
+    )

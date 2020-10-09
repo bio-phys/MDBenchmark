@@ -25,6 +25,14 @@ Using ``poetry`` you can simply run ``poetry install`` to
 install all dependencies. ``poetry`` will take care of creating a
 virtual environment for you.
 
+Working on the documentation
+----------------------------
+
+You will need to install extra packages to work on the documentation. Run
+``poetry install --extra docs`` to install all necessary dependencies. When in
+the ``docs`` folder, you can run ``poetry run make livehtml`` to start a local
+preview of the documentation, that will rebuild when you update a file.
+
 Running commands in the virtual environment
 -------------------------------------------
 
@@ -106,7 +114,7 @@ contain the file ``.invisible``. Also the file ``CHANGELOG.rst`` should have
 been updated.
 
 **Important:** Make sure that the version numbers inside
- ``mdbenchmark/__init__.py`` and ``CHANGELOG.rst`` match.
+``mdbenchmark/__init__.py`` and ``CHANGELOG.rst`` match.
 
 3. Generate dist files
 ----------------------
@@ -120,7 +128,7 @@ First make sure that your ``wheel`` package is up-to-date::
 
 Next we can generate a source distribution package and universal wheel::
 
-   $ python setup.py sdist bdist_wheel --universal
+    $ python setup.py sdist bdist_wheel --universal
 
 Check that the tarball inside ``./dist/`` includes all needed files (source
 code, ``README.rst``, ``CHANGELOG.rst``, ``LICENSE``), !

@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2019 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -19,16 +19,14 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import click
 
+from mdbenchmark.__version__ import VERSION
 from mdbenchmark.cli.options import AliasedGroup
 from mdbenchmark.cli.validators import (
     print_known_hosts,
-    validate_cpu_gpu_flags,
     validate_hosts,
     validate_module,
     validate_name,
-    validate_number_of_nodes,
 )
-from mdbenchmark.version import VERSION
 
 
 @click.group(cls=AliasedGroup)
@@ -47,27 +45,12 @@ def cli():
     show_default=True,
 )
 @click.option(
-    "-p",
-    "--plot",
-    is_flag=True,
-    help="DEPRECATED. Please use 'mdbenchmark plot'.\nGenerate a plot of finished benchmarks.",
-)
-@click.option(
-    "--ncores",
-    "--number-cores",
-    "ncores",
-    type=int,
-    default=None,
-    help="DEPRECATED. Please use 'mdbenchmark plot'.\nNumber of cores per node. If not given it will be parsed from the benchmarks' log file.",
-    show_default=True,
-)
-@click.option(
     "-s",
     "--save-csv",
     default=None,
     help="Filename for the CSV file containing benchmark results.",
 )
-def analyze(directory, plot, ncores, save_csv):
+def analyze(directory, save_csv):
     """Analyze benchmarks and print the performance results.
 
     Benchmarks are searched recursively starting from the directory specified
@@ -83,7 +66,7 @@ def analyze(directory, plot, ncores, save_csv):
     """
     from mdbenchmark.cli.analyze import do_analyze
 
-    do_analyze(directory=directory, plot=plot, ncores=ncores, save_csv=save_csv)
+    do_analyze(directory=directory, save_csv=save_csv)
 
 
 @cli.command()
@@ -165,6 +148,42 @@ def analyze(directory, plot, ncores, save_csv):
 @click.option(
     "-y", "--yes", help="Answer all prompts with yes.", default=False, is_flag=True
 )
+@click.option(
+    "--physical-cores",
+    "physical_cores",
+    help="Number of physical cores on each node.",
+    type=int,
+    default=40,
+)
+@click.option(
+    "--logical-cores",
+    "logical_cores",
+    help="Number of logical cores on each node.",
+    type=int,
+    default=40,
+)
+@click.option(
+    "--ranks",
+    "number_of_ranks",
+    help="Number of ranks to use per node.",
+    multiple=True,
+    type=int,
+)
+@click.option(
+    "--hyperthreading",
+    "enable_hyperthreading",
+    help="Enable hyperthreading.",
+    default=False,
+    is_flag=True,
+)
+@click.option(
+    "--multidir",
+    "multidir",
+    help="Use gromacs multidir simulation.",
+    multiple=True,
+    type=int,
+    default=(1,),
+)
 def generate(
     name,
     cpu,
@@ -177,6 +196,11 @@ def generate(
     skip_validation,
     job_name,
     yes,
+    physical_cores,
+    logical_cores,
+    number_of_ranks,
+    enable_hyperthreading,
+    multidir,
 ):
     """Generate benchmarks for molecular dynamics simulations.
 
@@ -212,6 +236,11 @@ def generate(
         skip_validation=skip_validation,
         job_name=job_name,
         yes=yes,
+        physical_cores=physical_cores,
+        logical_cores=logical_cores,
+        number_of_ranks=number_of_ranks,
+        enable_hyperthreading=enable_hyperthreading,
+        multidir=multidir,
     )
 
 
@@ -370,3 +399,26 @@ def submit(directory, force_restart, yes):
     from mdbenchmark.cli.submit import do_submit
 
     do_submit(directory=directory, force_restart=force_restart, yes=yes)
+
+
+@cli.command()
+@click.option(
+    "-d",
+    "--directory",
+    help="Path in which to look for benchmarks.",
+    default=".",
+    show_default=True,
+)
+def migrate(directory):
+    """
+    Migrate from old versions of MDBenchmark.
+
+    Currently moves from version 1 to version 2.
+    """
+
+    from mdbenchmark.migrations import mds_to_dtr
+
+    mds_to_dtr.ensure_correct_environment()
+
+    # Migrate from MDBenchmark<2 to MDBenchmark=>2
+    mds_to_dtr.migrate_to_datreant(directory)

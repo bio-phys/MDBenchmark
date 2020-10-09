@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 
 from mdbenchmark import cli
-from mdbenchmark.ext.click_test import cli_runner
 
 
 def test_aliasedgroup_unknown_command(cli_runner):
@@ -28,7 +27,7 @@ def test_aliasedgroup_unknown_command(cli_runner):
     assert result.exit_code == 2
     output = (
         "Usage: cli [OPTIONS] COMMAND [ARGS]...\n"
-        'Try "cli --help" for help.\n\n'
+        "Try 'cli --help' for help.\n\n"
         "Error: Sub command unknown: unknown_command\n"
     )
     assert result.output == output

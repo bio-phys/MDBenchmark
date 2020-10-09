@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-import six
-
 import sys
 
 import click
@@ -34,6 +32,7 @@ def console_wrapper(
     bg=None,
     underline=None,
     blink=None,
+    newlines=False,
     **kwargs
 ):
     """Wrapper to consolidate all click.echo() calls.
@@ -84,11 +83,15 @@ def console_wrapper(
     if kwargs:
         kwargs = {
             k: click.style(str(v), bold=bold, fg=fg, bg=bg, underline=underline)
-            for k, v in six.iteritems(kwargs)
+            for k, v in kwargs.items()
         }
 
     try:
+        if newlines:
+            click.echo("")
         click.echo(message.format(*args, **kwargs), file=filehandler)
+        if newlines:
+            click.echo("")
     except IndexError:
         raise ValueError(
             "Number of placeholders do not correspond to the number of curly brackets "
@@ -106,6 +109,12 @@ def warn(message, *args, **kwargs):
     prefix = click.style("WARNING", fg="yellow", bold=True)
 
     console_wrapper(message, prefix=prefix, args=args, **kwargs)
+
+
+def success(message, *args, **kwargs):
+    """Output a success message and exit the script."""
+    console_wrapper(message, args=args, **kwargs)
+    sys.exit(0)
 
 
 def error(message, *args, **kwargs):

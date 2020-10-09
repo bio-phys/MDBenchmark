@@ -46,7 +46,7 @@ NAMD
 .. note::
 
   **NAMD support is experimental.** If you encounter any problems or bugs, we
-  would appreciate to `hear from you`_.
+    would appreciate to `hear from you`_.
 
 Generating benchmarks for NAMD follows a similar process to GROMACS. Assuming
 the NAMD configuration file is called ``protein.namd``, you will also need the
@@ -54,9 +54,9 @@ corresponding ``protein.pdb`` and ``protein.psf`` inside the same folder.
 
 .. warning::
 
-  Please be aware that all paths given in the ``protein.namd`` file
-  must be absolute paths. This ensures that MDBenchmark does not destroy paths
-  when copying files around during benchmark generation.
+    Please be aware that all paths given in the ``protein.namd`` file must be
+    absolute paths. This ensures that MDBenchmark does not destroy paths when
+    copying files around during benchmark generation.
 
 In analogy to the GROMACS setup, you can execute the following command to
 generate benchmarks for a module named ``namd/2.12``:

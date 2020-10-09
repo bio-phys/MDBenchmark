@@ -1,6 +1,6 @@
-============================================
-  Benchmark molecular dynamics simulations
-============================================
+========================================
+Benchmark molecular dynamics simulations
+========================================
 
 .. image:: https://img.shields.io/pypi/v/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
@@ -51,21 +51,28 @@ pip
 
 .. code::
 
-   pip install mdbenchmark
+    pip install mdbenchmark
 
 conda
 -----
 
 .. code::
 
-   conda install -c conda-forge mdbenchmark
+    conda install -c conda-forge mdbenchmark
+
+pipx
+----
+
+.. code::
+
+    pipx install mdbenchmark
 
 pipenv
 ------
 
 .. code::
 
-   pipenv install mdbenchmark
+    pipenv install mdbenchmark
 
 After installation MDBenchmark is accessible on your command-line via ``mdbenchmark``::
 
@@ -91,6 +98,8 @@ Features
 - Automatically detects the queuing system on your high-performance cluster and submits jobs accordingly.
 - Grabs performance from the output logs and creates a fancy plot.
 - Benchmarks systems on CPUs and/or GPUs.
+- Find the best parameters by scanning different numbers of MPI ranks and OpenMP threads.
+- Run multiple instances of the same simulation on a single node using GROMACS' ``--multidir`` option.
 
 Short usage reference
 =====================
@@ -104,18 +113,18 @@ Benchmark generation
 Assuming you want to benchmark GROMACS version 2018.3 and your TPR file is
 called ``protein.tpr``, run the following command::
 
-  mdbenchmark generate --name protein --module gromacs/2018.3
+    mdbenchmark generate --name protein --module gromacs/2018.3
 
 To run benchmarks on GPUs simply add the ``--gpu`` flag::
 
-  mdbenchmark generate --name protein --module gromacs/2018.3 --gpu
+    mdbenchmark generate --name protein --module gromacs/2018.3 --gpu
 
 Benchmark submission
 --------------------
 
 After you generated your benchmarks, you can submit them at once::
 
-  mdbenchmark submit
+    mdbenchmark submit
 
 Benchmark analysis
 ------------------
@@ -123,11 +132,21 @@ Benchmark analysis
 As soon as the benchmarks have been submitted you can run the analysis via
 ``mdbenchmark analyze``. Systems that have not finished yet will be marked with a question mark (``?``). You can save the performance results to a CSV file and subsequently create a plot from the data::
 
-    # Print performance results to console and save them to a file called results.csv 
+    # Print performance results to console and save them to a file called results.csv
     mdbenchmark analyze --save-csv results.csv
-    
+
     # Create a plot from the results present in the file results.csv
     mdbenchmark plot --csv results.csv
+
+Literature
+==========
+
+Please cite the latest MDBenchmark publication if you use the tool to benchmark
+your simulations. This will help raise awareness of benchmarking and help people
+improve their simulation performance, as well as reduce overall resource
+wastage.
+
+M\. Gecht, M. Siggel, M. Linke, G. Hummer, J. Köfinger MDBenchmark: A toolkit to optimize the performance of molecular dynamics simulations. J. Chem. Phys. 153, 144105 (2020); https://doi.org/10.1063/5.0019045
 
 Contributing
 ============

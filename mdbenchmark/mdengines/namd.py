@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -18,11 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
 import os
-import re
-from glob import glob
 from shutil import copyfile
-
-import numpy as np
 
 from mdbenchmark import console
 
@@ -30,7 +26,10 @@ NAME = "namd"
 
 
 def prepare_benchmark(name, relative_path, *args, **kwargs):
-    sim = kwargs["sim"]
+    benchmark = kwargs["benchmark"]
+
+    if not kwargs["multidir"] == 1:
+        console.error("The NAMD-engine currently only supports '--multidir 1'")
 
     if name.endswith(".namd"):
         name = name[:-5]
@@ -47,11 +46,15 @@ def prepare_benchmark(name, relative_path, *args, **kwargs):
         analyze_namd_file(fh)
         fh.seek(0)
 
-    copyfile(namd_relpath, sim[namd].relpath)
-    copyfile(psf_relpath, sim[psf].relpath)
-    copyfile(pdb_relpath, sim[pdb].relpath)
+    copyfile(namd_relpath, benchmark[namd].relpath)
+    copyfile(psf_relpath, benchmark[psf].relpath)
+    copyfile(pdb_relpath, benchmark[pdb].relpath)
 
     return name
+
+
+def prepare_multidir(multidir):
+    return None
 
 
 def analyze_namd_file(fh):

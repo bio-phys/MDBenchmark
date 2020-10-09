@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 import os
 import uuid
 
-import datreant as dtr
 import pytest
 
 from mdbenchmark.migrations import mds_to_dtr
@@ -111,13 +110,13 @@ def test_convert_to_datreant(create_sim_files):
 
 
 def test_migrate_to_datreant(tmpdir, capsys, create_sim_files):
-    directory, files = create_sim_files
+    directory, _ = create_sim_files
 
     with tmpdir.as_cwd():
         assert mds_to_dtr.migrate_to_datreant(".") is None
 
     mds_to_dtr.migrate_to_datreant(str(directory))
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
 
     output = (
         "Converting old benchmark metadata to new format!\n"

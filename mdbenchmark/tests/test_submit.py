@@ -2,7 +2,7 @@
 # vim: tabstop=4 expandtab shiftwidth=4 softtabstop=4 fileencoding=utf-8
 #
 # MDBenchmark
-# Copyright (c) 2017-2018 The MDBenchmark development team and contributors
+# Copyright (c) 2017-2020 The MDBenchmark development team and contributors
 # (see the file AUTHORS for the full list of names)
 #
 # MDBenchmark is free software: you can redistribute it and/or modify
@@ -23,10 +23,9 @@ import pytest
 
 from mdbenchmark import cli
 from mdbenchmark.cli.submit import get_batch_command
-from mdbenchmark.ext.click_test import cli_runner
 from mdbenchmark.mdengines import gromacs
-from mdbenchmark.testing import data
-from mdbenchmark.utils import DataFrameFromBundle, PrintDataFrame
+from mdbenchmark.utils import map_columns, print_dataframe
+from mdbenchmark.versions import Version2Categories
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -42,7 +41,7 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
     )
     with pytest.raises(SystemExit):
         get_batch_command()
-        out, err = capsys.readouterr()
+        out, _ = capsys.readouterr()
         assert out == output
 
     # Test non-fail state
@@ -53,7 +52,7 @@ def test_get_batch_command(capsys, monkeypatch, tmpdir):
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
 def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
     """Test that we cannot submit a benchmark system that was already submitted,
-       unless we force it.
+    unless we force it.
     """
     with tmpdir.as_cwd():
         # Test that we get an error if we try to point the submit function to
@@ -69,7 +68,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
             ["submit", "--directory={}".format(data["analyze-files-gromacs"]), "--yes"],
         )
         df = pd.read_csv(data["analyze-files-gromacs-consolidated.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
+        s = print_dataframe(df, False)
 
         output = "ERROR All generated benchmarks were already started once. You can force a restart with --force.\n"
 
@@ -112,6 +111,7 @@ def test_submit_resubmit(cli_runner, monkeypatch, tmpdir, data):
 
 def test_submit_test_prompt_no(cli_runner, tmpdir, data):
     """Test whether prompt answer no works."""
+    benchmark_version = Version2Categories()
     with tmpdir.as_cwd():
         result = cli_runner.invoke(
             cli,
@@ -122,18 +122,19 @@ def test_submit_test_prompt_no(cli_runner, tmpdir, data):
             input="n\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
-
-        output = (
-            "Benchmark Summary:\n"
-            + s
-            + "\nThe above benchmarks will be submitted. Continue? [y/N]: n\n"
-            + "ERROR Exiting. No benchmarks submitted.\n"
+        df = pd.read_csv(data["gromacs/test_prompt.csv"], index_col=0)
+        print_dataframe(
+            df,
+            columns=map_columns(
+                map_dict=benchmark_version.category_mapping,
+                columns=benchmark_version.generate_printing[1:],
+            ),
         )
 
         assert result.exit_code == 1
-        assert result.output == output
+        assert (
+            result.output.split("\n")[-2] == "ERROR Exiting. No benchmarks submitted."
+        )
 
 
 @pytest.mark.skip(reason="monkeypatching is a problem. skip for now.")
@@ -162,8 +163,8 @@ def test_submit_test_prompt_yes(cli_runner, tmpdir, data, monkeypatch):
             input="y\n",
         )
 
-        df = pd.read_csv(data["analyze-files-gromacs-prompt.csv"], index_col=0)
-        s = PrintDataFrame(df, False)
+        df = pd.read_csv(data["gromacs/test_prompt.csv"], index_col=0)
+        s = print_dataframe(df, False)
 
         output = (
             "Benchmark Summary:\n"
