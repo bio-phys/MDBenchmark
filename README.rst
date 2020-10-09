@@ -138,6 +138,16 @@ As soon as the benchmarks have been submitted you can run the analysis via
     # Create a plot from the results present in the file results.csv
     mdbenchmark plot --csv results.csv
 
+Literature
+==========
+
+Please cite the latest MDBenchmark publication if you use the tool to benchmark
+your simulations. This will help raise awareness of benchmarking and help people
+improve their simulation performance, as well as reduce overall resource
+wastage.
+
+M. Gecht, M. Siggel, M. Linke, G. Hummer, J. Köfinger MDBenchmark: A toolkit to optimize the performance of molecular dynamics simulations. J. Chem. Phys. 153, 144105 (2020); https://doi.org/10.1063/5.0019045
+
 Contributing
 ============
 
