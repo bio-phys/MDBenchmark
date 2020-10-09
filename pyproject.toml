@@ -2,7 +2,7 @@
 name = "mdbenchmark"
 version = "3.0.0-alpha"
 license = "GPL-3.0"
-authors = ["Max Linke", "Michael Gecht", "Marc Siggel"]
+authors = ["Max Linke", "Michael Gecht", "Marc Siggel", "Sebastian Kehl"]
 description = "Quickly generate, start and analyze benchmarks for your molecular dynamics simulations."
 keywords = ["benchmark", "molecular dynamics", "simulations", "gromacs", "namd"]
 readme = "README.rst"
