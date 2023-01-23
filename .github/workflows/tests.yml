@@ -32,7 +32,7 @@ jobs:
       - name: unit-tests
         run: |
           poetry run pytest -v --cov=mdbenchmark
-      -name: docs
+      - name: docs
         run: |
           cd docs
           poetry run make build
