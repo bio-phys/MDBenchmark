@@ -34,7 +34,7 @@ jobs:
           python -m pip install --upgrade pip poetry
           poetry install --extras docs
       - name: Unit-tests
-        run: poetry run pytest -v --cov=mdbenchmark
+        run: poetry run pytest -v --cov=mdbenchmark --cov-report=xml
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
