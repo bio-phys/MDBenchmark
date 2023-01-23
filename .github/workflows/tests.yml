@@ -20,11 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pip install poetry
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          cache: 'poetry'
       - name: install
         run: |
           python -m pip install --upgrade pip poetry
