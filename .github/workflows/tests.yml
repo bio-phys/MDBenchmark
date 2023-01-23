@@ -17,6 +17,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7", "3.8"]
+    env:
+      PYTHON: ${{ matrix.python-version }}
 
     steps:
       - uses: actions/checkout@v3
@@ -27,14 +29,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
-      - name: install
+      - name: Install mdbenchmark
         run: |
           python -m pip install --upgrade pip poetry
           poetry install --extras docs
-      - name: unit-tests
-        run: |
-          poetry run pytest -v --cov=mdbenchmark
-      - name: docs
+      - name: Unit-tests
+        run: poetry run pytest -v --cov=mdbenchmark
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: PYTHON
+          fail_ci_if_error: true
+      - name: Make docs
         run: |
           cd docs
           poetry run make build
+
