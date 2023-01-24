@@ -30,7 +30,7 @@ flake8:
 	flake8 mdbenchmark/
 
 isort:
-	isort -y .
+	isort .
 
 isort-check:
 	isort --check-only --diff .

@@ -17,7 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with MDBenchmark.  If not, see <http://www.gnu.org/licenses/>.
-from os.path import exists, isfile, join as pjoin
+from os.path import exists, isfile
+from os.path import join as pjoin
 
 import pytest
 
