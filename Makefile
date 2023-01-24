@@ -30,10 +30,10 @@ flake8:
 	flake8 mdbenchmark/
 
 isort:
-	isort -y
+	isort -y .
 
 isort-check:
-	isort --check-only --diff
+	isort --check-only --diff .
 
 lint: reformat-check flake8 isort-check
 
