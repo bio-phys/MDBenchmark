@@ -49,8 +49,7 @@ def test_get_xsteps(size, min_x, plot_cores, xtick_step, xsteps):
 
 
 def test_plot_gpu(cli_runner, tmpdir, data):
-    """Test gpu flage without any host or module.
-    """
+    """Test gpu flage without any host or module."""
     with tmpdir.as_cwd():
 
         output = (
@@ -78,8 +77,7 @@ def test_plot_gpu(cli_runner, tmpdir, data):
 
 @pytest.mark.parametrize("host", ("draco", "hydra"))
 def test_plot_host_only(cli_runner, tmpdir, host, data):
-    """Test plotting function with one given host.
-    """
+    """Test plotting function with one given host."""
     with tmpdir.as_cwd():
 
         output = (
@@ -107,8 +105,7 @@ def test_plot_host_only(cli_runner, tmpdir, host, data):
 
 @pytest.mark.parametrize("module", ("gromacs", "namd", "namd/2.12", "gromacs/2018"))
 def test_plot_module_only(cli_runner, tmpdir, module, data):
-    """Test plotting function with one given engine or module.
-    """
+    """Test plotting function with one given engine or module."""
     with tmpdir.as_cwd():
         if module in ["gromacs", "namd"]:
             output = (
@@ -142,8 +139,7 @@ def test_plot_module_only(cli_runner, tmpdir, module, data):
 
 @pytest.mark.parametrize("output_type", ("png", "pdf"))
 def test_plot_output_type(cli_runner, tmpdir, data, output_type):
-    """check whether output types are constructed correctly.
-    """
+    """check whether output types are constructed correctly."""
     with tmpdir.as_cwd():
 
         output = (
@@ -177,8 +173,7 @@ def test_plot_output_type(cli_runner, tmpdir, data, output_type):
 def test_plot_filter_dataframe_for_plotting_gpu_and_cpu(
     cli_runner, tmpdir, data, gpu, cpu
 ):
-    """ Checks whether the cpu and gpu filtering works properly.
-    """
+    """Checks whether the cpu and gpu filtering works properly."""
     with tmpdir.as_cwd():
 
         input_df = pd.read_csv(data["testcsv.csv"])
@@ -201,8 +196,7 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu(
 def test_plot_filter_dataframe_for_plotting_gpu_and_cpu_fail(
     capsys, cli_runner, tmpdir, data
 ):
-    """ Tests the error when gpu and cpu are set to false.
-    """
+    """Tests the error when gpu and cpu are set to false."""
     with tmpdir.as_cwd():
         input_df = pd.read_csv(data["testcsv.csv"])
 
@@ -223,8 +217,7 @@ def test_plot_filter_dataframe_for_plotting_gpu_and_cpu_fail(
 def test_plot_filter_dataframe_for_plotting_module_name(
     cli_runner, tmpdir, data, module_name
 ):
-    """ Checks whether the module names are filterd correctly in the filtering function.
-    """
+    """Checks whether the module names are filterd correctly in the filtering function."""
     with tmpdir.as_cwd():
 
         expected_df = pd.read_csv(data["testcsv.csv"])
@@ -244,8 +237,7 @@ def test_plot_filter_dataframe_for_plotting_module_name(
 def test_plot_filter_dataframe_for_plotting_host_name(
     cli_runner, tmpdir, data, host_name
 ):
-    """ Checks whether the host names are filtered correctly in the filtering function.
-    """
+    """Checks whether the host names are filtered correctly in the filtering function."""
     with tmpdir.as_cwd():
         expected_df = pd.read_csv(data["testcsv.csv"])
         expected_df = expected_df[expected_df["host"].str.contains(host_name)]
@@ -260,8 +252,7 @@ def test_plot_filter_dataframe_for_plotting_host_name(
 
 
 def test_plot_filter_empty_dataframe_error(cli_runner, capsys, tmpdir, data):
-    """Assert that we exit when given an empty DataFrame through a specific filter combination.
-    """
+    """Assert that we exit when given an empty DataFrame through a specific filter combination."""
     with tmpdir.as_cwd():
         df = pd.read_csv(data["testcsv.csv"])
         df = df[(~df["gpu"]) & (df["host"] == "draco")]

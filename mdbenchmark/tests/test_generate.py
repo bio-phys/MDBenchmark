@@ -120,7 +120,10 @@ def test_generate(cli_runner, module, extensions, tmpdir):
     [("gromacs/2016", ["tpr"]), ("namd/11", ["namd", "pdb", "psf"])],
 )
 def test_generate_with_cpu_gpu(
-    cli_runner, module, extensions, tmpdir,
+    cli_runner,
+    module,
+    extensions,
+    tmpdir,
 ):
     """Test that we can generate benchmarks for CPUs and GPUs at once."""
     with tmpdir.as_cwd():

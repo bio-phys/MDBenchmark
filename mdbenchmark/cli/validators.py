@@ -55,8 +55,7 @@ def validate_module(ctx, param, module=None):
 
 
 def validate_cpu_gpu_flags(cpu, gpu):
-    """Validate that either the CPU or GPU flag is set to True.
-    """
+    """Validate that either the CPU or GPU flag is set to True."""
     if not (cpu or gpu):
         raise click.BadParameter(
             "You must select either CPUs or GPUs to run the benchmarks on.",

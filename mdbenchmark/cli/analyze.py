@@ -32,7 +32,9 @@ def do_analyze(directory, save_csv):
     version = VersionFactory(categories=bundle.categories).version_class
 
     df = parse_bundle(
-        bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
+        bundle,
+        columns=version.analyze_categories,
+        sort_values_by=version.analyze_sort,
     )
 
     # Remove the versions column from the DataFrame
@@ -69,5 +71,6 @@ def do_analyze(directory, save_csv):
 
     # Print the data to the console
     print_dataframe(
-        df, columns=map_columns(version.category_mapping, version.analyze_printing),
+        df,
+        columns=map_columns(version.category_mapping, version.analyze_printing),
     )

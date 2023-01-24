@@ -99,12 +99,24 @@ def test_write_benchmark(engine, gpu, job_name, module, input_name, extensions, 
         )
 
         expected_job_name = "md" if job_name is None else job_name
-        folder_name = "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
-            nodes=nodes, ranks=40, threads=1, ht="woht", nsim=1,
+        folder_name = (
+            "n{nodes:03d}_r{ranks:02d}_t{threads:02d}_{ht}_nsim{nsim:01d}/".format(
+                nodes=nodes,
+                ranks=40,
+                threads=1,
+                ht="woht",
+                nsim=1,
+            )
         )
 
         assert os.path.exists(base_dirname)
-        assert os.path.exists(os.path.join(base_dirname, folder_name, input_name,))
+        assert os.path.exists(
+            os.path.join(
+                base_dirname,
+                folder_name,
+                input_name,
+            )
+        )
 
         with open(os.path.join(base_dirname, folder_name, "bench.job"), "r") as f:
             for line in f:

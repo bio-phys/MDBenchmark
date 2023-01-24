@@ -103,7 +103,9 @@ def test_parse_bundle(data):
     bundle = dtr.discover(data["analyze-files-gromacs"])
     version = VersionFactory(categories=bundle.categories).version_class
     test_output = utils.parse_bundle(
-        bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
+        bundle,
+        columns=version.analyze_categories,
+        sort_values_by=version.analyze_sort,
     )
     expected_output = pd.read_csv(data["analyze-files-gromacs.csv"], index_col=False)
     assert_frame_equal(test_output, expected_output)
@@ -113,7 +115,9 @@ def test_consolidate_dataframe(capsys, data):
     bundle = dtr.discover(data["analyze-files-gromacs"])
     version = VersionFactory(categories=bundle.categories).version_class
     df = utils.parse_bundle(
-        bundle, columns=version.analyze_categories, sort_values_by=version.analyze_sort,
+        bundle,
+        columns=version.analyze_categories,
+        sort_values_by=version.analyze_sort,
     )
     test_output = utils.consolidate_dataframe(
         df, columns=version.consolidate_categories
@@ -122,7 +126,8 @@ def test_consolidate_dataframe(capsys, data):
     print_dataframe(
         test_output[version.generate_printing[1:]],
         columns=map_columns(
-            map_dict=version.category_mapping, columns=version.generate_printing[1:],
+            map_dict=version.category_mapping,
+            columns=version.generate_printing[1:],
         ),
     )
 

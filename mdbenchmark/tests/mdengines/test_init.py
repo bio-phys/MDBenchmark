@@ -134,8 +134,8 @@ def test_normalize_modules(capsys, monkeypatch, tmpdir):
 def test_validation(capsys, monkeypatch, tmpdir):
     """Test that we retrieve the correct module versions.
 
-       Names are retrieved from a given path and the module names and versions
-       are validated.
+    Names are retrieved from a given path and the module names and versions
+    are validated.
     """
     with tmpdir.as_cwd():
         for k, v in DIR_STRUCTURE.items():

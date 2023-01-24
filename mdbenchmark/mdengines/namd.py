@@ -58,8 +58,7 @@ def prepare_multidir(multidir):
 
 
 def analyze_namd_file(fh):
-    """ Check whether the NAMD config file has any relative imports or variables
-    """
+    """Check whether the NAMD config file has any relative imports or variables"""
     lines = fh.readlines()
 
     for line in lines:

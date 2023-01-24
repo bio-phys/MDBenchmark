@@ -39,7 +39,8 @@ def test_analyze_gromacs(cli_runner, tmpdir, capsys, data):
         df = df.replace(np.nan, "?")
         version = Version2Categories()
         print_dataframe(
-            df, columns=map_columns(version.category_mapping, version.analyze_printing),
+            df,
+            columns=map_columns(version.category_mapping, version.analyze_printing),
         )
 
         out, _ = capsys.readouterr()
@@ -63,7 +64,8 @@ def test_analyze_namd(cli_runner, tmpdir, capsys, data):
         df = df.iloc[:, :-1]
         df = df.replace(np.nan, "?")
         print_dataframe(
-            df, columns=map_columns(version.category_mapping, version.analyze_printing),
+            df,
+            columns=map_columns(version.category_mapping, version.analyze_printing),
         )
 
         out, _ = capsys.readouterr()
@@ -74,7 +76,7 @@ def test_analyze_namd(cli_runner, tmpdir, capsys, data):
 
 def test_analyze_with_errors(cli_runner, tmpdir, capsys, data):
     """Test that we warn the user of errors in the output files. Also test that we
-show a question mark instead of a float in the corresponding cell.
+    show a question mark instead of a float in the corresponding cell.
     """
     with tmpdir.as_cwd():
 
@@ -91,7 +93,8 @@ show a question mark instead of a float in the corresponding cell.
         df = df.iloc[:, :-1]
         df = df.replace(np.nan, "?")
         print_dataframe(
-            df, columns=map_columns(version.category_mapping, version.analyze_printing),
+            df,
+            columns=map_columns(version.category_mapping, version.analyze_printing),
         )
 
         out, _ = capsys.readouterr()

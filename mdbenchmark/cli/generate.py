@@ -196,5 +196,6 @@ def do_generate(
 
     # Finish up by telling the user how to submit the benchmarks
     console.info(
-        "Finished! You can submit the jobs with {}.", "mdbenchmark submit",
+        "Finished! You can submit the jobs with {}.",
+        "mdbenchmark submit",
     )
