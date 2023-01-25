@@ -132,7 +132,7 @@ def test_consolidate_dataframe(capsys, data):
     )
 
     expected_output = (
-        "Setting up...\n\n"
+        "Setting up...\nAnalyzing benchmarks\n\n"
         "+----------------+---------+--------------+---------+--------+-----------+-------------+-------------------+\n",
         "| Module         | Nodes   |   Time (min) | GPUs?   | Host   |   # ranks |   # threads |   Hyperthreading? |\n",
         "|----------------+---------+--------------+---------+--------+-----------+-------------+-------------------|\n",

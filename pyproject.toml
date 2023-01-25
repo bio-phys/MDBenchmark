@@ -37,7 +37,7 @@ pandas = ">=0.24"
 matplotlib = ">=2"
 jinja2 = ">=2.10"
 datreant = ">=1.0"
-click = ">=6.7"
+click = ">=8"
 xdg = ">=1"
 tabulate = "^0.8.5"
 

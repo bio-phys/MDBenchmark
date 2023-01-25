@@ -44,7 +44,7 @@ def test_analyze_gromacs(cli_runner, tmpdir, capsys, data):
         )
 
         out, _ = capsys.readouterr()
-        out = "Setting up...\n" + out
+        out = "Setting up...\nAnalyzing benchmarks\n" + out
         assert result.exit_code == 0
         assert result.output == "\n".join(out.split("\n"))
 
@@ -108,6 +108,6 @@ def test_analyze_console_messages(cli_runner, tmpdir):
     with tmpdir.as_cwd():
         # Test error message if the TPR file does not exist
         result = cli_runner.invoke(cli, ["analyze", "--directory=look_here/"])
-        output = "Setting up...\nERROR There is no data for the given path.\n"
+        output = "Setting up...\nAnalyzing benchmarks\nERROR There is no data for the given path.\n"
         assert result.exit_code == 1
         assert result.output == output

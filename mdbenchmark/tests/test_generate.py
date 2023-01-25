@@ -105,6 +105,7 @@ def test_generate(cli_runner, module, extensions, tmpdir):
         start_of_message = "WARNING Cannot locate modules available on this host. Not performing module name validation.\n\n"
         end_of_message = (
             "We will generate 4 benchmarks.\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = start_of_message + "".join(expected_output) + end_of_message
@@ -165,6 +166,7 @@ def test_generate_with_cpu_gpu(
         start_of_message = "WARNING Cannot locate modules available on this host. Not performing module name validation.\n\n"
         end_of_message = (
             "We will generate 8 benchmarks.\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = start_of_message + "".join(expected_output) + end_of_message
@@ -224,6 +226,7 @@ def test_generate_with_validation(cli_runner, module, monkeypatch, extensions, t
 
         end_of_message = (
             "We will generate 4 benchmarks.\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = "".join(expected_output) + end_of_message
@@ -284,6 +287,7 @@ def test_generate_skip_validation(cli_runner, module, extensions, monkeypatch, t
 
         end_of_message = (
             "We will generate 4 benchmarks.\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = (
@@ -344,8 +348,8 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
             cli, ["generate", "--module=gromacs/2016", "--host=draco", "--yes"]
         )
         output = (
-            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
-            '"-n" / "--name": Please specifiy the name of your input files.'
+            "Usage: cli generate [OPTIONS]\nTry 'cli generate --help' for help.\n\n"
+            'Error: Invalid value for "-n" / "--name": Please specifiy the name of your input files.'
         )
 
         # Test error message if the TPR file does not exist
@@ -377,8 +381,8 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
             ],
         )
         output = (
-            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
-            '"--min-nodes": The minimal number of nodes needs to be smaller '
+            "Usage: cli generate [OPTIONS]\nTry 'cli generate --help' for help.\n\n"
+            'Error: Invalid value for "--min-nodes": The minimal number of nodes needs to be smaller '
             "than the maximal number.\n"
         )
         assert result.exit_code == 2
@@ -410,8 +414,8 @@ def test_generate_console_messages(cli_runner, monkeypatch, tmpdir):
             cli, ["generate", "--host=draco", "--name=protein", "--yes"]
         )
         output = (
-            "Usage: cli generate [OPTIONS]\n\nError: Invalid value for "
-            '"-m" / "--module": Please specify which MD engine module '
+            "Usage: cli generate [OPTIONS]\nTry 'cli generate --help' for help.\n\n"
+            'Error: Invalid value for "-m" / "--module": Please specify which MD engine module '
             "to use for the benchmarks.\n"
         )
         assert result.exit_code == 2
@@ -449,6 +453,7 @@ def test_generate_namd_experimental_warning(cli_runner, monkeypatch, tmpdir):
 
         output2 = (
             "We will generate 5 benchmarks.\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = output1 + "".join(expected_output) + output2
@@ -576,6 +581,7 @@ def test_generate_prompt_yes(cli_runner, tmpdir):
 
         output2 = (
             "We will generate 4 benchmarks. Continue? [y/N]: y\n"
+            "Generating benchmarks\n"
             "Finished! You can submit the jobs with mdbenchmark submit.\n"
         )
         output = output1 + "".join(expected_output) + output2

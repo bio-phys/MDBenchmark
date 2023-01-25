@@ -1915,4 +1915,4 @@ docs = ["Sphinx", "sphinx-autobuild", "sphinx-click"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7"
-content-hash = "46f89349d4f4ca4aa04ac76ac531e6fb61832187df4db51846bc6def3bd94287"
+content-hash = "8d88f02e961c6dcb5898bf5a6c32a8f1747bedc43d295db2dfcfc4eb213b9392"
