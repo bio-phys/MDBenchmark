@@ -1,0 +1,53 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8"]
+    env:
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pip install poetry
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+      - name: Install mdbenchmark
+        run: poetry install --extras docs
+      - name: Check reformat
+        run: poetry run make reformat-check
+      - name: Check style
+        run: poetry run make flake8
+      - name: Check sort
+        run: poetry run make isort-check
+      - name: Check reStructuredText
+        run: poetry run make rst-lint
+      - name: Unit-tests
+        run: poetry run pytest -v --cov=mdbenchmark --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: PYTHON
+          fail_ci_if_error: true
+      - name: Make docs
+        run: |
+          cd docs
+          poetry run make build
+
