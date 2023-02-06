@@ -1,0 +1,1 @@
+Pin markupsafe to 2.0.1 to fix incompatibility with jinja2 ^2.10. (PR 184)
