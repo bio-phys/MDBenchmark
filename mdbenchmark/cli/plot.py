@@ -150,13 +150,15 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
 
 
 def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
+    gpu_col = "use_gpu" if "use_gpu" in df.columns else "gpu"
+
     if gpu and cpu:
         console.info("Plotting GPU and CPU data.")
     elif gpu and not cpu:
-        df = df[df.gpu]
+        df = df[df[gpu_col]]
         console.info("Plotting GPU data only.")
     elif cpu and not gpu:
-        df = df[~df.gpu]
+        df = df[~df[gpu_col]]
         console.info("Plotting CPU data only.")
     elif not cpu and not gpu:
         console.error("CPU and GPU not set. Nothing to plot. Exiting.")
