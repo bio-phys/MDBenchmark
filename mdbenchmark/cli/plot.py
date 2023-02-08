@@ -62,7 +62,7 @@ def plot_projection(df, selection, color, performance_column, ax=None):
     xs = df[selection].values
     ys = df[performance_column].values
     xs = np.concatenate((np.array([0]), xs))
-    yp = ys[0] * xs/xs[1]
+    yp = ys[0] * xs / xs[1]
     ax.plot(xs, yp, ls="--", color=color, alpha=0.5)
 
     return ax
