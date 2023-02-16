@@ -26,7 +26,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from mdbenchmark import console
-from mdbenchmark.math import calc_slope_intercept, lin_func
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import generate_output_name
 from mdbenchmark.versions import VersionFactory
@@ -60,19 +59,11 @@ def get_xsteps(size, min_x, plot_cores, xtick_step):
 
 
 def plot_projection(df, selection, color, performance_column, ax=None):
-    # Grab x and y values
-    xs = df[selection].iloc[0:2].values.tolist()
-    ys = df[performance_column].iloc[0:2].values.tolist()
-
-    # Calculate slope and intercept
-    p1, p2 = list(zip(xs, ys))
-    slope, intercept = calc_slope_intercept(p1, p2)
-
-    # Plot the projection
-    xstep = np.diff(xs)
-    xmax = (df[selection].iloc[-1] + xstep).tolist()
-    xs = np.array([0] + xs + xmax)
-    ax.plot(xs, lin_func(xs, slope, intercept), ls="--", color=color, alpha=0.5)
+    xs = df[selection].values
+    ys = df[performance_column].values
+    xs = np.concatenate((np.array([0]), xs))
+    yp = ys[0] * xs / xs[1]
+    ax.plot(xs, yp, ls="--", color=color, alpha=0.5)
 
     return ax
 
