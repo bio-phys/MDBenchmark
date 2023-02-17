@@ -282,7 +282,6 @@ def do_plot(
 
     fig.savefig(
         output_name,
-        type=output_format,
         bbox_extra_artists=(legend,),
         bbox_inches="tight",
         dpi=dpi,
