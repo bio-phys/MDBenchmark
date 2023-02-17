@@ -281,9 +281,6 @@ def do_plot(
         output_name = "{}.{}".format(output_name, output_format)
 
     fig.savefig(
-        output_name,
-        bbox_extra_artists=(legend,),
-        bbox_inches="tight",
-        dpi=dpi,
+        output_name, bbox_extra_artists=(legend,), bbox_inches="tight", dpi=dpi,
     )
     console.info("The plot was saved as '{}'.", output_name)
