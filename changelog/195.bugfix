@@ -1,0 +1,1 @@
+Don't use deprecated kwarg 'type' in matplotlib.pyplot.savefig. (PR 195)
