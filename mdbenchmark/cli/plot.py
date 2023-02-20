@@ -26,7 +26,6 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from mdbenchmark import console
-from mdbenchmark.math import calc_slope_intercept, lin_func
 from mdbenchmark.mdengines import SUPPORTED_ENGINES
 from mdbenchmark.utils import generate_output_name
 from mdbenchmark.versions import VersionFactory
@@ -60,19 +59,11 @@ def get_xsteps(size, min_x, plot_cores, xtick_step):
 
 
 def plot_projection(df, selection, color, performance_column, ax=None):
-    # Grab x and y values
-    xs = df[selection].iloc[0:2].values.tolist()
-    ys = df[performance_column].iloc[0:2].values.tolist()
-
-    # Calculate slope and intercept
-    p1, p2 = list(zip(xs, ys))
-    slope, intercept = calc_slope_intercept(p1, p2)
-
-    # Plot the projection
-    xstep = np.diff(xs)
-    xmax = (df[selection].iloc[-1] + xstep).tolist()
-    xs = np.array([0] + xs + xmax)
-    ax.plot(xs, lin_func(xs, slope, intercept), ls="--", color=color, alpha=0.5)
+    xs = df[selection].values
+    ys = df[performance_column].values
+    xs = np.concatenate((np.array([0]), xs))
+    yp = ys[0] * xs / xs[1]
+    ax.plot(xs, yp, ls="--", color=color, alpha=0.5)
 
     return ax
 
@@ -150,13 +141,15 @@ def plot_over_group(df, plot_cores, fit, performance_column, ax=None):
 
 
 def filter_dataframe_for_plotting(df, host_name, module_name, gpu, cpu):
+    gpu_col = "use_gpu" if "use_gpu" in df.columns else "gpu"
+
     if gpu and cpu:
         console.info("Plotting GPU and CPU data.")
     elif gpu and not cpu:
-        df = df[df.gpu]
+        df = df[df[gpu_col]]
         console.info("Plotting GPU data only.")
     elif cpu and not gpu:
-        df = df[~df.gpu]
+        df = df[~df[gpu_col]]
         console.info("Plotting CPU data only.")
     elif not cpu and not gpu:
         console.error("CPU and GPU not set. Nothing to plot. Exiting.")
@@ -288,10 +281,6 @@ def do_plot(
         output_name = "{}.{}".format(output_name, output_format)
 
     fig.savefig(
-        output_name,
-        type=output_format,
-        bbox_extra_artists=(legend,),
-        bbox_inches="tight",
-        dpi=dpi,
+        output_name, bbox_extra_artists=(legend,), bbox_inches="tight", dpi=dpi,
     )
     console.info("The plot was saved as '{}'.", output_name)

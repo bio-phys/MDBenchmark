@@ -1,0 +1,88 @@
+name: tests
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8"]
+    env:
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pip install poetry
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+      - name: Install mdbenchmark
+        run: poetry install --extras docs
+      - name: Check reformat
+        run: poetry run make reformat-check
+      - name: Check style
+        run: poetry run make flake8
+      - name: Check sort
+        run: poetry run make isort-check
+      - name: Check reStructuredText
+        run: poetry run make rst-lint
+      - name: Unit-tests
+        run: poetry run pytest -v --cov=mdbenchmark --cov-report=xml
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: PYTHON
+          fail_ci_if_error: true
+      - name: Build distribution
+        run: poetry build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dists.${{ matrix.python-version }}
+          path: dist/
+      - name: Make docs
+        run: |
+          cd docs
+          poetry run make build
+
+  test-build:
+
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8"]
+
+    steps:
+      - name: Enable pip-caching
+        run: touch requirements.txt
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip' #doesn't seem to work
+      - name: Update pip
+        run: pip install --upgrade pip
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dists.${{ matrix.python-version }}
+          path: dist
+      - name: Install mdbenchmark
+        run: pip install dist/*.tar.gz
+      - name: Check run
+        run: mdbenchmark
+

@@ -292,7 +292,7 @@ def generate(
 )
 @click.option(
     "--fit/--no-fit",
-    help="Fit a line through the first two data points, indicating linear scaling.",
+    help="Fit a line through the first data point, indicating optimal scaling.",
     show_default=True,
     default=True,
 )

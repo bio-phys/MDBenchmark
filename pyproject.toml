@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mdbenchmark"
-version = "3.0.1"
+version = "3.0.2"
 license = "GPL-3.0"
 authors = ["Max Linke", "Michael Gecht", "Marc Siggel", "Sebastian Kehl"]
 description = "Quickly generate, start and analyze benchmarks for your molecular dynamics simulations."
@@ -38,6 +38,7 @@ pandas = ">=0.24"
 matplotlib = ">=2"
 python-levenshtein = "^0.12.0"
 jinja2 = "^2.10"
+markupsafe = "==2.0.1"
 datreant = "^1.0"
 click = ">=6.7"
 xdg = { version = "^1" }

@@ -75,10 +75,10 @@ To change the x-axis label from number of nodes to number of cores you can run::
 
    mdbenchmark plot --plot-cores
 
-Hiding the linear fit
----------------------
+Hiding the optimal scaling
+--------------------------
 
-To create a plot without any linear fit, use the ``--no-fit`` option::
+To create a plot without any optimal scaling graph, use the ``--no-fit`` option::
 
   mdbenchmark plot --no-fit
 
