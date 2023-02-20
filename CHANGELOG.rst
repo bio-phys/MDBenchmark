@@ -1,3 +1,22 @@
+3.0.2 (2023-02-20)
+==================
+
+Features
+--------
+
+- Moved from travis to github-actions (PR 181) (`#181 <https://github.com/bio-phys/MDBenchmark/issues/181>`_)
+- Add test to CI to verify distribution with pip. (PR 182) (`#182 <https://github.com/bio-phys/MDBenchmark/issues/182>`_)
+- Make scaling projection show optimal scaling. (PR 193) (`#193 <https://github.com/bio-phys/MDBenchmark/issues/193>`_)
+
+
+Bugfixes
+--------
+
+- Pin markupsafe to 2.0.1 to fix incompatibility with jinja2 ^2.10. (PR 184) (`#184 <https://github.com/bio-phys/MDBenchmark/issues/184>`_)
+- Fix bug when plotting cpu-/gpu-data only with 'version3-categories'. (PR 192) (`#192 <https://github.com/bio-phys/MDBenchmark/issues/192>`_)
+- Don't use deprecated kwarg 'type' in matplotlib.pyplot.savefig. (PR 195) (`#195 <https://github.com/bio-phys/MDBenchmark/issues/195>`_)
+
+
 3.0.1 (2020-10-09)
 ==================
 

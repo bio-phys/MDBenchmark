@@ -1,1 +1,0 @@
-Fix bug when plotting cpu-/gpu-data only with 'version3-categories'. (PR 192)
