@@ -15,8 +15,8 @@ MDBenchmark: Benchmark molecular dynamics simulations
 .. image:: https://img.shields.io/pypi/l/mdbenchmark.svg
     :target: https://pypi.python.org/pypi/mdbenchmark
 
-.. image:: https://travis-ci.org/bio-phys/MDBenchmark.svg?branch=develop
-    :target: https://travis-ci.org/bio-phys/MDBenchmark
+.. image:: https://github.com/bio-phys/MDBenchmark/actions/workflows/tests.yml/badge.svg?branch=develop
+    :target: https://github.com/bio-phys/MDBenchmark/actions/workflows/tests.yml
 
 .. image:: https://codecov.io/gh/bio-phys/MDBenchmark/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/bio-phys/MDBenchmark
