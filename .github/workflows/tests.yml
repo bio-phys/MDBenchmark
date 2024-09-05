@@ -50,7 +50,7 @@ jobs:
       - name: Build distribution
         run: poetry build
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dists.${{ matrix.python-version }}
           path: dist/
