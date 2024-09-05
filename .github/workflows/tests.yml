@@ -45,6 +45,8 @@ jobs:
         with:
           env_vars: PYTHON
           fail_ci_if_error: true
+          env:
+            CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       - name: Build distribution
         run: poetry build
       - name: Upload build artifacts
